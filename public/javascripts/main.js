@@ -1,1 +1,1 @@
-angular.module('validationApp', ['ui.bootstrap', 'search']);
+angular.module('validationApp', ['ui.bootstrap', 'ngSanitize', 'search']);
