@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'Anonymous Pro';
+  font-weight: 400;
+  font-style: normal;
+  src: url('/assets/fonts/Anonymous-Pro-regular/Anonymous-Pro-regular.eot');
+  src: url('/assets/fonts/Anonymous-Pro-regular/Anonymous-Pro-regular.eot?#iefix') format('embedded-opentype'),
+       local('Anonymous Pro'),
+       local('Anonymous-Pro-regular'),
+       url('/assets/fonts/Anonymous-Pro-regular/Anonymous-Pro-regular.woff2') format('woff2'),
+       url('/assets/fonts/Anonymous-Pro-regular/Anonymous-Pro-regular.woff') format('woff'),
+       url('/assets/fonts/Anonymous-Pro-regular/Anonymous-Pro-regular.ttf') format('truetype'),
+       url('/assets/fonts/Anonymous-Pro-regular/Anonymous-Pro-regular.svg#AnonymousPro') format('svg');
+}
+

@@ -3,20 +3,34 @@ angular.module('search', [])
 	function($scope, $timeout, $interval, $http, $window, $sce, $cacheFactory) {
 		var cache = $cacheFactory('searchCache');
 	
+		var validViewTypes = ["list", "document_detail", "patient_detail"];
+		$scope.activeView = "list"; 
 		$scope.documentsSize = 0;
 		$scope.currentDocuments = [];
 		$scope.subjectFacets = {};
 		$scope.subjects = [];
 		$scope.currentPage = 1;
 		$scope.maxSize = 5;
-		$scope.rows = 10;
+		$scope.rows = 25;
 		$scope.searched = false;
 		$scope.activeDocument = {};
 		
 		$scope.searchInput = "";
 		
+		$scope.backView = function(type) {
+			if (validViewTypes.indexOf(type) >= 0) {
+				$scope.activeView = type;
+			} else {
+				$scope.activeView = "list";
+			}
+		};
+		
+		$scope.navigateDocs = function(direction) {
+			
+		};
+		
 		$scope.showDoc = function(document) {
-			$('a[href="#reports"]').trigger('click');
+			$scope.activeView = "document_detail";
 			$scope.activeDocument = document;
 		};
 		
