@@ -10,10 +10,11 @@ angular.module('search', [])
 		$scope.subjectFacets = {};
 		$scope.subjects = [];
 		$scope.currentPage = 1;
-		$scope.maxSize = 5;
-		$scope.rows = 25;
 		$scope.searched = false;
 		$scope.activeDocument = {};
+		
+		$scope.maxSize = 5;
+		$scope.rows = 25;
 		
 		$scope.searchInput = "";
 		
@@ -26,7 +27,11 @@ angular.module('search', [])
 		};
 		
 		$scope.navigateDocs = function(direction) {
-			
+			var curIndex = $scope.activeDocument.index;
+			var nextIndex = (direction === 'back') ? curIndex - 1 : curIndex + 1;
+			$scope.activeDocument = $scope.currentDocuments.filter(function(v) {
+				return v.index === nextIndex;
+			})[0];
 		};
 		
 		$scope.showDoc = function(document) {
@@ -34,17 +39,23 @@ angular.module('search', [])
 			$scope.activeDocument = document;
 		};
 		
+		$scope.showSubject = function(subjectId) {
+			
+		};
+		
 		$scope.doSearch = function(paging) {
 			$scope.searched = true;
 			
+			// subjects get reloaded automatically
+			$scope.subjectFacets = {};
+			$scope.subjects = [];
+			
 			if (!paging) {
-				$('a[href="#results"]').trigger('click');
 				$scope.documentsSize = 0;
 				$scope.currentDocuments = [];
-				$scope.subjectFacets = {};
-				$scope.subjects = [];
 				$scope.currentPage = 1;
 				$scope.activeDocument = {};
+				$('#btn-search').button('loading');
 			}
 			
 			var searchText = $scope.searchInput.trim();
@@ -57,6 +68,7 @@ angular.module('search', [])
 			
 			$http.get("/searchtext/" + searchText + "/" + curStart + "/" + curRows)
 			.then(function(response) {
+				$('#btn-search').button('reset');
 				if (response && response.data) {
 					if (response.data.documentsSize) {
 						$scope.documentsSize = response.data.documentsSize;
@@ -69,15 +81,27 @@ angular.module('search', [])
 								d.page = $scope.currentPage;
 								d.reportDate = new Date(d.reportDate).toISOString().slice(0, 10);
 								d.reportText = d.reportText.trim();
+								if (i === 0) {
+									$scope.activeDocument = d;
+								}
 								return d;
 							});
 					}
 					if (response.data.subjectFacets) {
 						$scope.subjectFacets = response.data.subjectFacets;
-						$scope.subjects = Object.keys(response.data.subjectFacets);
+						for (var key in response.data.subjectFacets) {
+							$scope.subjects.push(
+								{
+									'id':key,
+									'count':+response.data.subjectFacets[key]
+								}
+							);
+							
+						}
 					}
 				}
 			},function(response) {
+				$('#btn-search').button('reset');
 				console.log("error getting back documents")
 			});
 		};
@@ -90,4 +114,4 @@ angular.module('search', [])
 		}
 	  };
 
-	}]);
+}]);

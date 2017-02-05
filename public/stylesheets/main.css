@@ -2,7 +2,7 @@
   display: none !important;
 }
 
-pre {
+pre.activeDocument {
  font-size: 16px; 
  line-height: 1.618em; 
  white-space: pre-wrap;       /* css-3 */
