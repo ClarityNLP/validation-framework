@@ -14,6 +14,10 @@ class SolrDAO @Inject() (configuration: play.api.Configuration)  {
   
   val subjectField = configuration.underlying.getString("solr.subject_field");
   
+  def querySubjectDocuments(subjectId:String) = {
+    query(subjectField + ":" + subjectId, 1000, 0)
+  }
+  
   def query(q:String, rows:Integer, start:Integer) = {
     val query = new SolrQuery()
     query.setQuery(q)

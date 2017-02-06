@@ -32,8 +32,14 @@ class SearchController @Inject() (solrDAO: dao.SolrDAO) extends Controller {
     Ok(views.html.index.render("Search", "Begin exploring patient and document level clinical data."))
    }
    
-   def text(query:String, start:Int, rows:Int) = Action {
+   def queryText(query:String, start:Int, rows:Int) = Action {
      val res = solrDAO.query(query, rows, start)
      Ok(Json.toJson(res))
    }
+   
+   def getSubjectDocuments(subjectId:String) = Action {
+     val res = solrDAO.querySubjectDocuments(subjectId)
+     Ok(Json.toJson(res))
+   }
+   
 }

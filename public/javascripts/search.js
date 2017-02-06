@@ -3,7 +3,7 @@ angular.module('search', [])
 	function($scope, $timeout, $interval, $http, $window, $sce, $cacheFactory) {
 		var cache = $cacheFactory('searchCache');
 	
-		var validViewTypes = ["list", "document_detail", "patient_detail"];
+		var validViewTypes = ["list", "document_detail", "subject_detail"];
 		$scope.activeView = "list"; 
 		$scope.documentsSize = 0;
 		$scope.currentDocuments = [];
@@ -12,11 +12,26 @@ angular.module('search', [])
 		$scope.currentPage = 1;
 		$scope.searched = false;
 		$scope.activeDocument = {};
+		$scope.activeSubject = {};
 		
 		$scope.maxSize = 5;
 		$scope.rows = 25;
 		
 		$scope.searchInput = "";
+		
+		$scope.docFunction = function(d, i) {
+			d.snippet = $sce.trustAsHtml(d.snippet);
+			d.index = i;
+			d.page = $scope.currentPage;
+			d.rawDate = new Date(d.reportDate);
+			d.date = d.rawDate.toISOString().slice(0, 10);
+			d.reportText = d.reportText.trim();
+			if (i === 0) {
+				$scope.activeDocument = d;
+			}
+			d.type = 'document';
+			return d;
+		};
 		
 		$scope.backView = function(type) {
 			if (validViewTypes.indexOf(type) >= 0) {
@@ -34,13 +49,33 @@ angular.module('search', [])
 			})[0];
 		};
 		
+		$scope.navigateSubjects = function(direction) {
+			
+		};
+		
 		$scope.showDoc = function(document) {
 			$scope.activeView = "document_detail";
 			$scope.activeDocument = document;
 		};
 		
-		$scope.showSubject = function(subjectId) {
-			
+		$scope.showSubject = function(subjectId, paging) {
+			$scope.activeView = "subject_detail";
+			$scope.activeSubject = {
+				id : subjectId,
+				items : []
+			};
+			// TODO query structured data
+			$http.get("/subjectdocuments/" + subjectId)
+			.then(function(response) {
+				if (response && response.data) {
+					if (response.data.documents) {
+						$scope.activeSubject.items = response.data.documents
+							.map($scope.docFunction);
+					}
+				}
+			}, function(error) {
+				console.log(error);
+			});
 		};
 		
 		$scope.doSearch = function(paging) {
@@ -75,17 +110,7 @@ angular.module('search', [])
 					}
 					if (response.data.documents) {
 						$scope.currentDocuments = response.data.documents
-							.map(function(d, i) {
-								d.snippet = $sce.trustAsHtml(d.snippet);
-								d.index = i;
-								d.page = $scope.currentPage;
-								d.reportDate = new Date(d.reportDate).toISOString().slice(0, 10);
-								d.reportText = d.reportText.trim();
-								if (i === 0) {
-									$scope.activeDocument = d;
-								}
-								return d;
-							});
+							.map($scope.docFunction);
 					}
 					if (response.data.subjectFacets) {
 						$scope.subjectFacets = response.data.subjectFacets;

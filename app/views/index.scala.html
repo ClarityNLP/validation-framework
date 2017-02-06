@@ -21,29 +21,10 @@
 	  			<h5>
 	  			Filters:
 	  		</div>
-	  		<div class="col-xs-12 col-md-10" ng-show="!searched" style="padding-top:20px">
-	  			<div class="jumbotron">
-	  				<h3>What you can search:</h3>
-	  				<ul>
-	  					<li><b>Terms:</b> <pre>seizure</pre> <pre>headache</pre></li>
-	  					<li><b>Phrases:</b> <pre>"high cholesterol"</pre><pre>"left lower back pain"</pre></li>
-	  					<li><b>Wildcards:</b> <pre>epilep*</pre> <pre>in*able</pre>
-	  					<li><b>Fuzzy Searches</b> (finds similarly spelled words): <pre>lobe~</pre>
-	  						To find common misspellings try:
-	  						<pre>emphysema~0.7</pre>
-  						</li>
-  						<li><b>Proximity Searches</b> (find words that are a similar distance away):
-  							<pre>"uncontrolled seizure"~5</pre>
-  						</li>
-  						<li><b>Boolean Operators:</b>
-  							<pre>tumor OR polyp</pre>
-  							<pre>"breast cancer" AND screening</pre>
-  							<pre>diabetes AND (hypertension OR "high blood pressure" OR hbp)</pre>
-  						</li>
-	  				</ul>
-	  			</div>
+	  		<div class="col-xs-12 col-md-10" ng-show="!searched || currentDocuments.length === 0" style="padding-top:20px">
+				<search-help />
 	  		</div>
-	  		<div class="col-xs-12 col-md-10" ng-show="searched">
+	  		<div class="col-xs-12 col-md-10" ng-show="searched && currentDocuments.length > 0">
 		  			  <ul id="resultTabs" class="nav nav-tabs" role="tablist" >
 					    <li role="presentation" class="active"><a href="#reports" aria-controls="reports" role="tab" data-toggle="tab">Reports (<b>{{documentsSize}}</b>)</a></li>
 					    <li role="presentation"><a href="#subjects" aria-controls="subjects" role="tab" data-toggle="tab">Patients (<b>{{subjects.length}}</b>)</a></li>
@@ -64,7 +45,7 @@
 					                <tbody>
 					                  <tr ng-repeat="doc in currentDocuments">
 					                   	<td style="vertical-align:top"><span class="h5"><a ng-click="showDoc(doc)" style="cursor:pointer">{{doc.reportId}}</a></span></td>
-					                   	<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(doc.subject)" style="cursor:pointer">{{doc.subject}}</a></span></td>
+					                   	<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(doc.subject, false)" style="cursor:pointer">{{doc.subject}}</a></span></td>
 					                   	<td style="vertical-align:top"><span>{{doc.reportDate}}</span></td>
 					                   	<td style="vertical-align:top"><span class="h5"></span></td>
 					                   	<td style="vertical-align:top"><span class="h5"></span></td>
@@ -94,7 +75,7 @@
 			                </thead>
 			                <tbody>
 			                  <tr ng-repeat="s in subjects | orderBy:'-count'">
-			                   	<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(s.id)" style="cursor:pointer">{{s.id}}</a></span></td>
+			                   	<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(s.id, false)" style="cursor:pointer">{{s.id}}</a></span></td>
 			                   	<td style="vertical-align:top"><span class="h5"></span></td>
 			                   	<td style="vertical-align:top"><span class="h5"></span></td>
 			                   	<td style="vertical-align:top"><span class="h5">{{s.count}}</td>
@@ -118,29 +99,33 @@
   	</div>
   	  <div class="row">
 	  	<div class="col-xs-12">
-	  		<div class="row">
-		  		<div class="col-xs-9">
-		  			<h4>Document:<small> {{activeDocument.reportId}}</small></h4>
-		  		</div>
-		  		<div class="col-xs-3">
-		  			<h4 style="float:right">Date:<small> {{activeDocument.reportDate}}</small></h4>
-		  		</div>
+	  		<div align="center">
+	  			<h3>#{{activeDocument.subject}}</h3>
 	  		</div>
-	  		<div class="row">
-		  		<div class="col-xs-12">
-		  			<h4>Subject:<small> {{activeDocument.subject}}</small></h4>
-		  		</div>
-	  		</div>
-	  		<pre class="activeDocument">{{activeDocument.reportText}}</pre>
+			<document-view doc="activeDocument" />
 	  	</div>
 	  </div>
   </div>
 
-  <div class="container" ng-show="activeView === 'patient_detail'">
-    <div class="row">
-  		<div class="col-xs-12">
-  			<button class="btn btn-default" ng-click="backView('list')">&laquo; Back to List</button>
+  <div class="container" ng-show="activeView === 'subject_detail'">
+  	<div class="row">
+  		<div class="col-xs-4">
+  			<button class="btn btn-primary" ng-click="backView('list')">&laquo; Back to List</button>
   		</div>
+  		<div class="col-xs-8">
+  			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('forward')">Next &raquo;</button>
+  			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('back')">&laquo; Previous</button>
+  		</div>
+  	</div>
+  	<div class="row">
+  		<div class="col-xs-12">
+	  		<div align="center">
+	  			<h3>#{{activeSubject.id}}</h3>
+	  		</div>
+	  		<div ng-repeat="item in activeSubject.items | orderBy:rawDate">
+				<document-view ng-if="item.type === 'document'" doc="item" />
+			</div>
+	  	</div>
   	</div>
   </div>
 }
