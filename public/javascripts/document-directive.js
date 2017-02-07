@@ -1,6 +1,13 @@
-angular.module('search-help-directive', [])
-.directive('searchHelp', function() {
+angular.module('document-directive', [])
+.directive('documentView', function() {
   return {
-    templateUrl: 'assets/templates/search-help.html'
+    restrict: 'E',
+    scope: {
+      documentInfo: '=doc',
+      viewType: '=viewtype'
+    },
+    link : function($scope) {
+    },
+    templateUrl: 'assets/templates/document.html'
   };
 });

@@ -2,7 +2,7 @@
   display: none !important;
 }
 
-pre.activeDocument {
+pre {
  font-size: 16px; 
  line-height: 1.618em; 
  white-space: pre-wrap;       /* css-3 */
@@ -12,5 +12,4 @@ pre.activeDocument {
  word-wrap: break-word;       /* Internet Explorer 5.5+ */
  font-family: 'droid_sans_monoregular','Anonymous Pro', monospace;
  text-indent: 0px;
- margin-top: 15px;
 }

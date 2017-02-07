@@ -1,11 +1,14 @@
 package dao
 
-import org.apache.solr.client.solrj.SolrQuery
-import org.apache.solr.client.solrj.impl.HttpSolrClient
+import java.util.Date
+
 import scala.collection.JavaConverters._
 
+import org.apache.solr.client.solrj.SolrQuery
+import org.apache.solr.client.solrj.SolrQuery.SortClause
+import org.apache.solr.client.solrj.impl.HttpSolrClient
+
 import javax.inject.Inject
-import java.util.Date
 
 class SolrDAO @Inject() (configuration: play.api.Configuration)  {
 
@@ -15,14 +18,18 @@ class SolrDAO @Inject() (configuration: play.api.Configuration)  {
   val subjectField = configuration.underlying.getString("solr.subject_field");
   
   def querySubjectDocuments(subjectId:String) = {
-    query(subjectField + ":" + subjectId, 1000, 0)
+    val sort = new SortClause("report_date", "asc")
+    query(subjectField + ":" + subjectId, 1000, 0, sort)
   }
   
-  def query(q:String, rows:Integer, start:Integer) = {
+  def query(q:String, rows:Integer, start:Integer, sort:SortClause) = {
     val query = new SolrQuery()
     query.setQuery(q)
     query.setRows(rows)
     query.setStart(start)
+    if (sort != null) {
+      query.setSort(sort)
+    }
     
     query.setHighlight(true).setHighlightSnippets(1)
     query.setParam("hl.usePhraseHighlighter", true)
