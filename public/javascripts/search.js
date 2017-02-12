@@ -5,12 +5,13 @@ angular.module('search', [])
 		var currentYear = +(new Date().getFullYear());
 	
 		var validViewTypes = ["list", "document_detail", "subject_detail"];
-		$scope.validSubjectFilters = ['documents', 'condition', 'conditionera', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'visit'],
+		$scope.validSubjectFilters = ['documents', 'condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit'],
 		$scope.activeValidSubjectFilters = {
-				'conditionera':true,
 				'condition':true,
 				'drug':true,
-				'drugera':true
+				'documents':true,
+				'measurement':true,
+				'observation':true
 		};
 		$scope.activeView = "list"; 
 		$scope.documentsSize = 0;
@@ -36,6 +37,10 @@ angular.module('search', [])
 			return $scope.formatDate(new Date(d));
 		}
 		
+		$scope.capitalize = function(n) {
+			return n.replace(/\b\w/g, function(l){ return l.toUpperCase() });
+		};
+		
 		$scope.docFunction = function(d, i) {
 			d.snippet = $sce.trustAsHtml(d.snippet);
 			d.index = i;
@@ -55,6 +60,8 @@ angular.module('search', [])
 			d.page = $scope.currentPage;
 			d.rawDate = new Date(d.startDate);
 			d.date = $scope.formatDate(d.rawDate);
+			d.displayName = d.sourceConceptName && d.sourceConceptName.length > 0 ?
+					d.sourceConceptName : d.conceptName;
 			d.type = 'record';
 			return d;
 		};
@@ -96,7 +103,7 @@ angular.module('search', [])
 			$scope.activeView = "subject_detail";
 			$scope.activeSubject = {
 				id : subjectId,
-				subjectCallsPending : 2,
+				subjectCallsPending : 3,
 				documents : {},
 				records : {},
 				dates : []
@@ -133,25 +140,32 @@ angular.module('search', [])
 			.then(function(response) {
 				$scope.activeSubject.subjectCallsPending--;
 				if (response.data) {
-					if (response.data.records) {
-						response.data.records
-								.map($scope.recordFunction)
-								.forEach(function(elem) {
-									if (!$scope.activeSubject.records[elem.date]) {
-										$scope.activeSubject.records[elem.date] = [];
-									}
-									$scope.activeSubject.records[elem.date].push(elem);
-									if ($scope.activeSubject.dates.indexOf(elem.date) < 0) {
-										$scope.activeSubject.dates.push(elem.date);
-									}
-								});
-					}
-					if (response.data.gender) {
+					response.data
+					.filter(function(r) {
+						return +r.conceptId !== 0;
+					})
+					.map($scope.recordFunction)
+					.forEach(function(elem) {
+						if (!$scope.activeSubject.records[elem.date]) {
+							$scope.activeSubject.records[elem.date] = [];
+						}
+						$scope.activeSubject.records[elem.date].push(elem);
+						if ($scope.activeSubject.dates.indexOf(elem.date) < 0) {
+							$scope.activeSubject.dates.push(elem.date);
+						}
+					});
+				}
+			}, function(error) {
+				console.log(error);
+			});
+			$http.get("/subjectinfo/" + subjectId)
+			.then(function(response) {
+				$scope.activeSubject.subjectCallsPending--;
+				if (response.data) {
+					if (response.data) {
 						$scope.activeSubject.gender = response.data.gender;
-					}
-					if (response.data.yearOfBirth) {
 						$scope.activeSubject.yearOfBirth = response.data.yearOfBirth;
-						$scope.activeSubject.age = currentYear - response.data.yearOfBirth;
+						$scope.activeSubject.age = response.data.age;
 					}
 				}
 			}, function(error) {

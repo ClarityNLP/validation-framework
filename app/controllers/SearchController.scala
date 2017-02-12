@@ -26,8 +26,13 @@ class SearchController @Inject() (solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService)
    }
    
    def getSubjectRecords(subjectId:String) = Action {
-     val res = wepAPIsvc.getPersonData(subjectId)
+     val res = wepAPIsvc.getPersonRecords(subjectId)
      Ok(res)
+   }
+   
+   def getSubjectInfo(subjectId:String) = Action {
+    val res = wepAPIsvc.getPersonDemographics(subjectId)
+    Ok(res)
    }
    
 }
