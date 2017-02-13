@@ -16,15 +16,32 @@ class SolrDAO @Inject() (configuration: play.api.Configuration)  {
   val solr = new HttpSolrClient.Builder(url).build();
   
   val subjectField = configuration.underlying.getString("solr.subject_field");
+  val reportField = configuration.underlying.getString("solr.report_id_field");
   
-  def querySubjectDocuments(subjectId:String) = {
+  def querySubjectDocuments(subjectId:String):models.SolrResults = {
     val sort = new SortClause("report_date", "asc")
-    query(subjectField + ":" + subjectId, 1000, 0, sort)
+    query("*:*", subjectField + ":" + subjectId, 1000, 0, sort,"0", "full-highlighting")
   }
   
-  def query(q:String, rows:Integer, start:Integer, sort:SortClause) = {
+  def querySingleDocument(id:String, highlightQuery:String):models.SolrResults = {
+    val q = if (highlightQuery != null && highlightQuery.trim().length() > 0) {
+      highlightQuery
+    } else {
+      "*:*"
+    }
+    query(q, reportField + ":" + id, 1, 0, null, "0", "full-highlighting")
+  }
+  
+  def simpleQuery(q:String, rows:Integer, start:Integer, sort:SortClause):models.SolrResults = {
+    query(q, null, rows, start, sort, "100", "full-highlighting")
+  }
+  
+  def query(q:String, fq:String, rows:Integer, start:Integer, sort:SortClause, highlightFragSize:String, highlightClass:String):models.SolrResults = {
     val query = new SolrQuery()
     query.setQuery(q)
+    if (fq != null) {
+      query.setFilterQueries(fq)
+    }
     query.setRows(rows)
     query.setStart(start)
     if (sort != null) {
@@ -34,8 +51,9 @@ class SolrDAO @Inject() (configuration: play.api.Configuration)  {
     query.setHighlight(true).setHighlightSnippets(1)
     query.setParam("hl.usePhraseHighlighter", true)
     query.setParam("hl.fl", "report_text")
-    query.setParam("hl.simple.pre", "<b>")
-    query.setParam("hl.simple.post", "</b>")
+    query.setParam("hl.simple.pre", "<span class=\"" + highlightClass + "\">")
+    query.setParam("hl.simple.post", "</span>")
+    query.setParam("hl.fragsize", highlightFragSize);
     
     
     query.setFacet(true)

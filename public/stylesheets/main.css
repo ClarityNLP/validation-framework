@@ -13,3 +13,15 @@ pre {
  font-family: 'droid_sans_monoregular','Anonymous Pro', monospace;
  text-indent: 0px;
 }
+
+.full-highlighting {
+    background-color: #FFFF99;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 2px 4px;
+}
+
+.highlighting {
+	font-weight:bold;
+	text-decoration:underline;
+}

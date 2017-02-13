@@ -22,6 +22,7 @@ angular.module('search', [])
 		$scope.searched = false;
 		$scope.activeDocument = {};
 		$scope.activeSubject = {};
+		$scope.searchText = "";
 		
 		$scope.maxSize = 5;
 		$scope.rows = 25;
@@ -47,7 +48,7 @@ angular.module('search', [])
 			d.page = $scope.currentPage;
 			d.rawDate = new Date(d.reportDate);
 			d.date = $scope.formatDate(d.rawDate);
-			d.reportText = d.reportText.trim();
+			d.reportText = $sce.trustAsHtml(d.reportText.trim());
 			if (i === 0) {
 				$scope.activeDocument = d;
 			}
@@ -77,9 +78,10 @@ angular.module('search', [])
 		$scope.navigateDocs = function(direction) {
 			var curIndex = $scope.activeDocument.index;
 			var nextIndex = (direction === 'back') ? curIndex - 1 : curIndex + 1;
-			$scope.activeDocument = $scope.currentDocuments.filter(function(v) {
+			var nextDoc = $scope.currentDocuments.filter(function(v) {
 				return v.index === nextIndex;
 			})[0];
+			$scope.showDoc(nextDoc);
 		};
 		
 		$scope.navigateSubjects = function(direction) {
@@ -96,6 +98,25 @@ angular.module('search', [])
 		$scope.showDoc = function(document) {
 			$scope.activeView = "document_detail";
 			$scope.activeDocument = document;
+			// this will retrieve proper highlighting
+			$http.get("/report/" + document.reportId + "/" + $scope.searchText)
+			.then(function(response) {
+				if (response.data) {
+					if (response.data.documents && response.data.documents.length > 0) {
+						var doc = response.data.documents[0];
+						// in this case, the 'snippet' is returning the full highlighted text
+						if (doc.snippet && doc.snippet.length > 0) {
+							doc.reportText = doc.snippet;
+						}
+						$scope.activeDocument.reportText = $sce.trustAsHtml(doc.reportText.trim());
+							
+					}
+					
+				}
+			}, function(error) {
+				console.log(error);
+			});
+
 		};
 		
 		$scope.showSubject = function(subjectId, paging) {
@@ -162,11 +183,9 @@ angular.module('search', [])
 			.then(function(response) {
 				$scope.activeSubject.subjectCallsPending--;
 				if (response.data) {
-					if (response.data) {
-						$scope.activeSubject.gender = response.data.gender;
-						$scope.activeSubject.yearOfBirth = response.data.yearOfBirth;
-						$scope.activeSubject.age = response.data.age;
-					}
+					$scope.activeSubject.gender = response.data.gender;
+					$scope.activeSubject.yearOfBirth = response.data.yearOfBirth;
+					$scope.activeSubject.age = response.data.age;
 				}
 			}, function(error) {
 				console.log(error);
@@ -188,15 +207,15 @@ angular.module('search', [])
 				$('#btn-search').button('loading');
 			}
 			
-			var searchText = $scope.searchInput.trim();
+			$scope.searchText = $scope.searchInput.trim();
 			var curStart = ($scope.currentPage - 1) * $scope.rows;
 			var curRows = $scope.rows;
 			
-			cache.put('searchText', searchText);
+			cache.put('searchText', $scope.searchText);
 			cache.put('start', curStart);
 			cache.put('rows', curRows);
 			
-			$http.get("/searchtext/" + searchText + "/" + curStart + "/" + curRows)
+			$http.get("/searchtext/" + $scope.searchText + "/" + curStart + "/" + curRows)
 			.then(function(response) {
 				$('#btn-search').button('reset');
 				if (response && response.data) {

@@ -8,6 +8,7 @@ GET     /searchtext/:query/:start/:rows		            controllers.SearchControlle
 GET     /subjectdocuments/:subjectId		            controllers.SearchController.getSubjectDocuments(subjectId:String)
 GET     /subjectrecords/:subjectId		                controllers.SearchController.getSubjectRecords(subjectId:String)
 GET     /subjectinfo/:subjectId		                    controllers.SearchController.getSubjectInfo(subjectId:String)
+GET     /report/:reportId/:origQuery		            controllers.SearchController.getReport(reportId:String, origQuery:String)
 
 # An example controller showing how to use dependency injection
 # GET     /count                      controllers.CountController.count

@@ -16,7 +16,7 @@ class SearchController @Inject() (solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService)
    }
    
    def queryText(query:String, start:Int, rows:Int) = Action {
-     val res = solrDAO.query(query, rows, start, null)
+     val res = solrDAO.simpleQuery(query, rows, start, null)
      Ok(Json.toJson(res))
    }
    
@@ -33,6 +33,11 @@ class SearchController @Inject() (solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService)
    def getSubjectInfo(subjectId:String) = Action {
     val res = wepAPIsvc.getPersonDemographics(subjectId)
     Ok(res)
+   }
+   
+   def getReport(reportId:String, origQuery:String) = Action {
+    val res = solrDAO.querySingleDocument(reportId, origQuery)
+    Ok(Json.toJson(res))
    }
    
 }
