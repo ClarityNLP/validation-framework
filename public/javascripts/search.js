@@ -5,13 +5,14 @@ angular.module('search', [])
 		var currentYear = +(new Date().getFullYear());
 	
 		var validViewTypes = ["list", "document_detail", "subject_detail"];
-		$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'],
+		$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'];
 		$scope.activeValidSubjectFilters = {
 				'condition':true,
 				'drug':true,
 				'documents':true,
 				'measurement':true,
-				'observation':true
+				'observation':true,
+				'procedure':true
 		};
 		$scope.activeView = "list"; 
 		$scope.documentsSize = 0;
@@ -23,6 +24,7 @@ angular.module('search', [])
 		$scope.activeDocument = {};
 		$scope.activeSubject = {};
 		$scope.searchText = "";
+		$scope.filterText = "";
 		$scope.searchDocumentsWithinSubject = "";
 		
 		$scope.maxSize = 5;
@@ -35,6 +37,10 @@ angular.module('search', [])
 			return d.toISOString().slice(0, 10);
 		}
 		
+		$scope.prettyDate = function(dString) {
+			return Date.parse(dString).toString('MMMM d, yyyy');
+		};
+		
 		$scope.formatLongDate = function(d) {
 			return $scope.formatDate(new Date(d));
 		}
@@ -43,13 +49,68 @@ angular.module('search', [])
 			return n.replace(/\b\w/g, function(l){ return l.toUpperCase() });
 		};
 		
+		$scope.activeFilterCount = function(f) {
+			var count = 0;
+			if (f === 'documents') {
+				count = $scope.activeSubject.docCount;
+			} else {
+				count = $scope.filterRecords.filter(function(d) {
+					return d.domain === f;
+				}).length;
+			}
+			return count;
+		}
+		
+		$scope.setCounts = function(type) {
+			// TODO this is slow; implement as a custom filter?
+			// implementing custom show/hide, angular didn't expose anything obvious, that wasn't super slow
+			
+//			$timeout(function() {
+//				if ($scope.activeSubject.dates) {
+//					$scope.activeSubject.dates
+//					.forEach(function(elem) {
+//						var rows = $('tr[attr-date="' + elem + '"]:visible').length;
+//						var docs = $('.doc-row[attr-date="' + elem + '"]:visible').length;
+//						var total = rows + docs;
+//						if (total === 0) {
+//							$('.date-section[attr-date="' + elem + '"]').hide();
+//						} else {
+//							$('.date-section[attr-date="' + elem + '"]').show();
+//						}
+//					});
+//				}
+				
+//				if (!type || type === 'docs') {
+//					var docs = $('.doc-row:visible').length;
+//					$('.filter-count[attr-domain="documents"]').text(docs);
+//					
+//				}
+//				if (!type || type === 'recs') {
+//					$scope.validSubjectFilters
+//						.forEach(function(elem) {
+//							if (elem !== 'documents') {
+//								var count = $('tr[attr-domain="' + elem + '"]:visible').length;
+//								$('.filter-count[attr-domain="' + elem + '"]').text(count);
+//							}
+//						});
+//				}
+//				
+//			}, 10);
+
+		};
+		
+//		$scope.$watch('[activeValidSubjectFilters, filterText, filteredRecords]', function (newValue, oldValue) {
+//			$scope.setCounts('recs');
+//			console.log(newValue);
+//		}, true);
+		
 		$scope.docFunction = function(d, i) {
 			d.snippet = $sce.trustAsHtml(d.snippet);
 			d.index = i;
 			d.page = $scope.currentPage;
 			d.rawDate = new Date(d.reportDate);
 			d.date = $scope.formatDate(d.rawDate);
-			d.reportText = $sce.trustAsHtml(d.reportText.trim());
+			d.reportText = $sce.trustAsHtml(d.reportText);
 			if (i === 0) {
 				$scope.activeDocument = d;
 			}
@@ -92,6 +153,8 @@ angular.module('search', [])
 				return v.index === nextIndex;
 			});
 			if (matched.length > 0) {
+				$scope.filterText = "";
+				$scope.searchDocumentsWithinSubject = "";
 				$scope.showSubject(matched[0].id, true);
 			}
 		};
@@ -109,7 +172,7 @@ angular.module('search', [])
 						if (doc.snippet && doc.snippet.length > 0) {
 							doc.reportText = doc.snippet;
 						}
-						$scope.activeDocument.reportText = $sce.trustAsHtml(doc.reportText.trim());
+						$scope.activeDocument.reportText = $sce.trustAsHtml(doc.reportText);
 							
 					}
 					
@@ -121,14 +184,16 @@ angular.module('search', [])
 		};
 		
 		$scope.showSubject = function(subjectId, paging) {
-
+			$scope.resetSubjectFilters(false);
 			$scope.activeView = "subject_detail";
 			$scope.activeSubject = {
 				id : subjectId,
 				subjectCallsPending : 3,
 				documents : {},
 				records : {},
-				dates : []
+				dates : [],
+				recordCounts : {},
+				docCount : 0
 			};
 			var matchingSubjects = $scope.subjects.filter(function(v) {
 				return (v.id + "") === (subjectId + "");
@@ -136,23 +201,29 @@ angular.module('search', [])
 			if (matchingSubjects.length > 0) {
 				$scope.activeSubject.index = matchingSubjects[0].index;
 			}
-			// TODO query structured data
-			$http.get("/subjectdocuments/" + subjectId)
+			$http.get("/subjectdocuments/" + subjectId + "/*:*")
 			.then(function(response) {
 				$scope.activeSubject.subjectCallsPending--;
 				if (response && response.data) {
 					if (response.data.documents) {
+						$scope.activeSubject.docCount = response.data.documents.length;
 						response.data.documents
 								.map($scope.docFunction)
 								.forEach(function(elem) {
 									if (!$scope.activeSubject.documents[elem.date]) {
 										$scope.activeSubject.documents[elem.date] = [];
+										
 									}
 									$scope.activeSubject.documents[elem.date].push(elem);
 									if ($scope.activeSubject.dates.indexOf(elem.date) < 0) {
 										$scope.activeSubject.dates.push(elem.date);
 									}
+									if (!$scope.activeSubject.recordCounts[elem.date]) {
+										$scope.activeSubject.recordCounts[elem.date] = 0;
+									}
+									$scope.activeSubject.recordCounts[elem.date] += 1;
 								});
+						$scope.setCounts('docs');
 					}
 				}
 			}, function(error) {
@@ -176,6 +247,7 @@ angular.module('search', [])
 							$scope.activeSubject.dates.push(elem.date);
 						}
 					});
+					$scope.setCounts('recs');
 				}
 			}, function(error) {
 				console.log(error);
@@ -194,11 +266,50 @@ angular.module('search', [])
 		};
 		
 		$scope.doSearchWithinSubject = function() {
-			// searchDocumentsWithinSubject
+			$('#btn-search-within').button('loading');
+			var highlightQuery = $scope.searchDocumentsWithinSubject.trim() === "" ? "*:*" : $scope.searchDocumentsWithinSubject;
+			$http.get("/subjectdocuments/" + $scope.activeSubject.id + "/" + highlightQuery)
+			.then(function(response) {
+				$('#btn-search-within').button('reset');
+				if (response && response.data) {
+					if (response.data.documents) {
+						$scope.activeSubject.documents = {};
+						$scope.activeSubject.docCount = response.data.documents.length;
+						response.data.documents
+								.map(function(d) {
+									if (d.snippet && d.snippet.length > 0) {
+										d.reportText = d.snippet;
+									}
+									return d;
+								})	
+								.map($scope.docFunction)
+								.forEach(function(elem) {
+									if (!$scope.activeSubject.documents[elem.date]) {
+										$scope.activeSubject.documents[elem.date] = [];
+									}
+									$scope.activeSubject.documents[elem.date].push(elem);
+								});
+					}
+					$scope.setCounts('docs');
+				}
+			}, function(error) {
+				$('#btn-search-within').button('reset');
+				console.log(error);
+			});
 		};
 		
 		$scope.doSearch = function(paging) {
+			  $scope.activeValidSubjectFilters = {
+						'condition':true,
+						'drug':true,
+						'documents':true,
+						'measurement':true,
+						'observation':true,
+						'procedure':true
+			  };
+			
 			$scope.searched = true;
+			$scope.resetSubjectFilters(false);
 			
 			// subjects get reloaded automatically
 			$scope.subjectFacets = {};
@@ -252,12 +363,25 @@ angular.module('search', [])
 			});
 		};
 
+	  $scope.resetSubjectFilters = function(resetSubjectDocs) {
+		  $scope.searchDocumentsWithinSubject = "";
+		  $scope.filterText = "";
+		  if (resetSubjectDocs) {
+			  $scope.doSearchWithinSubject();
+		  }
+		  $scope.validSubjectFilters
+			.forEach(function(elem) {
+				$('.filter-count[attr-domain="' + elem + '"]').text("0");
+			});
 
+	  }
+	  
 	  $scope.pageChanged = function() {
 	    if ($scope.searchInput != "") {
 			// only do pagination if values
 			$scope.doSearch(true)
 		}
 	  };
+	  
 
 }]);

@@ -18,9 +18,14 @@ class SolrDAO @Inject() (configuration: play.api.Configuration)  {
   val subjectField = configuration.underlying.getString("solr.subject_field");
   val reportField = configuration.underlying.getString("solr.report_id_field");
   
-  def querySubjectDocuments(subjectId:String):models.SolrResults = {
+  def querySubjectDocuments(subjectId:String, highlightQuery:String):models.SolrResults = {
     val sort = new SortClause("report_date", "asc")
-    query("*:*", subjectField + ":" + subjectId, 1000, 0, sort,"0", "full-highlighting")
+    val q = if (highlightQuery != null && highlightQuery.trim().length() > 0) {
+      highlightQuery
+    } else {
+      "*:*"
+    }
+    query(q, subjectField + ":" + subjectId, 1000, 0, sort,"0", "full-highlighting")
   }
   
   def querySingleDocument(id:String, highlightQuery:String):models.SolrResults = {

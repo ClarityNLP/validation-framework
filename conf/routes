@@ -5,7 +5,7 @@
 # An example controller showing a sample home page
 GET     /                                               controllers.SearchController.index
 GET     /searchtext/:query/:start/:rows		            controllers.SearchController.queryText(query:String, start:Int, rows:Int)
-GET     /subjectdocuments/:subjectId		            controllers.SearchController.getSubjectDocuments(subjectId:String)
+GET     /subjectdocuments/:subjectId/:highlightQuery	controllers.SearchController.getSubjectDocuments(subjectId:String, highlightQuery:String)
 GET     /subjectrecords/:subjectId		                controllers.SearchController.getSubjectRecords(subjectId:String)
 GET     /subjectinfo/:subjectId		                    controllers.SearchController.getSubjectInfo(subjectId:String)
 GET     /report/:reportId/:origQuery		            controllers.SearchController.getReport(reportId:String, origQuery:String)

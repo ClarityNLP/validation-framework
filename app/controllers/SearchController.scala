@@ -20,8 +20,8 @@ class SearchController @Inject() (solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService)
      Ok(Json.toJson(res))
    }
    
-   def getSubjectDocuments(subjectId:String) = Action {
-     val res = solrDAO.querySubjectDocuments(subjectId)
+   def getSubjectDocuments(subjectId:String, highlightQuery:String) = Action {
+     val res = solrDAO.querySubjectDocuments(subjectId, highlightQuery)
      Ok(Json.toJson(res))
    }
    

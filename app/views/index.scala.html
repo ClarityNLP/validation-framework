@@ -10,7 +10,7 @@
 	  			Search:
 	  			</h5>
 	  			<div>
-	  				<input class="form-control" type="text" placeholder="Query..." ng-model="searchInput" ng-keypress="($event.which === 13)?doSearch():0" autofocus/>
+	  				<input class="form-control" type="text" placeholder="Query..." ng-model="searchInput" ng-keypress="($event.which === 13)?doSearch(false):0" autofocus/>
 	  			</div>
 	  			<div style="padding-top:10px; float:right">
 	  				<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
@@ -151,26 +151,29 @@
 	  		</div>
   		</div>
   		<div class="col-xs-2">
-  			<h4>Filters:</h4>
+  			<h4>Filters: <small style="cursor:pointer">(<a ng-click="resetSubjectFilters(true)">Reset</a>)</small></h4>
   			<input ng-model="filterText" class="form-control">
   			<div class="checkbox" ng-repeat="f in validSubjectFilters">
   			  <br ng-if="f === 'documents'" />
-              <label>
-                <input type="checkbox" ng-model="activeValidSubjectFilters[f]"> {{ capitalize(f) }}
+              <label style="font-size:110%">
+                <input type="checkbox" ng-model="activeValidSubjectFilters[f]"> {{ capitalize(f) }} <!--  (<span class="filter-count" attr-domain="{{f}}">0</span>)-->
               </label>
             </div>
             <div style="padding-top:2px">
-            	<label>Search Documents: <input class="form-control" ng-model="searchDocumentsWithinSubject"></label>
-            	<a id="btn-search" class="btn btn-success" ng-click="doSearchWithinSubject(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
+            	<label>Search Documents: <input class="form-control" ng-model="searchDocumentsWithinSubject" ng-keypress="($event.which === 13)?doSearchWithinSubject():0"></label>
+            	<a id="btn-search-within" class="btn btn-success" ng-click="doSearchWithinSubject()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
 	  			
             </div>
   		</div>
   		<div class="col-xs-10">
 
-	  		<div ng-repeat="d in activeSubject.dates | orderBy">
-	  			<div class="row">
-	  				<div class="col-xs-12">
-						<h4 style="text-decoration:underline">{{ d }}</h4>
+	  		<div ng-repeat="d in activeSubject.dates | orderBy" attr-date="{{d}}" class="date-section">
+	  			<div class="row" style="border-bottom: 1px solid #999999;margin: 0px;">
+	  				<div class="col-xs-6" >
+						<h4>{{ prettyDate(d) }}</h4>
+					</div>
+					<div class="col-xs-6">
+						<h4 style="float: right;">{{ activeSubject.documents[d].length + activeSubject.records[d].length }} record(s)</h4>
 					</div>
 				</div>
 				<div class="row" ng-show="activeSubject.records[d] && activeSubject.records[d].length > 0">
@@ -192,7 +195,8 @@
 			                </thead>
 			                 --> 
 			                <tbody>
-			                  <tr ng-show="activeValidSubjectFilters[rec.domain]" ng-repeat="rec in activeSubject.records[d] | orderBy: ['domain', 'conceptName']  | filter:filterText">
+			                  <tr attr-date="{{d}}" attr-domain="{{rec.domain}}" ng-show="activeValidSubjectFilters[rec.domain]" 
+			                  	ng-repeat="rec in activeSubject.records[d] | orderBy: ['domain', 'conceptName']  | filter:filterText">
 			                    <td>{{ capitalize(rec.domain) }}</td>
 			                    <td>{{ rec.sourceConceptValue }}</td>
 			                    <td><b>{{ rec.displayName }}</b></td>
@@ -202,7 +206,7 @@
 			              </table>
 					</div>
 				</div>
-				<div ng-show="activeValidSubjectFilters['documents']" ng-repeat="doc in activeSubject.documents[d]">
+				<div class="doc-row" attr-date="{{d}}" ng-show="activeValidSubjectFilters['documents']" ng-repeat="doc in activeSubject.documents[d]">
 					<div class="row">
 						<div class="col-xs-12">
 							<h5>Report #{{doc.reportId}}</h5>
