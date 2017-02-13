@@ -5,7 +5,7 @@ angular.module('search', [])
 		var currentYear = +(new Date().getFullYear());
 	
 		var validViewTypes = ["list", "document_detail", "subject_detail"];
-		$scope.validSubjectFilters = ['documents', 'condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit'],
+		$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'],
 		$scope.activeValidSubjectFilters = {
 				'condition':true,
 				'drug':true,
@@ -23,6 +23,7 @@ angular.module('search', [])
 		$scope.activeDocument = {};
 		$scope.activeSubject = {};
 		$scope.searchText = "";
+		$scope.searchDocumentsWithinSubject = "";
 		
 		$scope.maxSize = 5;
 		$scope.rows = 25;
@@ -190,6 +191,10 @@ angular.module('search', [])
 			}, function(error) {
 				console.log(error);
 			});
+		};
+		
+		$scope.doSearchWithinSubject = function() {
+			// searchDocumentsWithinSubject
 		};
 		
 		$scope.doSearch = function(paging) {

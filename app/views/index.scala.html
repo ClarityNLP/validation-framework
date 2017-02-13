@@ -152,13 +152,17 @@
   		</div>
   		<div class="col-xs-2">
   			<h4>Filters:</h4>
+  			<input ng-model="filterText" class="form-control">
   			<div class="checkbox" ng-repeat="f in validSubjectFilters">
+  			  <br ng-if="f === 'documents'" />
               <label>
                 <input type="checkbox" ng-model="activeValidSubjectFilters[f]"> {{ capitalize(f) }}
               </label>
             </div>
-            <div>
-            	<label>Search: <input ng-model="searchText" class="form-control"></label>
+            <div style="padding-top:2px">
+            	<label>Search Documents: <input class="form-control" ng-model="searchDocumentsWithinSubject"></label>
+            	<a id="btn-search" class="btn btn-success" ng-click="doSearchWithinSubject(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
+	  			
             </div>
   		</div>
   		<div class="col-xs-10">
@@ -188,7 +192,7 @@
 			                </thead>
 			                 --> 
 			                <tbody>
-			                  <tr ng-show="activeValidSubjectFilters[rec.domain]" ng-repeat="rec in activeSubject.records[d] | orderBy: ['domain', 'conceptName']  | filter:searchText">
+			                  <tr ng-show="activeValidSubjectFilters[rec.domain]" ng-repeat="rec in activeSubject.records[d] | orderBy: ['domain', 'conceptName']  | filter:filterText">
 			                    <td>{{ capitalize(rec.domain) }}</td>
 			                    <td>{{ rec.sourceConceptValue }}</td>
 			                    <td><b>{{ rec.displayName }}</b></td>
@@ -198,7 +202,7 @@
 			              </table>
 					</div>
 				</div>
-				<div ng-show="activeValidSubjectFilters['documents']" ng-repeat="doc in activeSubject.documents[d]  | filter:searchText">
+				<div ng-show="activeValidSubjectFilters['documents']" ng-repeat="doc in activeSubject.documents[d]">
 					<div class="row">
 						<div class="col-xs-12">
 							<h5>Report #{{doc.reportId}}</h5>
