@@ -44,6 +44,12 @@ angular.module('cohorts', [])
 		return n.replace(/\b\w/g, function(l){ return l.toUpperCase() });
 	};
 	
+	$scope.getDateOffset = function(d) {
+		var curDate = Date.parse(d);
+		var indexDate = Date.parse($scope.activeSubject.indexDate);
+		return Date.daysBetween(indexDate, curDate);
+	}
+	
 	$scope.docFunction = function(d, i) {
 		d.snippet = $sce.trustAsHtml(d.snippet);
 		d.index = i;
@@ -109,6 +115,13 @@ angular.module('cohorts', [])
 		}
 		$('#warningsModal').modal('show');
 	}
+	
+	$scope.gotoIndexDate = function() {
+		var indexDate = $scope.activeSubject.indexDate;
+		$('html, body').animate({
+            scrollTop: $(".date-section[attr-date='" + indexDate + "']").offset().top
+        }, 50);
+	};
 
 	$scope.getCohortEntities = function(cohort) {
 		$scope.activeCohort = cohort;
@@ -119,6 +132,7 @@ angular.module('cohorts', [])
 				map(function(c, i) {
 					c.index = i;
 					c.id = c.subjectId;
+					c.indexDate = c.cohortStartDate;
 					return c;
 				});
 				$scope.subjects = members;
@@ -154,6 +168,7 @@ angular.module('cohorts', [])
 		});
 		if (matchingSubjects.length > 0) {
 			$scope.activeSubject.index = matchingSubjects[0].index;
+			$scope.activeSubject.indexDate = matchingSubjects[0].indexDate;
 			
 			$http.get("/subjectrecords/" + subjectId + "/false")
 			.then(function(response) {
