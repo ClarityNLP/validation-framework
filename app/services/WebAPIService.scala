@@ -1,3 +1,4 @@
+
 package services
 
 import scala.collection.mutable.ListBuffer
@@ -14,11 +15,19 @@ import scala.concurrent.duration._
 
 class WebAPIService @Inject() (configuration: play.api.Configuration, cache: CacheApi) extends JsonMapper  {
  
+ 
+  val ohdsiUrl = configuration.underlying.getString("ohdsi.base_url");
+  val defaultOhdsiCore = configuration.underlying.getString("ohdsi.default.core");
+  val baseUrl = ohdsiUrl + defaultOhdsiCore + "/"
+  val solrSourceValueConfig = configuration.underlying.getString("solr.use.subject.source.value");
   
-  val baseUrl = configuration.underlying.getString("ohdsi.base_url");
-  val useSourceValue = configuration.underlying.getString("use.subject.source.value");
-  
-  def getPersonRecords(personId:String):JsValue = {
+  def getPersonRecords(personId:String, useSourceValueParam:String):JsValue = {
+    
+    val useSourceValue = if (useSourceValueParam != null && ("true" == useSourceValueParam || "false" == useSourceValueParam)) {
+      useSourceValueParam
+    } else {
+      solrSourceValueConfig
+    }
     
     val key = "patient.records." + personId;
     val option = cache.get[JsValue](key)
@@ -52,7 +61,13 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
      
   }
   
-  def getPersonDemographics(personId:String):JsValue = {
+  def getPersonDemographics(personId:String, useSourceValueParam:String):JsValue = {
+    
+    val useSourceValue = if (useSourceValueParam != null && ("true" == useSourceValueParam || "false" == useSourceValueParam)) {
+      useSourceValueParam
+    } else {
+      solrSourceValueConfig
+    }
     
     val key = "patient.demographics." + personId;
     val option = cache.get[JsValue](key)
@@ -78,5 +93,59 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
       option.get
     }
      
+  }
+  
+  def getCohortDefinitions():JsValue = {
+    val response: HttpResponse[String]  = try {
+        Http(ohdsiUrl + "cohortdefinition").timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+    } catch {
+      case e:Exception => e.printStackTrace()
+      null
+    }
+    
+    if (response == null) {
+        JsObject(Seq(
+          "valid" -> JsString("false")
+          ))
+      } else {
+        val json = Json.parse(response.body)
+        json
+      }
+  }
+  
+  def getCohortEntities(cohortId:String) = {
+       val response: HttpResponse[String]  = try {
+        Http(baseUrl + "cohort/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+    } catch {
+      case e:Exception => e.printStackTrace()
+      null
+    }
+    
+    if (response == null) {
+        JsObject(Seq(
+          "valid" -> JsString("false")
+          ))
+      } else {
+        val json = Json.parse(response.body)
+        json
+      }
+  }
+  
+  def getSources() = {
+    val response: HttpResponse[String]  = try {
+        Http(ohdsiUrl + "source/sources").timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+    } catch {
+      case e:Exception => e.printStackTrace()
+      null
+    }
+    
+    if (response == null) {
+        JsObject(Seq(
+          "valid" -> JsString("false")
+          ))
+      } else {
+        val json = Json.parse(response.body)
+        json
+      }
   }
 }
