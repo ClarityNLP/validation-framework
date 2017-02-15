@@ -1,5 +1,12 @@
 
   	<div class="row">
+  	
+  		 <div class="col-xs-12" style="padding-bottom:10px" ng-show="mode === 'cohort'">
+  			<div style="float:right;">
+  				<a ng-click="jumpToRecord()" style="cursor:pointer">Jump to Record</a>
+  			</div>
+  		</div>
+  		
   		<div class="col-xs-4">
   			<button class="btn btn-primary" ng-click="backView('list')">&laquo; Back to List</button>
   		</div>
@@ -7,6 +14,7 @@
   			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('forward')">Next &raquo;</button>
   			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('back')">&laquo; Previous</button>
   		</div>
+
   		<div class="col-xs-12">
   			<div style="float:right;font-size: large;">
   				<b>{{activeSubject.index + 1}}</b> of <b>{{subjects.length}}</b>
@@ -22,12 +30,16 @@
 	  		</div>
   		</div>
   		<div class="col-xs-2" id="subject-level-filters">
+  		    <div style="padding-bottom:5px" ng-show="mode === 'cohort'">
+            	<h4>Date: <small style="cursor:pointer"></h4>
+            	<label><a style="cursor:pointer" ng-click="gotoIndexDate()">(Jump to Index Date)</a></label>
+            </div>
   			<h4>Filters: <small style="cursor:pointer">(<a ng-click="resetSubjectFilters(true)">Reset</a>)</small></h4>
   			<input ng-model="filterText" class="form-control">
   			<div class="checkbox" ng-repeat="f in validSubjectFilters">
   			  <br ng-if="f === 'documents'" />
               <label style="font-size:110%">
-                <input type="checkbox" ng-model="activeValidSubjectFilters[f]"> {{ capitalize(f) }} <!--  (<span class="filter-count" attr-domain="{{f}}">0</span>)-->
+                <input type="checkbox" ng-model="activeValidSubjectFilters[f]"> {{ capitalize(f) }} <span ng-if="f === 'documents'"> (<span>{{activeSubject.docCount}}</span>) </span>
               </label>
             </div>
             <div style="padding-top:2px">
@@ -35,10 +47,7 @@
             	<a id="btn-search-within" class="btn btn-success" ng-click="doSearchWithinSubject()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
 	  			
             </div>
-            <div style="padding-top:5px" >
-            	<h4>Date: <small style="cursor:pointer"></h4>
-            	<label><a  ng-click="gotoIndexDate()">(Jump to Index Date)</a></label>
-            </div>
+
   		</div>
   		<div class="col-xs-10">
 
@@ -92,3 +101,36 @@
 	  		</div>
 	  	</div>
   	</div>
+  	<div id="jumpModal" class="modal fade" tabindex="-1" role="dialog">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title">Jump to Record</h4>
+		      </div>
+		      <div class="modal-body">
+		        	<div class="row">
+		        		<div class="col-xs-6">
+		        			<div class="list-group">
+				                <a href="#"  ng-class="isActiveJumpType(type)" ng-click="setActiveJumpType(type)" 
+				                	ng-repeat="type in validJumpTypes">
+				                  {{type}}
+				                </a>
+				                
+			              	</div>
+			             </div>
+			             <div class="col-xs-6">
+			             	<input id="jumpText" type="text" placeholder="Enter value..." ng-model="jumpText" class="form-control" />
+			             </div>
+			             <div class="col-xs-12">
+			             	<label style="color:red">{{jumpError}}</label>
+			             </div>
+		        	</div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		        <button type="button" class="btn btn-success" ng-click="doJumpToRecord()">Go</button>
+		      </div>
+		    </div><!-- /.modal-content -->
+		  </div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->

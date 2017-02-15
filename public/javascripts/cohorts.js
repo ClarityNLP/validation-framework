@@ -4,7 +4,8 @@ angular.module('cohorts', [])
 	// TODO extract out common stuff with cohorts.js and search.js
 	var cache = $cacheFactory('cohortCache');
 
-	var validViewTypes = ["list", "document_detail", "subject_detail"];
+	$scope.mode = "cohort";
+	var validViewTypes = ["list", "subject_detail"];
 	$scope.activeView = "list"; 
 
 	$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'];
@@ -16,6 +17,9 @@ angular.module('cohorts', [])
 			'observation':true,
 			'procedure':true
 	};
+	
+	$scope.validJumpTypes = ["Patient ID", "Patient Source Value", "Index"];
+	$scope.activeJumpType = "Patient ID";
 
 	$scope.cohorts = [];
 	$scope.activeCohort = {};
@@ -27,6 +31,65 @@ angular.module('cohorts', [])
 	$scope.searchDocumentsWithinSubject = "";
 
 	$scope.subjectCallsPending = 0;
+	
+	$scope.isActiveJumpType = function(t) {
+		if ($scope.activeJumpType === t) {
+			return "list-group-item active";
+		} else {
+			return "list-group-item";
+		}
+	}
+	
+	$scope.setActiveJumpType = function(type) {
+		$scope.activeJumpType = type;
+	}
+	
+	$scope.jumpToRecord = function() {
+		$scope.jumpError="";
+		$('#jumpModal').modal('show');
+		$('#jumpText').focus();
+		
+	}
+	
+	$scope.doJumpToRecord = function() {
+		var key = $scope.jumpText;
+		if ($scope.activeJumpType === "Index") {
+			var matched = $scope.subjects.filter(function(v) {
+				return ((v.index + 1) + "") === (key + "");
+			});
+			if (matched.length > 0) {
+				$('#jumpModal').modal('hide');
+				$scope.jumpText = "";
+				$scope.activeJumpType = "Patient ID";
+				$scope.showSubject(matched[0].subjectId, true);
+			} else {
+				$scope.jumpError = "No matching patients found!";
+			}
+		} else {
+			var useSourceValue = true;
+			if ($scope.activeJumpType === "Patient ID") {
+				useSourceValue = false;
+			}
+			$http.get("/subjectinfo/" + key  + "/" + useSourceValue)
+			.then(function(response) {
+				$scope.activeView = "subject_detail";
+				$scope.activeSubject.subjectCallsPending--;
+				if (response.data && response.data.personId && response.data.personId !== 0) {
+					$('#jumpModal').modal('hide');
+					$scope.jumpText = "";
+					$scope.activeJumpType = "Patient ID";
+//					$scope.activeSubject.sourceId = response.data.personSourceValue;
+//					$scope.activeSubject.subjectId = response.data.personId;
+					$scope.showSubject(response.data.personId, true);
+				} else {
+					$scope.jumpError = "No matching patients found!";
+				}
+			}, function(error) {
+				$scope.jumpError = "No matching patients found!";
+				console.log(error);
+			});
+		}
+	}
 	
 	$scope.formatDate = function(d) {
 		return d.toISOString().slice(0, 10);
@@ -246,6 +309,7 @@ angular.module('cohorts', [])
 		}
 
 	}
+	
 
 	$scope.doSearchWithinSubject = function() {
 		$('#btn-search-within').button('loading');

@@ -29,7 +29,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
       solrSourceValueConfig
     }
     
-    val key = "patient.records." + personId;
+    val key = "patient.records."+ useSourceValue + "." + personId;
     val option = cache.get[JsValue](key)
     
     if (option.isEmpty) {
@@ -69,7 +69,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
       solrSourceValueConfig
     }
     
-    val key = "patient.demographics." + personId;
+    val key = "patient.demographics."+ useSourceValue + "." + personId;
     val option = cache.get[JsValue](key)
     
     if (option.isEmpty) {

@@ -5,6 +5,7 @@ angular.module('search', [])
 	var cache = $cacheFactory('searchCache');
 	var currentYear = +(new Date().getFullYear());
 
+	$scope.mode = "search";
 	var validViewTypes = ["list", "document_detail", "subject_detail"];
 	$scope.activeView = "list"; 
 	$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'];
@@ -16,6 +17,7 @@ angular.module('search', [])
 			'observation':true,
 			'procedure':true
 	};
+	
 
 	$scope.documentsSize = 0;
 	$scope.currentDocuments = [];
@@ -34,6 +36,8 @@ angular.module('search', [])
 
 	$scope.searchInput = "";
 	$scope.subjectCallsPending = 0;
+	
+	
 
 	$scope.formatDate = function(d) {
 		return d.toISOString().slice(0, 10);

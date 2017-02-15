@@ -3,7 +3,6 @@
 }
 
 pre {
- font-size: 16px; 
  line-height: 1.618em; 
  white-space: pre-wrap;       /* css-3 */
  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -13,7 +12,7 @@ pre {
  font-family: 'droid_sans_monoregular','Anonymous Pro', monospace;
  text-indent: 0px;
   font-family: "Raleway", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight:500;
 }
 
