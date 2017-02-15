@@ -70,11 +70,11 @@
 			                </thead>
 			                 --> 
 			                <tbody>
-			                  <tr attr-date="{{d}}" attr-domain="{{rec.domain}}" ng-show="activeValidSubjectFilters[rec.domain]" 
+			                  <tr class="readable" attr-date="{{d}}" attr-domain="{{rec.domain}}" ng-show="activeValidSubjectFilters[rec.domain]" 
 			                  	ng-repeat="rec in activeSubject.records[d] | orderBy: ['domain', 'conceptName']  | filter:filterText">
 			                    <td>{{ capitalize(rec.domain) }}</td>
 			                    <td>{{ rec.sourceConceptValue }}</td>
-			                    <td><b>{{ rec.displayName }}</b></td>
+			                    <td><span style="font-weight:500">{{ rec.displayName }}</span></td>
 			                    <td>{{ rec.displayValue }}</td>
 			                  </tr>
 			                </tbody>
