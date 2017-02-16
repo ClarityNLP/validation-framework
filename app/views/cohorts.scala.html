@@ -2,7 +2,7 @@
 
 @main(title) {
 <div ng-controller="cohortController" class="ng-cloak">
-	 <div class="container" ng-show="activeView === 'list'">
+	 <div class="container-fluid" ng-show="activeView === 'list'">
 	  	<div class="row">
 
 	  		<div class="col-xs-12 col-md-10">
@@ -31,7 +31,7 @@
                   </tr>
                   </tbody>
               </table>
-
+				<br/>
 	  		</div>
   		</div>
   		<div id="warningsModal" class="modal fade" tabindex="-1" role="dialog">
@@ -51,7 +51,7 @@
 		  </div><!-- /.modal-dialog -->
 		</div><!-- /.modal -->
 	</div>
-  <div class="container" ng-show="activeView === 'subject_detail'">
+  <div class="container-fluid" ng-show="activeView === 'subject_detail'">
   	<subject-detail />
   </div>
 

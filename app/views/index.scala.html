@@ -2,7 +2,7 @@
 
 @main(title) {
   <div ng-controller="searchController" class="ng-cloak">
-	  <div class="container" ng-show="activeView === 'list'">
+	  <div class="container-fluid" ng-show="activeView === 'list'">
 	  	<div class="row">
 
 	  		<div class="col-xs-12 col-md-10">
@@ -94,12 +94,13 @@
 			                  </tr>
 			                </tbody>
 		              </table>
+		              <br/>
 		            </div>
 	  		</div>
 	  	</div>
 	  </div>
   </div>
-  <div class="container" ng-show="activeView === 'document_detail'">
+  <div class="container-fluid" ng-show="activeView === 'document_detail'">
   	<div class="row">
   		<div class="col-xs-4">
   			<button class="btn btn-primary" ng-click="backView('list')">&laquo; Back to List</button>
@@ -127,7 +128,7 @@
 	  </div>
   </div>
 
-  <div class="container" ng-show="activeView === 'subject_detail'">
+  <div class="container-fluid" ng-show="activeView === 'subject_detail'">
   	<subject-detail />
   </div>
 }

@@ -12,13 +12,10 @@ angular.module('search', [])
 	$scope.activeValidSubjectFilters = {
 			'condition':true,
 			'drug':true,
-			'documents':true,
-			'measurement':true,
-			'observation':true,
-			'procedure':true
+			'documents':true
 	};
 	
-
+	$scope.activeCohort = {};
 	$scope.documentsSize = 0;
 	$scope.currentDocuments = [];
 	$scope.subjectFacets = {};
@@ -37,6 +34,13 @@ angular.module('search', [])
 	$scope.searchInput = "";
 	$scope.subjectCallsPending = 0;
 	
+	$scope.checkAllFilters = function(on) {
+		$scope.validSubjectFilters.
+			forEach(function(f) {
+				$scope.activeValidSubjectFilters[f] = on;
+
+			});
+	};
 	
 
 	$scope.formatDate = function(d) {
@@ -44,7 +48,7 @@ angular.module('search', [])
 	}
 
 	$scope.prettyDate = function(dString) {
-		return Date.parse(dString).toString('MMMM d, yyyy');
+		return Date.parse(dString).toString('M/d/yy');
 	};
 
 	$scope.formatLongDate = function(d) {
@@ -68,47 +72,8 @@ angular.module('search', [])
 	}
 
 	$scope.setCounts = function(type) {
-		// TODO this is slow; implement as a custom filter?
-		// implementing custom show/hide, angular didn't expose anything obvious, that wasn't super slow
-
-//		$timeout(function() {
-//		if ($scope.activeSubject.dates) {
-//		$scope.activeSubject.dates
-//		.forEach(function(elem) {
-//		var rows = $('tr[attr-date="' + elem + '"]:visible').length;
-//		var docs = $('.doc-row[attr-date="' + elem + '"]:visible').length;
-//		var total = rows + docs;
-//		if (total === 0) {
-//		$('.date-section[attr-date="' + elem + '"]').hide();
-//		} else {
-//		$('.date-section[attr-date="' + elem + '"]').show();
-//		}
-//		});
-//		}
-
-//		if (!type || type === 'docs') {
-//		var docs = $('.doc-row:visible').length;
-//		$('.filter-count[attr-domain="documents"]').text(docs);
-
-//		}
-//		if (!type || type === 'recs') {
-//		$scope.validSubjectFilters
-//		.forEach(function(elem) {
-//		if (elem !== 'documents') {
-//		var count = $('tr[attr-domain="' + elem + '"]:visible').length;
-//		$('.filter-count[attr-domain="' + elem + '"]').text(count);
-//		}
-//		});
-//		}
-
-//		}, 10);
 
 	};
-
-//	$scope.$watch('[activeValidSubjectFilters, filterText, filteredRecords]', function (newValue, oldValue) {
-//	$scope.setCounts('recs');
-//	console.log(newValue);
-//	}, true);
 
 	$scope.docFunction = function(d, i) {
 		d.snippet = $sce.trustAsHtml(d.snippet);
@@ -121,6 +86,8 @@ angular.module('search', [])
 			$scope.activeDocument = d;
 		}
 		d.type = 'document';
+		d.dateOffset = 0;
+		d.prettyDate = $scope.prettyDate(d.date);
 		return d;
 	};
 
@@ -131,7 +98,15 @@ angular.module('search', [])
 		d.date = $scope.formatDate(d.rawDate);
 		d.displayName = d.sourceConceptName && d.sourceConceptName.length > 0 ?
 				d.sourceConceptName : d.conceptName;
+		
+		d.dateOffset = 0;
+		d.prettyDate = $scope.prettyDate(d.date);
+		d.prettyDomain = $scope.capitalize(d.domain);
+		
 		d.type = 'record';
+		if (d.domain == 'drug') {
+			d.sourceConceptValue = "";
+		}
 		return d;
 	};
 
@@ -190,6 +165,7 @@ angular.module('search', [])
 	};
 
 	$scope.showSubject = function(subjectId, paging) {
+		$('#slider').empty();
 		$scope.resetSubjectFilters(false);
 		
 		$scope.activeSubject = {
@@ -228,6 +204,8 @@ angular.module('search', [])
 							$scope.activeSubject.recordCounts[elem.date] = 0;
 						}
 						$scope.activeSubject.recordCounts[elem.date] += 1;
+						
+						
 					});
 					$scope.setCounts('docs');
 				}
@@ -311,10 +289,7 @@ angular.module('search', [])
 		$scope.activeValidSubjectFilters = {
 				'condition':true,
 				'drug':true,
-				'documents':true,
-				'measurement':true,
-				'observation':true,
-				'procedure':true
+				'documents':true
 		};
 
 		$scope.searched = true;

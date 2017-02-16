@@ -12,10 +12,7 @@ angular.module('cohorts', [])
 	$scope.activeValidSubjectFilters = {
 			'condition':true,
 			'drug':true,
-			'documents':true,
-			'measurement':true,
-			'observation':true,
-			'procedure':true
+			'documents':true
 	};
 	
 	$scope.validJumpTypes = ["Patient ID", "Patient Source Value", "Index"];
@@ -28,9 +25,19 @@ angular.module('cohorts', [])
 	$scope.activeSubject = {};
 	$scope.searchText = "";
 	$scope.filterText = "";
+	$scope.filterToggle = "all";
 	$scope.searchDocumentsWithinSubject = "";
 
 	$scope.subjectCallsPending = 0;
+	
+	$scope.checkAllFilters = function(on) {
+		$scope.validSubjectFilters.
+			forEach(function(f) {
+				$scope.activeValidSubjectFilters[f] = on;
+			});
+	};
+	
+	
 	
 	$scope.isActiveJumpType = function(t) {
 		if ($scope.activeJumpType === t) {
@@ -96,7 +103,7 @@ angular.module('cohorts', [])
 	}
 
 	$scope.prettyDate = function(dString) {
-		return Date.parse(dString).toString('MMMM d, yyyy');
+		return Date.parse(dString).toString('M/d/yy');
 	};
 
 	$scope.formatLongDate = function(d) {
@@ -108,9 +115,13 @@ angular.module('cohorts', [])
 	};
 	
 	$scope.getDateOffset = function(d) {
-		var curDate = Date.parse(d);
-		var indexDate = Date.parse($scope.activeSubject.indexDate);
-		return Date.daysBetween(indexDate, curDate);
+		if (!$scope.activeSubject.indexDate) {
+			return 0;
+		} else {
+			var curDate = Date.parse(d);
+			var indexDate = Date.parse($scope.activeSubject.indexDate);
+			return Date.daysBetween(indexDate, curDate);
+		}
 	}
 	
 	$scope.docFunction = function(d, i) {
@@ -124,6 +135,8 @@ angular.module('cohorts', [])
 			$scope.activeDocument = d;
 		}
 		d.type = 'document';
+		d.dateOffset = $scope.getDateOffset(d.date);
+		d.prettyDate = $scope.prettyDate(d.date);
 		return d;
 	};
 	
@@ -134,7 +147,22 @@ angular.module('cohorts', [])
 		d.date = $scope.formatDate(d.rawDate);
 		d.displayName = d.sourceConceptName && d.sourceConceptName.length > 0 ?
 				d.sourceConceptName : d.conceptName;
+		
+		d.dateOffset = $scope.getDateOffset(d.date);
+		d.prettyDate = $scope.prettyDate(d.date);
+		d.prettyDomain = $scope.capitalize(d.domain);
+		
+		if (+d.dateOffset < $scope.activeSubject.minIndex) {
+			$scope.activeSubject.minIndex = +d.dateOffset;
+		}
+		if (+d.dateOffset > $scope.activeSubject.maxIndex) {
+			$scope.activeSubject.maxIndex = +d.dateOffset;
+		}
+
 		d.type = 'record';
+		if (d.domain == 'drug') {
+			d.sourceConceptValue = "";
+		}
 		return d;
 	};
 
@@ -167,9 +195,6 @@ angular.module('cohorts', [])
 		console.log(error);
 	});
 
-	$scope.prettyDate = function(dString) {
-		return Date.parse(dString).toString('MMMM d, yyyy');
-	};
 	
 	$scope.showWarning = function(title, message) {
 		$scope.warning = {
@@ -213,6 +238,24 @@ angular.module('cohorts', [])
 		});
 
 	};
+	
+	$scope.showSlider = function() {
+		$('#slider').empty();
+//		var div = $('#slider').append('<div/>')[0];
+//		var handlesSlider = div;
+//
+//		noUiSlider.create(handlesSlider, {
+//		
+//			start: [ $scope.activeSubject.minIndex, $scope.activeSubject.maxIndex  ],
+//			step: 1,
+//			behaviour: 'snap',
+//			connect: true,
+//			range: {
+//				'min': $scope.activeSubject.minIndex ,
+//				'max':  $scope.activeSubject.maxIndex ,
+//			}
+//		});
+	}
 
 	$scope.showSubject = function(subjectId, paging) {
 		$scope.resetSubjectFilters(false);
@@ -224,7 +267,9 @@ angular.module('cohorts', [])
 				records : {},
 				dates : [],
 				recordCounts : {},
-				docCount : 0
+				docCount : 0,
+				maxIndex : 0,
+				minIndex : 0
 		};
 		var matchingSubjects = $scope.subjects.filter(function(v) {
 			return (v.id + "") === (subjectId + "");
@@ -236,6 +281,7 @@ angular.module('cohorts', [])
 			$http.get("/subjectrecords/" + subjectId + "/false")
 			.then(function(response) {
 				$scope.activeSubject.subjectCallsPending--;
+				
 				if (response.data) {
 					response.data
 					.filter(function(r) {
@@ -251,6 +297,9 @@ angular.module('cohorts', [])
 							$scope.activeSubject.dates.push(elem.date);
 						}
 					});
+					if ($scope.activeSubject.subjectCallsPending === 0) {
+						$scope.showSlider();
+					}
 				}
 			}, function(error) {
 				console.log(error);
@@ -268,6 +317,7 @@ angular.module('cohorts', [])
 					$http.get("/subjectdocuments/" + $scope.activeSubject.sourceId + "/*:*")
 					.then(function(response) {
 						$scope.activeSubject.subjectCallsPending--;
+						
 						if (response && response.data) {
 							if (response.data.documents) {
 								$scope.activeSubject.docCount = response.data.documents.length;
@@ -287,6 +337,9 @@ angular.module('cohorts', [])
 									}
 									$scope.activeSubject.recordCounts[elem.date] += 1;
 								});
+								if ($scope.activeSubject.subjectCallsPending === 0) {
+									$scope.showSlider();
+								}
 							}
 						}
 					}, function(error) {
