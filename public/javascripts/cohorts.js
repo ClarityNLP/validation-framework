@@ -206,17 +206,13 @@ angular.module('cohorts', [])
 	}
 	
 	$scope.gotoIndexDate = function() {
-		$('#subject-detail-section').animate({
-            scrollTop: $(".td-offset[attr-offset='0']:first").offset().top
-        }, 50);
+		 $(".td-offset[attr-offset='0']:first")[0].scrollIntoView();
 	};
 	
 	$scope.jumpToSpecificDate = function(day) {
 		var first = $(".td-offset[attr-offset='" + day + "']:first");
 		if (first.length > 0) {
-			$('#subject-detail-section').animate({
-	            scrollTop: $(".td-offset[attr-offset='" + day + "']:first").offset().top
-	        }, 50);
+			 $(".td-offset[attr-offset='" + day + "']:first")[0].scrollIntoView();
 		}
 	};
 
@@ -407,9 +403,7 @@ angular.module('cohorts', [])
 						$scope.activeSubject.documents[elem.date].push(elem);
 					});
 					
-					$('#subject-detail-section').animate({
-			            scrollTop: $(".documentInfo:first").offset().top
-			        }, 50);
+					$(".documentInfo:first")[0].scrollIntoView();
 				}
 			}
 		}, function(error) {

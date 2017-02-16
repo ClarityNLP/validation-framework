@@ -92,13 +92,17 @@ class SolrDAO @Inject() (configuration: play.api.Configuration)  {
           } else {
             ""
           }
-          val doc = new models.Document(resDoc.getFieldValue("id").toString(),
-              resDoc.getFieldValue("source").toString(),
-              resDoc.getFieldValue(subjectField).toString(),
-              resDoc.getFieldValue("report_date").asInstanceOf[Date],
-              snippet,
-              resDoc.getFieldValue("report_text").toString())
-          docs += doc
+          val txt = resDoc.getFieldValue("report_text").toString().trim()
+          if (txt.length > 0) {
+            val doc = new models.Document(resDoc.getFieldValue("id").toString(),
+                resDoc.getFieldValue("source").toString(),
+                resDoc.getFieldValue(subjectField).toString(),
+                resDoc.getFieldValue("report_date").asInstanceOf[Date],
+                snippet,
+                txt)
+            
+            docs += doc
+          }
         }
         
         val subjectFacet = response.getFacetField(subjectField)
