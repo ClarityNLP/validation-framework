@@ -84,3 +84,39 @@ table {
 	color: #f8aa80;
 }
 
+.text-input-small {
+
+    padding: 6px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+#subject-detail-section
+{
+    position: absolute;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -khtml-border-radius: 20px;
+    border-radius: 20px;
+    top: 250px; 
+    bottom: 0px;
+    left: 220px;
+    margin-right: 50px;
+    right: 0px;
+    padding: 0px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#subject-level-filters
+{
+    padding: 10px 0;
+    position: fixed;
+    left: 50px;
+    top: 130px; /* same as .content top*/
+    bottom: 0px;
+    width: 200px;
+    height: 800px;
+}
+
+

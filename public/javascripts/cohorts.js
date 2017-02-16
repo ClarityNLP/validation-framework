@@ -205,9 +205,8 @@ angular.module('cohorts', [])
 	}
 	
 	$scope.gotoIndexDate = function() {
-		var indexDate = $scope.activeSubject.indexDate;
 		$('html, body').animate({
-            scrollTop: $(".date-section[attr-date='" + indexDate + "']").offset().top
+            scrollTop: $(".td-offset[attr-offset='0']").offset().top
         }, 50);
 	};
 
@@ -352,6 +351,15 @@ angular.module('cohorts', [])
 		}
 
 
+	};
+	
+	$scope.filterOnName = function(name) {
+		if (name === $scope.filterText) {
+			$scope.filterText = '';
+		} else {
+			$scope.filterText = name;
+		}
+		
 	};
 
 	$scope.resetSubjectFilters = function(resetSubjectDocs) {

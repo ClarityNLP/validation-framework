@@ -11,7 +11,7 @@
   	<div class="row">
 
   		<div class="col-xs-4">
-  			<button class="btn btn-primary" ng-click="backView('list')">&laquo; Back to List</button>
+  			<button class="btn btn-primary btn-sm" ng-click="backView('list')">&laquo; Back to List</button>
   		</div>
   		<div class="col-xs-8">
   			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('forward')">Next &raquo;</button>
@@ -19,7 +19,7 @@
   		</div>
 
   		<div class="col-xs-12">
-  			<div style="float:right;font-size: large;">
+  			<div style="float:right;font-size: medium;">
   				<b>{{activeSubject.index + 1}}</b> of <b>{{subjects.length}}</b>
  			</div>
   		</div>
@@ -27,36 +27,35 @@
   	<div class="row">
   		<div class="col-xs-12">
   			<div align="center">
-	  			<h2 title="Patient ID: {{activeSubject.subjectId}} Patient Source: {{activeSubject.sourceId}}" style="margin-top: 0px;">Patient #{{activeSubject.sourceId}}</h2>
-	  			<h4 ng-show="activeSubject.gender && activeSubject.gender.length > 0">{{activeSubject.gender}}, <span title="Born: {{activeSubject.yearOfBirth}}">{{activeSubject.age}}</span></h4>
-	  			<h5 ng-show="activeSubject.subjectCallsPending > 0" style="color:#006687"><i class="fa fa-circle-o-notch fa-spin"></i></h5>
+	  			<h3 title="Patient ID: {{activeSubject.subjectId}} Patient Source: {{activeSubject.sourceId}}" style="margin-top: 0px;">Patient #{{activeSubject.sourceId}}</h3>
+	  			<h5 ng-show="activeSubject.gender && activeSubject.gender.length > 0">{{activeSubject.gender}}, <span title="Born: {{activeSubject.yearOfBirth}}">{{activeSubject.age}}</span></h5>
+	  			<h6 ng-show="activeSubject.subjectCallsPending > 0" style="color:#006687"><i class="fa fa-circle-o-notch fa-spin"></i></h6>
 	  		</div>
   		</div>
   	</div>
-  	<div class="row">
-  		<div class="col-xs-2" id="subject-level-filters">
+  	<div class="row" >
+  		<div id="subject-level-filters">
   		    <div style="padding-bottom:5px" ng-show="mode === 'cohort'">
-            	<h4>Date: <small style="cursor:pointer"></h4>
+            	<h5>Date: <small style="cursor:pointer"></h5>
             	<label><a style="cursor:pointer" ng-click="gotoIndexDate()">(Jump to Index Date)</a></label>
             </div>
-  			<h4>Filters: 
+  			<h5>Filters: 
   				<!--<small style="cursor:pointer"> (<a ng-click="resetSubjectFilters(true)">Reset</a>)</small>-->
   				<small><a ng-click="checkAllFilters(true)">all</a></small> | <small><a ng-click="checkAllFilters(false)">none</a></small>
-  			</h4>
+  			</h5>
   			
-  			<input ng-model="filterText" class="form-control">
+  			<input ng-model="filterText" class="text-input-small">
   			<div class="checkbox" ng-repeat="f in validSubjectFilters">
-  			  <br ng-if="f === 'documents'" />
-              <label style="font-size:110%" class="{{ 'text-'+f }}">
+              <label class="{{ 'text-filter text-'+f }}">
                 <input type="checkbox" ng-model="activeValidSubjectFilters[f]" class="subject-filter-checkbox"> {{ capitalize(f) }} <span ng-if="f === 'documents'"> (<span>{{activeSubject.docCount}}</span>) </span>
               </label>
             </div>
             <div style="padding-top:2px">
-            	<label>Search Documents: <input class="form-control" ng-model="searchDocumentsWithinSubject" ng-keypress="($event.which === 13)?doSearchWithinSubject():0"></label>
-            	<a id="btn-search-within" class="btn btn-success" ng-click="doSearchWithinSubject()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
+            	<label>Search Documents: <input class="text-input-small" ng-model="searchDocumentsWithinSubject" ng-keypress="($event.which === 13)?doSearchWithinSubject():0"></label>
+            	<a id="btn-search-within" class="btn btn-success btn-sm" ng-click="doSearchWithinSubject()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
             </div>
   		</div>
-  		<div class="col-xs-10">
+  		<div id="subject-detail-section">
 <!--   			<div ng-if="mode === 'cohort'" style="margin-bottom:10px">
 	  			<div  id="slider">
 	  			</div>
@@ -118,11 +117,11 @@
 			                <tbody>
 			                  <tr class="readable record-row" attr-date="{{d}}" attr-domain="{{rec.domain}}" ng-show="activeValidSubjectFilters[rec.domain]" 
 			                  	ng-repeat="rec in activeSubject.records[d] | orderBy: ['domain', 'conceptName']  | filter:filterText">
-			                  	<td ng-if="mode === 'cohort'">{{ rec.dateOffset }}</td>
+			                  	<td class="td-offset" ng-if="mode === 'cohort'" attr-offset="{{ rec.dateOffset }}">{{ rec.dateOffset }}</td>
 			                  	<td>{{ rec.prettyDate}}</td>
 			                    <td>{{ rec.sourceConceptValue }}</td>
-			                    <td><span style="font-weight:500" class="{{ 'text-'+rec.domain }}">{{ rec.displayName }}</span></td>
-			                    <td>{{ rec.displayValue }}</td>
+			                    <td><span style="font-weight:500" class="{{ 'text-'+rec.domain }}" ng-click="filterOnName(rec.displayName)">{{ rec.displayName }}</span></td>
+			                    <td class="{{ 'text-'+rec.domain }}">{{ rec.displayValue }}</td>
 			                  </tr>
 			                </tbody>
 			              </table>

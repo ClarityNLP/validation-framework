@@ -1,8 +1,7 @@
 angular.module('search', [])
-.controller("searchController", ['$scope', '$timeout', '$interval', '$http', '$window', '$sce', '$cacheFactory',
-	function($scope, $timeout, $interval, $http, $window, $sce, $cacheFactory) {
+.controller("searchController", ['$scope', '$timeout', '$interval', '$http', '$window', '$sce', 
+	function($scope, $timeout, $interval, $http, $window, $sce) {
 	// TODO extract out common stuff with cohorts.js and search.js
-	var cache = $cacheFactory('searchCache');
 	var currentYear = +(new Date().getFullYear());
 
 	$scope.mode = "search";
@@ -27,12 +26,19 @@ angular.module('search', [])
 	$scope.searchText = "";
 	$scope.filterText = "";
 	$scope.searchDocumentsWithinSubject = "";
+	$scope.previousQueries = [];
 
 	$scope.maxSize = 5;
 	$scope.rows = 25;
 
 	$scope.searchInput = "";
 	$scope.subjectCallsPending = 0;
+	
+
+	var prev = Cookies.get('previousQueries');
+	if (prev) {
+		$scope.previousQueries = JSON.parse(prev);
+	}
 	
 	$scope.checkAllFilters = function(on) {
 		$scope.validSubjectFilters.
@@ -41,6 +47,15 @@ angular.module('search', [])
 
 			});
 	};
+	
+	$scope.savedQueries = {
+		"Controlled Seizure" : '"controlled seizure"~4 OR "controlled seizures"~4'	
+	};
+	
+	$scope.runQuery = function(q) {
+		$scope.searchInput = q;
+		$scope.doSearch(false);
+	}
 	
 
 	$scope.formatDate = function(d) {
@@ -305,15 +320,24 @@ angular.module('search', [])
 			$scope.currentPage = 1;
 			$scope.activeDocument = {};
 			$('#btn-search').button('loading');
+			
+		}
+		
+		if ($scope.searchInput !== '' && $scope.previousQueries.indexOf($scope.searchInput) < 0) {
+			$scope.previousQueries.unshift($scope.searchInput);
+//			cache.put("previousQueries", $scope.previousQueries);
+			var prev = Cookies.get('previousQueries');
+			var qs = [];
+			if (prev) {
+				qs = JSON.parse(prev);
+			}
+			qs.unshift($scope.searchInput);
+			Cookies.set('previousQueries', JSON.stringify(qs));
 		}
 
 		$scope.searchText = $scope.searchInput.trim();
 		var curStart = ($scope.currentPage - 1) * $scope.rows;
 		var curRows = $scope.rows;
-
-		cache.put('searchText', $scope.searchText);
-		cache.put('start', curStart);
-		cache.put('rows', curRows);
 
 		$http.get("/searchtext/" + $scope.searchText + "/" + curStart + "/" + curRows)
 		.then(function(response) {
@@ -345,6 +369,15 @@ angular.module('search', [])
 			$('#btn-search').button('reset');
 			console.log("error getting back documents")
 		});
+	};
+	
+	$scope.filterOnName = function(name) {
+		if (name === $scope.filterText) {
+			$scope.filterText = '';
+		} else {
+			$scope.filterText = name;
+		}
+		
 	};
 
 	$scope.resetSubjectFilters = function(resetSubjectDocs) {

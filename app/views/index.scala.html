@@ -1,11 +1,11 @@
 @(title: String)(subtitle: String)
 
 @main(title) {
-  <div ng-controller="searchController" class="ng-cloak">
+  <div ng-controller="searchController" class="ng-cloak" style="padding-left:20px; padding-right:20px">
 	  <div class="container-fluid" ng-show="activeView === 'list'">
 	  	<div class="row">
 
-	  		<div class="col-xs-12 col-md-10">
+	  		<div class="col-xs-12 col-md-9">
 	  			<h5>
 	  			Search:
 	  			</h5>
@@ -15,13 +15,8 @@
 	  			<div style="padding-top:10px; float:right">
 	  				<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
 	  			</div>
-
-	  		</div>
-	  		<div class="col-xs-12 col-md-2">
-	  			<h5>
-	  			Filters:
-	  		</div>
-	  		<div class="col-xs-12 col-md-10" ng-show="!searched || currentDocuments.length === 0" style="padding-top:20px">
+	  			
+	  			<div ng-show="!searched || currentDocuments.length === 0" style="margin-top:80px">
 				<div class="jumbotron">
 					<h3>What you can search:</h3>
 					<ul>
@@ -43,7 +38,8 @@
 					</ul>
 				</div>
 	  		</div>
-	  		<div class="col-xs-12 col-md-10" ng-show="searched && currentDocuments.length > 0">
+	  			
+	  			<div style="margin-top:20px" ng-show="searched && currentDocuments.length > 0">
 		  			  <ul id="resultTabs" class="nav nav-tabs" role="tablist" >
 					    <li role="presentation" class="active"><a href="#reports" aria-controls="reports" role="tab" data-toggle="tab">Reports (<b>{{documentsSize}}</b>)</a></li>
 					    <li role="presentation"><a href="#subjects" aria-controls="subjects" role="tab" data-toggle="tab">Patients (<b>{{subjects.length}}</b>)</a></li>
@@ -98,7 +94,24 @@
 		            </div>
 	  		</div>
 	  	</div>
-	  </div>
+	 
+
+	</div>
+	 <div class="col-xs-12 col-md-2">
+	  			<h5>
+	  			Saved Queries:
+	  			</h5>
+	  			<div ng-repeat="(k,v) in savedQueries" style="padding:3px 0px">
+	  				<a style="cursor:pointer" ng-click="runQuery(v)">{{k}}</a>
+	  			</div>
+	  			
+	  			<h5 style="margin-top:20px">Previous Queries:</h5>
+	  			<div ng-repeat="q in previousQueries track by $index" style="padding:3px 0px">
+	  				<a style="cursor:pointer" ng-click="runQuery(q)">{{q}}</a>
+	  			</div>
+	  		</div>
+
+	 </div>
   </div>
   <div class="container-fluid" ng-show="activeView === 'document_detail'">
   	<div class="row">
