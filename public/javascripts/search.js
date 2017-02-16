@@ -63,7 +63,12 @@ angular.module('search', [])
 	}
 
 	$scope.prettyDate = function(dString) {
-		return Date.parse(dString).toString('M/d/yy');
+		var d = Date.parse(dString);
+		if (d) {
+			return d.toString('M/d/yy');
+		} else {
+			return '';
+		}
 	};
 
 	$scope.formatLongDate = function(d) {
