@@ -291,6 +291,9 @@ angular.module('search', [])
 						}
 						$scope.activeSubject.documents[elem.date].push(elem);
 					});
+					$('#subject-detail-section').animate({
+			            scrollTop: $(".documentInfo:first").offset().top
+			        }, 50);
 				}
 				$scope.setCounts('docs');
 			}

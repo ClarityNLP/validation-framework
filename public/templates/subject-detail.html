@@ -11,11 +11,11 @@
   	<div class="row">
 
   		<div class="col-xs-4">
-  			<button class="btn btn-primary btn-sm" ng-click="backView('list')">&laquo; Back to List</button>
+  			<button class="btn btn-primary btn-xs" ng-click="backView('list')">&laquo; Back to List</button>
   		</div>
   		<div class="col-xs-8">
-  			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('forward')">Next &raquo;</button>
-  			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateSubjects('back')">&laquo; Previous</button>
+  			<button class="btn btn-xs btn-default" style="float:right" ng-click="navigateSubjects('forward')">Next &raquo;</button>
+  			<button class="btn btn-xs btn-default" style="float:right" ng-click="navigateSubjects('back')">&laquo; Previous</button>
   		</div>
 
   		<div class="col-xs-12">
@@ -27,7 +27,7 @@
   	<div class="row">
   		<div class="col-xs-12">
   			<div align="center">
-	  			<h3 title="Patient ID: {{activeSubject.subjectId}} Patient Source: {{activeSubject.sourceId}}" style="margin-top: 0px;">Patient #{{activeSubject.sourceId}}</h3>
+	  			<h3 title="Patient ID: {{activeSubject.subjectId}} Patient Source: {{activeSubject.sourceId}}" style="margin-top: 0px;">Patient #{{activeSubject.subjectId}}</h3>
 	  			<h5 ng-show="activeSubject.gender && activeSubject.gender.length > 0">{{activeSubject.gender}}, <span title="Born: {{activeSubject.yearOfBirth}}">{{activeSubject.age}}</span></h5>
 	  			<h6 ng-show="activeSubject.subjectCallsPending > 0" style="color:#006687"><i class="fa fa-circle-o-notch fa-spin"></i></h6>
 	  		</div>
@@ -35,9 +35,14 @@
   	</div>
   	<div class="row" >
   		<div id="subject-level-filters">
-  		    <div style="padding-bottom:5px" ng-show="mode === 'cohort'">
-            	<h5>Date: <small style="cursor:pointer"></h5>
-            	<label><a style="cursor:pointer" ng-click="gotoIndexDate()">(Jump to Index Date)</a></label>
+  		    <div style="padding-bottom:5px;padding-top:10px" ng-show="mode === 'cohort'">
+            	<!--  <label></label>-->
+ 
+            	<label><a style="cursor:pointer" ng-click="jumpToSpecificDate(activeSubject.minIndex)">Top</a> | 
+            	<a style="cursor:pointer" ng-click="gotoIndexDate()">Index</a> | 
+            		<a style="cursor:pointer" ng-click="jumpToSpecificDate(activeSubject.maxIndex)">Bottom</a></label>
+            	<label><a style="cursor:pointer">Jump to Day </a><input ng-model="jumpDay" type="text" style="width:40px" class="text-input-small" ng-keypress="($event.which === 13)?jumpToSpecificDate(jumpDay):0"/>
+            		<button class="btn btn-success btn-xs" ng-click="jumpToSpecificDate(jumpDay)">Go</button> </label>
             </div>
   			<h5>Filters: 
   				<!--<small style="cursor:pointer"> (<a ng-click="resetSubjectFilters(true)">Reset</a>)</small>-->
@@ -52,7 +57,7 @@
             </div>
             <div style="padding-top:2px">
             	<label>Search Documents: <input class="text-input-small" ng-model="searchDocumentsWithinSubject" ng-keypress="($event.which === 13)?doSearchWithinSubject():0"></label>
-            	<a id="btn-search-within" class="btn btn-success btn-sm" ng-click="doSearchWithinSubject()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
+            	<a id="btn-search-within" class="btn btn-success btn-xs" ng-click="doSearchWithinSubject()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search</a>
             </div>
   		</div>
   		<div id="subject-detail-section">
@@ -163,7 +168,7 @@
 			              	</div>
 			             </div>
 			             <div class="col-xs-6">
-			             	<input id="jumpText" type="text" placeholder="Enter value..." ng-model="jumpText" class="form-control" />
+			             	<input id="jumpText" type="text" placeholder="Enter value..." ng-model="jumpText" class="form-control" ng-keypress="($event.which === 13)?doJumpToRecord():0"/>
 			             </div>
 			             <div class="col-xs-12">
 			             	<label style="color:red">{{jumpError}}</label>

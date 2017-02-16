@@ -29,6 +29,7 @@ angular.module('cohorts', [])
 	$scope.searchDocumentsWithinSubject = "";
 
 	$scope.subjectCallsPending = 0;
+	$scope.jumpDay = 0;
 	
 	$scope.checkAllFilters = function(on) {
 		$scope.validSubjectFilters.
@@ -205,9 +206,18 @@ angular.module('cohorts', [])
 	}
 	
 	$scope.gotoIndexDate = function() {
-		$('html, body').animate({
-            scrollTop: $(".td-offset[attr-offset='0']").offset().top
+		$('#subject-detail-section').animate({
+            scrollTop: $(".td-offset[attr-offset='0']:first").offset().top
         }, 50);
+	};
+	
+	$scope.jumpToSpecificDate = function(day) {
+		var first = $(".td-offset[attr-offset='" + day + "']:first");
+		if (first.length > 0) {
+			$('#subject-detail-section').animate({
+	            scrollTop: $(".td-offset[attr-offset='" + day + "']:first").offset().top
+	        }, 50);
+		}
 	};
 
 	$scope.getCohortEntities = function(cohort) {
@@ -396,6 +406,10 @@ angular.module('cohorts', [])
 						}
 						$scope.activeSubject.documents[elem.date].push(elem);
 					});
+					
+					$('#subject-detail-section').animate({
+			            scrollTop: $(".documentInfo:first").offset().top
+			        }, 50);
 				}
 			}
 		}, function(error) {
