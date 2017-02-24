@@ -2,6 +2,7 @@
 .cache-tests
 logs
 target
+nohup.out
 /.idea
 /.idea_modules
 /.classpath

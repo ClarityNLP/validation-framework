@@ -13,4 +13,5 @@ Date.daysBetween = function( date1, date2 ) {
   return Math.round(difference_ms/one_day); 
 }
 
-angular.module('validationApp', ['ui.bootstrap', 'ngSanitize', 'document-directive', 'subject-detail-directive', 'search', 'cohorts']);
+angular.module('validationApp', 
+		['ui.bootstrap', 'ngSanitize', 'document-directive', 'subject-detail-directive', 'data-service', 'search', 'cohorts']);

@@ -1,18 +1,14 @@
 angular.module('search', [])
-.controller("searchController", ['$scope', '$timeout', '$interval', '$http', '$window', '$sce', 
-	function($scope, $timeout, $interval, $http, $window, $sce) {
+.controller("searchController", ['$scope', '$timeout', '$interval', '$http', '$window', '$sce', 'dataService',
+	function($scope, $timeout, $interval, $http, $window, $sce, dataService) {
 	// TODO extract out common stuff with cohorts.js and search.js
 	var currentYear = +(new Date().getFullYear());
 
 	$scope.mode = "search";
 	var validViewTypes = ["list", "document_detail", "subject_detail"];
 	$scope.activeView = "list"; 
-	$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'];
-	$scope.activeValidSubjectFilters = {
-			'condition':true,
-			'drug':true,
-			'documents':true
-	};
+	$scope.validSubjectFilters = dataService.validSubjectFilters;
+	$scope.activeValidSubjectFilters = dataService.defaultSubjectFilters;
 	
 	$scope.activeCohort = {};
 	$scope.documentsSize = 0;
@@ -49,6 +45,7 @@ angular.module('search', [])
 	};
 	
 	$scope.savedQueries = {
+		// TODO
 		"Controlled Seizure" : '"controlled seizure"~4 OR "controlled seizures"~4'	
 	};
 	
@@ -59,41 +56,21 @@ angular.module('search', [])
 	
 
 	$scope.formatDate = function(d) {
-		return d.toISOString().slice(0, 10);
+		return dataService.formatDate(d);
 	}
 
-	$scope.prettyDate = function(dString) {
-		var d = Date.parse(dString);
-		if (d) {
-			return d.toString('M/d/yy');
-		} else {
-			return '';
-		}
+	$scope.prettyDate = function(d) {
+		return dataService.prettyDate(d);
 	};
 
 	$scope.formatLongDate = function(d) {
-		return $scope.formatDate(new Date(d));
+		return dataService.formatLongDate(d);
 	}
 
 	$scope.capitalize = function(n) {
-		return n.replace(/\b\w/g, function(l){ return l.toUpperCase() });
+		return dataService.capitalize(n);
 	};
 
-	$scope.activeFilterCount = function(f) {
-		var count = 0;
-		if (f === 'documents') {
-			count = $scope.activeSubject.docCount;
-		} else {
-			count = $scope.filterRecords.filter(function(d) {
-				return d.domain === f;
-			}).length;
-		}
-		return count;
-	}
-
-	$scope.setCounts = function(type) {
-
-	};
 
 	$scope.docFunction = function(d, i) {
 		d.snippet = $sce.trustAsHtml(d.snippet);
@@ -227,7 +204,6 @@ angular.module('search', [])
 						
 						
 					});
-					$scope.setCounts('docs');
 				}
 			}
 		}, function(error) {
@@ -251,7 +227,6 @@ angular.module('search', [])
 						$scope.activeSubject.dates.push(elem.date);
 					}
 				});
-				$scope.setCounts('recs');
 			}
 		}, function(error) {
 			console.log(error);
@@ -299,7 +274,6 @@ angular.module('search', [])
 					
 					$(".documentInfo:first")[0].scrollIntoView();
 				}
-				$scope.setCounts('docs');
 			}
 		}, function(error) {
 			$('#btn-search-within').button('reset');
@@ -404,5 +378,11 @@ angular.module('search', [])
 		}
 	};
 
+	$scope.jumpToSpecificDate = function(day) {
+		var first = $(".td-offset[attr-offset='" + day + "']:first");
+		if (first.length > 0) {
+			 $(".td-offset[attr-offset='" + day + "']:first")[0].scrollIntoView();
+		}
+	};
 
 }]);

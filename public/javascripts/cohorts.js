@@ -1,6 +1,6 @@
 angular.module('cohorts', [])
-.controller("cohortController", ['$scope', '$timeout', '$interval', '$http', '$window', '$sce', '$cacheFactory',
-	function($scope, $timeout, $interval, $http, $window, $sce, $cacheFactory) {
+.controller("cohortController", ['$scope', '$timeout', '$interval', '$http', '$window', '$sce', '$cacheFactory', 'dataService',
+	function($scope, $timeout, $interval, $http, $window, $sce, $cacheFactory, dataService) {
 	// TODO extract out common stuff with cohorts.js and search.js
 	var cache = $cacheFactory('cohortCache');
 
@@ -8,12 +8,8 @@ angular.module('cohorts', [])
 	var validViewTypes = ["list", "subject_detail"];
 	$scope.activeView = "list"; 
 
-	$scope.validSubjectFilters = ['condition', 'conditionera', 'death', 'device', 'drug', 'drugera', 'measurement', 'observation', 'procedure', 'specimen', 'visit', 'documents'];
-	$scope.activeValidSubjectFilters = {
-			'condition':true,
-			'drug':true,
-			'documents':true
-	};
+	$scope.validSubjectFilters = dataService.validSubjectFilters
+	$scope.activeValidSubjectFilters = dataService.defaultSubjectFilters;
 	
 	$scope.validJumpTypes = ["Patient ID", "Patient Source Value", "Index"];
 	$scope.activeJumpType = "Patient ID";
@@ -100,24 +96,19 @@ angular.module('cohorts', [])
 	}
 	
 	$scope.formatDate = function(d) {
-		return d.toISOString().slice(0, 10);
+		return dataService.formatDate(d);
 	}
 
-	$scope.prettyDate = function(dString) {
-		var d = Date.parse(dString);
-		if (d) {
-			return d.toString('M/d/yy');
-		} else {
-			return '';
-		}
+	$scope.prettyDate = function(d) {
+		return dataService.prettyDate(d);
 	};
 
 	$scope.formatLongDate = function(d) {
-		return $scope.formatDate(new Date(d));
+		return dataService.formatLongDate(d);
 	}
 
 	$scope.capitalize = function(n) {
-		return n.replace(/\b\w/g, function(l){ return l.toUpperCase() });
+		return dataService.capitalize(n);
 	};
 	
 	$scope.getDateOffset = function(d) {

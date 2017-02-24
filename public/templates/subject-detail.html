@@ -44,6 +44,7 @@
             	<label><a style="cursor:pointer">Jump to Day </a><input ng-model="jumpDay" type="text" style="width:40px" class="text-input-small" ng-keypress="($event.which === 13)?jumpToSpecificDate(jumpDay):0"/>
             		<button class="btn btn-success btn-xs" ng-click="jumpToSpecificDate(jumpDay)">Go</button> </label>
             </div>
+
   			<h5>Filters: 
   				<!--<small style="cursor:pointer"> (<a ng-click="resetSubjectFilters(true)">Reset</a>)</small>-->
   				<small><a ng-click="checkAllFilters(true)">all</a></small> | <small><a ng-click="checkAllFilters(false)">none</a></small>
