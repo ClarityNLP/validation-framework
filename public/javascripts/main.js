@@ -14,4 +14,4 @@ Date.daysBetween = function( date1, date2 ) {
 }
 
 angular.module('validationApp',
-		['ui.bootstrap', 'ngSanitize', 'document-directive', 'subject-detail-directive', 'report-detail-directive', 'data-service', 'search', 'cohorts']);
+		['ui.bootstrap', 'ngSanitize', 'document-directive', 'subject-detail-directive', 'report-detail-directive', 'data-service', 'search']);

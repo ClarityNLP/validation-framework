@@ -8,30 +8,27 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cohorts : []
+      cohorts: []
     };
   }
 
   componentDidMount() {
-    axios.get("/cohorts")
-    .then((response) => {
-      this.setState(prevState => ({
-        cohorts : reponse.data
-      }));
-    })
-    .catch((error) => {
+    axios.get("/cohorts").then((response) => {
+      this.setState(prevState => ({cohorts: response.data}));
+    }).catch((error) => {
       console.log(error);
     });
   };
 
-
-  render () {
+  render() {
     return (
       <div className="container-fluid">
-          <CohortList cohorts={this.state.cohorts}/>
+        <CohortList cohorts={this.state.cohorts}/>
       </div>
 
-  );}
+    );
+  }
 }
 
-ReactDOM.render(<App/>, document.getElementById('app'));
+ReactDOM.render(
+  <App/>, document.getElementById('app'));

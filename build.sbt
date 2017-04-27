@@ -18,6 +18,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "marked" % "0.3.2",
   "org.webjars" % "jquery" % "2.2.4",
   "org.webjars" % "bootstrap" % "3.3.7-1",
+  "org.webjars" % "bootswatch-flatly" % "3.3.7",
   "com.codeborne" % "phantomjsdriver" % "1.2.1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
   "com.typesafe.play" %% "play-slick" % "2.0.0",
