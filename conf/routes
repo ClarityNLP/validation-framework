@@ -10,6 +10,9 @@ GET     /subjectrecords/:subjectId/:useSourceValue	  	controllers.ChartDataContr
 GET     /subjectinfo/:subjectId/:useSourceValue	        controllers.ChartDataController.getSubjectInfo(subjectId:String, useSourceValue:String)
 GET     /report/:reportId/:origQuery		            controllers.ChartDataController.getReport(reportId:String, origQuery:String)
 
+# Annotation Tables
+GET     /annotation_question/:annotationId              controllers.AnnotationController.getAnnotationQuestion(annotationId:Int)
+PUT     /annotation_question/:annotationId              controllers.AnnotationController.putAnnotationQuestion(annotationId:Int)
 
 GET     /cohortview                                     controllers.CohortController.index
 GET     /cohorts                                        controllers.CohortController.getCohorts()
