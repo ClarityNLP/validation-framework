@@ -8,10 +8,10 @@ Date.daysBetween = function( date1, date2 ) {
 
   // Calculate the difference in milliseconds
   var difference_ms = date2_ms - date1_ms;
-    
+
   // Convert back to days and return
-  return Math.round(difference_ms/one_day); 
+  return Math.round(difference_ms/one_day);
 }
 
-angular.module('validationApp', 
-		['ui.bootstrap', 'ngSanitize', 'document-directive', 'subject-detail-directive', 'data-service', 'search', 'cohorts']);
+angular.module('validationApp',
+		['ui.bootstrap', 'ngSanitize', 'document-directive', 'subject-detail-directive', 'report-detail-directive', 'data-service', 'search', 'cohorts']);

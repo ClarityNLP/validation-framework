@@ -15,7 +15,7 @@
 	  			<div style="padding-top:10px; float:right">
 	  				<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
 	  			</div>
-	  			
+
 	  			<div ng-show="!searched || currentDocuments.length === 0" style="margin-top:80px">
 				<div class="jumbotron">
 					<h3>What you can search:</h3>
@@ -38,7 +38,7 @@
 					</ul>
 				</div>
 	  		</div>
-	  			
+
 	  			<div style="margin-top:20px" ng-show="searched && currentDocuments.length > 0">
 		  			  <ul id="resultTabs" class="nav nav-tabs" role="tablist" >
 					    <li role="presentation" class="active"><a href="#reports" aria-controls="reports" role="tab" data-toggle="tab">Reports (<b>{{documentsSize}}</b>)</a></li>
@@ -65,12 +65,12 @@
 					                  </tr>
 					                </tbody>
 				              </table>
-				              <ul uib-pagination 
-				              	total-items="documentsSize" 
-				              	ng-model="currentPage" 
-				              	max-size="maxSize" 
-				              	class="pagination-md" 
-				              	boundary-links="true" 
+				              <ul uib-pagination
+				              	total-items="documentsSize"
+				              	ng-model="currentPage"
+				              	max-size="maxSize"
+				              	class="pagination-md"
+				              	boundary-links="true"
 				              	items-per-page="rows"
 				              	ng-change="pageChanged()"
 				              	rotate="false"></ul>
@@ -94,7 +94,7 @@
 		            </div>
 	  		</div>
 	  	</div>
-	 
+
 
 	</div>
 	 <div class="col-xs-12 col-md-2">
@@ -104,7 +104,7 @@
 	  			<div ng-repeat="(k,v) in savedQueries" style="padding:3px 0px">
 	  				<a style="cursor:pointer" ng-click="runQuery(v)">{{k}}</a>
 	  			</div>
-	  			
+
 	  			<h5 style="margin-top:20px">Previous Queries:</h5>
 	  			<div ng-repeat="q in previousQueries track by $index" style="padding:3px 0px">
 	  				<a style="cursor:pointer" ng-click="runQuery(q)">{{q}}</a>
@@ -114,31 +114,7 @@
 	 </div>
   </div>
   <div class="container-fluid" ng-show="activeView === 'document_detail'">
-  	<div class="row">
-  		<div class="col-xs-4">
-  			<button class="btn btn-primary" ng-click="backView('list')">&laquo; Back to List</button>
-  		</div>
-  		<div class="col-xs-8">
-  			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateDocs('forward')" ng-disabled="activeDocument.index === (rows - 1) || activeDocument.index === (currentDocuments.length - 1)">Next &raquo;</button>
-  			<button class="btn btn-sm btn-default" style="float:right" ng-click="navigateDocs('back')" ng-disabled="activeDocument.index === 0">&laquo; Previous</button>
-  		</div>
-  	</div>
-  	  <div class="row">
-	  	<div class="col-xs-12">
-	  		<div align="center">
-	  			<h3>Report #{{activeDocument.reportId}}</h3>
-	  		</div>
-	  		<div class="row">
-				<div class="col-xs-9">
-					<h5><a style="cursor:pointer" ng-click="showSubject(activeDocument.subject, false)">Patient #{{activeDocument.subject}}</a></h5>
-				</div>
-				<div class="col-xs-3">
-					<h5 style="float:right">{{activeDocument.date}}</h5>
-				</div>
-			</div>
-			<document-view doc="activeDocument" viewtype="document"></document-view>
-	  	</div>
-	  </div>
+    <report-detail />
   </div>
 
   <div class="container-fluid" ng-show="activeView === 'subject_detail'">

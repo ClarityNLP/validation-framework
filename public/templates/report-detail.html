@@ -1,0 +1,25 @@
+<div class="row">
+  <div class="col-xs-4">
+    <button class="btn btn-primary" ng-click="backView('list')">&laquo; Back to List</button>
+  </div>
+  <div class="col-xs-8">
+    <button class="btn btn-sm btn-default" style="float:right" ng-click="navigateDocs('forward')" ng-disabled="activeDocument.index === (rows - 1) || activeDocument.index === (currentDocuments.length - 1)">Next &raquo;</button>
+    <button class="btn btn-sm btn-default" style="float:right" ng-click="navigateDocs('back')" ng-disabled="activeDocument.index === 0">&laquo; Previous</button>
+  </div>
+</div>
+  <div class="row">
+  <div class="col-xs-12">
+    <div align="center">
+      <h3>Report #{{activeDocument.reportId}}</h3>
+    </div>
+    <div class="row">
+    <div class="col-xs-9">
+      <h5><a style="cursor:pointer" ng-click="showSubject(activeDocument.subject, false)">Patient #{{activeDocument.subject}}</a></h5>
+    </div>
+    <div class="col-xs-3">
+      <h5 style="float:right">{{activeDocument.date}}</h5>
+    </div>
+  </div>
+  <document-view doc="activeDocument" viewtype="document"></document-view>
+  </div>
+</div>
