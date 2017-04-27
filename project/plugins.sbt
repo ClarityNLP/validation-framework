@@ -28,5 +28,4 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.1.0")
 // "Sass" CSS scripting: https://github.com/irundaia/sbt-sassify
 addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.6")
 
-// react plugin
-addSbtPlugin("com.github.ddispaltro" % "sbt-reactjs" % "0.5.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.0")

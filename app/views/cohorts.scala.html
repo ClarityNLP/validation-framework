@@ -1,59 +1,12 @@
-@(title: String)(subtitle: String)
+@(webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)
 
-@main(title) {
-<div ng-controller="cohortController" class="ng-cloak" style="padding-left:20px; padding-right:20px">
-	 <div class="container-fluid" ng-show="activeView === 'list'">
-	  	<div class="row">
+@main(webJarAssets, requireJS, title) {
 
-	  		<div class="col-xs-12 col-md-10">
-	  			<h5>
-	  			Filter:
-	  			</h5>
-	  			<div>
-	  				<input class="form-control" type="text" placeholder="Type to filter..." ng-model="cohortFilter" autofocus/>
-	  			</div>
+  <body>
+      <div id="app"></div>
+  </body>
 
-	  			<table class="table table-striped table-hover ">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style="cursor:pointer" ng-repeat="row in cohorts | filter:cohortFilter" ng-click="getCohortEntities(row)">
-                    <td>{{row.id}}</td>
-                    <td>{{row.name}}</td>
-                    <td>{{row.description}}</td>
-                    <td>{{prettyDate(row.createdDate)}}</td>
-                  </tr>
-                  </tbody>
-              </table>
-				<br/>
-	  		</div>
-  		</div>
-  		<div id="warningsModal" class="modal fade" tabindex="-1" role="dialog">
-		  <div class="modal-dialog" role="document">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		        <h4 class="modal-title">{{warning.title}}</h4>
-		      </div>
-		      <div class="modal-body">
-		        <p>{{warning.message}}</p>
-		      </div>
-		      <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		      </div>
-		    </div><!-- /.modal-content -->
-		  </div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->
-	</div>
-  <div class="container-fluid" ng-show="activeView === 'subject_detail'">
-  	<subject-detail />
-  </div>
 
-</div>
+  <script src="@routes.Assets.versioned("javascripts/build/cohorts.js")"></script>
+
 }

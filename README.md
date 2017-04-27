@@ -1,5 +1,12 @@
 ## Validation Framework
 
+#### To prepare javascript
+```
+npm install
+```
+Note: I'm transitioning from Angular to React, so it may be messy for a while, until everything is converted to React. 
+
+
 #### To compile
 
 ```

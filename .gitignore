@@ -10,3 +10,6 @@ nohup.out
 /.settings
 /RUNNING_PID
 /bin/
+logs
+app/assets/javascripts/build
+node_modules
