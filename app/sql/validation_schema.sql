@@ -209,24 +209,25 @@ ALTER TABLE annotation_set_question_seq OWNER TO postgres;
 
 CREATE TABLE validation.annotation_set_result
 (
-    annotation_set_result_id bigint NOT NULL,
-    annotation_set_id bigint NOT NULL,
-    comment text COLLATE pg_catalog."default" NOT NULL,
-    annotation_question_answer_id bigint,
-    subject_id integer,
-    document_id character varying(150) COLLATE pg_catalog."default",
-    user_id bigint NOT NULL,
-    date_reviewed date NOT NULL,
-    annontation_question_id bigint,
-    CONSTRAINT annotation_set_result_pkey PRIMARY KEY (annotation_set_result_id),
-    CONSTRAINT annotation_set_result_question_fk FOREIGN KEY (annontation_question_id)
-        REFERENCES validation.annotation_question (annotation_question_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT annotation_set_result_user_fk FOREIGN KEY (user_id)
-        REFERENCES validation.validation_user (user_id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+  annotation_set_result_id bigint NOT NULL,
+  annotation_set_id bigint NOT NULL,
+  annontation_question_id bigint NOT NULL,
+  answer_text text COLLATE pg_catalog."default",
+  annotation_question_answer_id bigint,
+  comment text COLLATE pg_catalog."default",
+  subject_id integer,
+  document_id character varying(150) COLLATE pg_catalog."default",
+  user_id bigint NOT NULL,
+  date_reviewed date NOT NULL,
+  CONSTRAINT annotation_set_result_pkey PRIMARY KEY (annotation_set_result_id),
+  CONSTRAINT annotation_set_result_question_fk FOREIGN KEY (annontation_question_id)
+      REFERENCES validation.annotation_question (annotation_question_id) MATCH SIMPLE
+      ON UPDATE NO ACTION
+      ON DELETE NO ACTION,
+  CONSTRAINT annotation_set_result_user_fk FOREIGN KEY (user_id)
+      REFERENCES validation.validation_user (user_id) MATCH SIMPLE
+      ON UPDATE NO ACTION
+      ON DELETE NO ACTION
 );
 
 
