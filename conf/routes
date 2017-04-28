@@ -13,6 +13,9 @@ GET     /report/:reportId/:origQuery		            controllers.ChartDataControlle
 # Annotation Tables
 GET     /annotation_question/:annotationId              controllers.AnnotationController.getAnnotationQuestion(annotationId:Int)
 PUT     /annotation_question/:annotationId              controllers.AnnotationController.putAnnotationQuestion(annotationId:Int)
+GET     /annotation_question_answer/:annotationId       controllers.AnnotationController.getAnnotationQuestionAnswer(annotationId:Int)
+PUT     /annotation_question_answer/:annotationId       controllers.AnnotationController.putAnnotationQuestionAnswer(annotationId:Int)
+
 
 GET     /cohortview                                     controllers.CohortController.index
 GET     /cohorts                                        controllers.CohortController.getCohorts()
