@@ -1,0 +1,50 @@
+[
+  {
+    "annotation_set_result_id": 3,
+    "annotation_set_id": 1,
+    "comment": "bleh",
+    "annotation_question_answer_id": 2,
+    "subject_id": 567,
+    "document_id": "",
+    "user_id": 1,
+    "date_reviewed": "2017-04-26",
+    "annontation_question_id": 1,
+    "answer_text": ""
+  },
+  {
+    "annotation_set_result_id": 1,
+    "annotation_set_id": 1,
+    "comment": "Tastes great",
+    "annotation_question_answer_id": 1,
+    "subject_id": 111,
+    "document_id": "",
+    "user_id": 1,
+    "date_reviewed": "2017-04-26",
+    "annontation_question_id": 1,
+    "answer_text": ""
+  },
+  {
+    "annotation_set_result_id": 2,
+    "annotation_set_id": 1,
+    "comment": "n/a",
+    "annotation_question_answer_id": "",
+    "subject_id": 111,
+    "document_id": "",
+    "user_id": 1,
+    "date_reviewed": "2017-04-26",
+    "annontation_question_id": 2,
+    "answer_text": ""
+  },
+  {
+    "annotation_set_result_id": 4,
+    "annotation_set_id": 1,
+    "comment": "",
+    "annotation_question_answer_id": "",
+    "subject_id": 567,
+    "document_id": "",
+    "user_id": 1,
+    "date_reviewed": "2017-04-26",
+    "annontation_question_id": 2,
+    "answer_text": "Nothing more to say."
+  }
+]

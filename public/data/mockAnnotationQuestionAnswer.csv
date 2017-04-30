@@ -1,0 +1,29 @@
+[
+  {
+    "annotation_question_answer_id": 1,
+    "annotation_question_id": 1,
+    "text": "Yes, of course!",
+    "value": 1,
+    "help_text": "",
+    "date_created": "2017-04-28",
+    "date_updated": "2017-04-28"
+  },
+  {
+    "annotation_question_answer_id": 2,
+    "annotation_question_id": 1,
+    "text": "No, eww.",
+    "value": 0,
+    "help_text": "",
+    "date_created": "2017-04-28",
+    "date_updated": "2017-04-28"
+  },
+  {
+    "annotation_question_answer_id": 4,
+    "annotation_question_id": 1,
+    "text": "sa1le answer",
+    "value": "test value",
+    "help_text": "no help for you",
+    "date_created": "2017-04-28",
+    "date_updated": "2017-04-28"
+  }
+]

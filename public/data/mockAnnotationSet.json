@@ -1,0 +1,12 @@
+[
+  {
+    "annotation_set_id": 1,
+    "annotation_set_definition_id": 1,
+    "cohort_name": "Epilepsy",
+    "cohort_source": "mimic",
+    "cohort_id": 36,
+    "owner": "chilton9",
+    "date_created": "2017-04-26",
+    "date_updated": "2017-04-26"
+  }
+]
