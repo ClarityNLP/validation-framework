@@ -14,7 +14,21 @@ class App extends React.Component {
 
   componentDidMount() {
     axios.get("/cohorts").then((response) => {
-      this.setState(prevState => ({cohorts: response.data}));
+      this.setState(prevState => ({cohorts: response.data}), () => {
+        axios.get('/assets/data/mockAnnotationSet.json')
+          .then(function (response) {
+            var annotationSets = {};
+            response.data.forEach((elem, index) => {
+              if (!annotationSets[elem.cohort_id]) { annotationSets[elem.cohort_id] = []; }
+              annotationSets[elem.cohort_id].push(elem);
+            });
+            console.log(annotationSets);
+            this.setState(prevState => ({annotationSets: annotationSets}));
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      });
     }).catch((error) => {
       console.log(error);
     });

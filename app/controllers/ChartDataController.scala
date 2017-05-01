@@ -3,7 +3,7 @@ package controllers
 import javax.inject.Inject
 
 import play.api.libs.json.Json
-import play.api.mvc.{Controller, _}
+import play.api.mvc._
 import services.{JsonMapper, WebAPIService}
 
 class ChartDataController @Inject() (solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService) extends Controller with JsonMapper {

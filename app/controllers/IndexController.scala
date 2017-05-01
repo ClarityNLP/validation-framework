@@ -44,15 +44,6 @@ class IndexController @Inject() (val config: Config, val playSessionStore: PlayS
     asScalaBuffer(profiles).toList
   }
 
-  def index = Secure("FormClient") { profiles =>
-    Action { request =>
-      val webContext = new PlayWebContext(request, playSessionStore)
-      val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]
-      val sessionId = webContext.getSessionAttribute(Pac4jConstants.SESSION_ID).asInstanceOf[String]
-      Ok(views.html.index(true, profiles, csrfToken, sessionId, webJarAssets, requireJS, "Home"))
-    }
-  }
-
   def loginForm = Action { implicit request =>
     val formClient = config.getClients.findClient("FormClient").asInstanceOf[FormClient]
     Ok(views.html.loginForm.render(false, formClient.getCallbackUrl, webJarAssets, requireJS, "Home"))
