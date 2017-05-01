@@ -14,9 +14,16 @@ GET     /subjectdocuments/:subjectId/:highlightQuery	controllers.ChartDataContro
 GET     /subjectrecords/:subjectId/:useSourceValue	  controllers.ChartDataController.getSubjectRecords(subjectId:String, useSourceValue:String)
 GET     /subjectinfo/:subjectId/:useSourceValue	      controllers.ChartDataController.getSubjectInfo(subjectId:String, useSourceValue:String)
 GET     /report/:reportId/:origQuery		              controllers.ChartDataController.getReport(reportId:String, origQuery:String)
-
 GET    /source                                          controllers.IndexController.getSource
 GET    /source/sources                                  controllers.IndexController.getSources
+
+# Annotation Tables
+GET     /annotation_question/:annotationId              controllers.AnnotationController.getAnnotationQuestion(annotationId:Int)
+PUT     /annotation_question/:annotationId              controllers.AnnotationController.putAnnotationQuestion(annotationId:Int)
+GET     /annotation_question_answer/:annotationId       controllers.AnnotationController.getAnnotationQuestionAnswer(annotationId:Int)
+PUT     /annotation_question_answer/:annotationId       controllers.AnnotationController.putAnnotationQuestionAnswer(annotationId:Int)
+GET     /annotation_set/:annotationSetId                controllers.AnnotationController.getAnnotationSet(annotationSetId:Int)
+PUT     /annotation_set/:annotationSetId                controllers.AnnotationController.putAnnotationSet(annotationSetId:Int)
 
 GET     /cohortview                                     controllers.CohortController.index
 GET     /cohorts                                        controllers.CohortController.getCohorts()
