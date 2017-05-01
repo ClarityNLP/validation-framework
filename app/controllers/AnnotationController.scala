@@ -52,18 +52,11 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
         response +=
-          s
-          """
-               |{"annotation_question_id":"$annotation_question_id
-",
-               | "question_name":"
-             $question_name
-",
-               | "question_type":"$
-             question_type
-",
-               | "help_text":"$help_text
-",
+          s"""
+               |{"annotation_question_id":"$annotation_question_id",
+               | "question_name":"$question_name",
+               | "question_type":"$question_type",
+               | "help_text":"$help_text",
                | "date_created":"$date_created",
                | "date_updated":"$date_updated"
                |}
@@ -87,30 +80,19 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.parse(jsonStr + "}"));
   }
 
-  def putAnnotationQuestionAnswer(
+  def putAnnotationQuestionAnswer(annotationId:Int) = Action { request =>
+    val json = request.body.asJson.get
+    val conn = db.getConnection()
 
-                                   annotationId:Int) = Action { request =>
-    val json = request.body.
-      asJson.get
-    val conn = db.getConnection
-    ()
-
-      val annotation_question_id =
-        (json \ "annotation_question_id").as[String]
-      val text = (json \
-        "text").as[String]
-      val value = (json \ "value").as[
-        String]
+      val annotation_question_id = (json \ "annotation_question_id").as[String]
+      val text = (json \ "text").as[String]
+      val value = (json \ "value").as[String]
       val help_text = (json \ "help_text").as[String]
 
       val queryString =
-        s
-        """insert into validation.annotation_question_answer
+        s"""insert into validation.annotation_question_answer
            | (annotation_question_answer_id, annotation_question_id, text, value, help_text, date_created, date_updated)
-           | values ($
-         annotationId, '$annotation_question_id', '$text', '$
-         value', '$help_text
-', current_date, current_date)
+           | values ($annotationId, '$annotation_question_id', '$text', '$value', '$help_text', current_date, current_date)
            | on conflict (annotation_question_answer_id) do update set
            | annotation_question_id = '$annotation_question_id',
            | text = '$text',
@@ -176,7 +158,6 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     val cohort_source = (json \ "cohort_source").as[String]
     val cohort_id = (json \ "cohort_id").as[String]
     val owner = (json \ "owner").as[String]
-
     val queryString =
       s"""insert into validation.annotation_set
          | (annotation_set_id, annotation_set_definition_id, cohort_name, cohort_source, cohort_id, owner, date_created, date_updated)
