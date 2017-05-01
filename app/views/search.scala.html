@@ -1,0 +1,138 @@
+@(loggedIn:Boolean, profiles: List[org.pac4j.core.profile.CommonProfile], csrfToken: String, sessionId: String, webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)
+
+@main(loggedIn, profiles, csrfToken, sessionId, webJarAssets, requireJS, title) {
+  <div  ng-app="validationApp">
+	  <div ng-controller="searchController" class="ng-cloak" style="padding-left:20px; padding-right:20px">
+		  <div class="container-fluid" ng-show="activeView === 'list'">
+			<div class="row">
+
+				<div class="col-xs-12 col-md-9">
+					<h5>
+					Search:
+					</h5>
+					<div>
+						<input class="form-control" type="text" placeholder="Query..." ng-model="searchInput" ng-keypress="($event.which === 13)?doSearch(false):0" autofocus/>
+					</div>
+					<div style="padding-top:10px; float:right">
+						<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
+					</div>
+
+					<div ng-show="!searched || currentDocuments.length === 0" style="margin-top:80px">
+					<div class="jumbotron">
+						<h3>What you can search:</h3>
+						<ul>
+							<li><b>Terms:</b> <pre>seizure</pre> <pre>headache</pre></li>
+							<li><b>Phrases:</b> <pre>"high cholesterol"</pre><pre>"left lower back pain"</pre></li>
+							<li><b>Wildcards:</b> <pre>epilep*</pre> <pre>in*able</pre>
+							<li><b>Fuzzy Searches</b> (finds similarly spelled words): <pre>lobe~</pre>
+								To find common misspellings, try:
+								<pre>emphysema~0.7</pre>
+							</li>
+							<li><b>Proximity Searches</b> (find words that are a distance away from each other):
+								<pre>"uncontrolled seizure"~5</pre>
+							</li>
+							<li><b>Boolean Operators:</b>
+								<pre>tumor OR polyp</pre>
+								<pre>"breast cancer" AND screening</pre>
+								<pre>diabetes AND (hypertension OR "high blood pressure" OR hbp)</pre>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+					<div style="margin-top:20px" ng-show="searched && currentDocuments.length > 0">
+						  <ul id="resultTabs" class="nav nav-tabs" role="tablist" >
+							<li role="presentation" class="active"><a href="#reports" aria-controls="reports" role="tab" data-toggle="tab">Reports (<b>{{documentsSize}}</b>)</a></li>
+							<li role="presentation"><a href="#subjects" aria-controls="subjects" role="tab" data-toggle="tab">Patients (<b>{{subjects.length}}</b>)</a></li>
+						  </ul>
+							 <div class="tab-content">
+								<div role="tabpanel" class="tab-pane active" id="reports">
+									<table class="table table-striped table-hover ">
+										<thead>
+										  <tr>
+											<th>Document</th>
+											<th>Patient</th>
+											<th style="min-width: 90px;">Date</th>
+											<th>Snippet</th>
+										  </tr>
+										</thead>
+										<tbody>
+										  <tr ng-repeat="doc in currentDocuments">
+											<td style="vertical-align:top"><span class="h5"><a ng-click="showDoc(doc)" style="cursor:pointer">{{doc.reportId}}</a></span></td>
+											<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(doc.subject, false)" style="cursor:pointer">{{doc.subject}}</a></span></td>
+											<td style="vertical-align:top"><span>{{doc.date}}</span></td>
+
+											<td  style="vertical-align:top;"><span class="h5 readable" style="font-size:16px" ng-bind-html="doc.snippet"></span></td>
+										  </tr>
+										</tbody>
+								  </table>
+								  <ul uib-pagination
+									total-items="documentsSize"
+									ng-model="currentPage"
+									max-size="maxSize"
+									class="pagination-md"
+									boundary-links="true"
+									items-per-page="rows"
+									ng-change="pageChanged()"
+									rotate="false"></ul>
+								</div>
+						<div role="tabpanel" class="tab-pane" id="subjects">
+							<table class="table table-striped table-hover ">
+								<thead>
+								  <tr>
+									<th>Patient Source Value</th>
+									<th>Matching Document Count</th>
+								  </tr>
+								</thead>
+								<tbody>
+								  <tr ng-repeat="s in subjects | orderBy:'-count'">
+									<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(s.id, false)" style="cursor:pointer">{{s.id}}</a></span></td>
+									<td style="vertical-align:top"><span class="h5">{{s.count}}</td>
+								  </tr>
+								</tbody>
+						  </table>
+						  <br/>
+						</div>
+				</div>
+			</div>
+
+
+		</div>
+		 <div class="col-xs-12 col-md-2">
+					<h5>
+					Saved Queries:
+					</h5>
+					<div ng-repeat="(k,v) in savedQueries" style="padding:3px 0px">
+						<a style="cursor:pointer" ng-click="runQuery(v)">{{k}}</a>
+					</div>
+
+					<h5 style="margin-top:20px">Previous Queries:</h5>
+					<div ng-repeat="q in previousQueries track by $index" style="padding:3px 0px">
+						<a style="cursor:pointer" ng-click="runQuery(q)">{{q}}</a>
+					</div>
+				</div>
+
+		 </div>
+	  </div>
+	  <div class="container-fluid" ng-show="activeView === 'document_detail'">
+		<report-detail />
+	  </div>
+
+	  <div class="container-fluid" ng-show="activeView === 'subject_detail'">
+		<subject-detail />
+	  </div>
+
+	  <script src="@routes.Assets.versioned("javascripts/angular.min.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/angular-sanitize.min.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/angular-animate.min.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/angular-touch.min.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/angular-ui-bootstrap.min.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/data-service.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/document-directive.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/subject-detail-directive.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/report-detail-directive.js")" type="text/javascript"></script>
+
+	  <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
+	  <script src="@routes.Assets.versioned("javascripts/search.js")" type="text/javascript"></script>
+  </div>
+}

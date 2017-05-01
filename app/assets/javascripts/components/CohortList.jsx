@@ -3,7 +3,7 @@ import React from 'react';
 class CohortList extends React.Component {
   render() {
     return (
-      <div className="row">
+      <div className="row" style={{padding:"0px 20px"}}>
         <table className="table table-striped table-hover">
           <thead>
             <tr>

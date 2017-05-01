@@ -1,12 +1,10 @@
 package controllers
 
-import dao.SolrDAO
 import javax.inject.Inject
+
 import play.api.libs.json.Json
-import play.api.mvc._
-import play.api.mvc.Controller
-import services.JsonMapper
-import services.WebAPIService
+import play.api.mvc.{Controller, _}
+import services.{JsonMapper, WebAPIService}
 
 class ChartDataController @Inject() (solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService) extends Controller with JsonMapper {
    def getSubjectDocuments(subjectId:String, highlightQuery:String) = Action {

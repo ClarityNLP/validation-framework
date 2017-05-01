@@ -2,24 +2,37 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                                               controllers.SearchController.index
+# TODO may want a pretty welcome page besides search
+GET     /                                             controllers.SearchController.index
+# TODO don't need this endpoint once some things are setup
+GET     /hash/:text                                   controllers.IndexController.hash(text:String)
+GET     /loginForm                                    controllers.IndexController.loginForm
+GET     /login                                        controllers.IndexController.loginForm
+GET     /search                                       controllers.SearchController.index
 GET     /searchtext/:query/:start/:rows		            controllers.SearchController.queryText(query:String, start:Int, rows:Int)
 GET     /subjectdocuments/:subjectId/:highlightQuery	controllers.ChartDataController.getSubjectDocuments(subjectId:String, highlightQuery:String)
-GET     /subjectrecords/:subjectId/:useSourceValue	  	controllers.ChartDataController.getSubjectRecords(subjectId:String, useSourceValue:String)
-GET     /subjectinfo/:subjectId/:useSourceValue	        controllers.ChartDataController.getSubjectInfo(subjectId:String, useSourceValue:String)
-GET     /report/:reportId/:origQuery		            controllers.ChartDataController.getReport(reportId:String, origQuery:String)
+GET     /subjectrecords/:subjectId/:useSourceValue	  controllers.ChartDataController.getSubjectRecords(subjectId:String, useSourceValue:String)
+GET     /subjectinfo/:subjectId/:useSourceValue	      controllers.ChartDataController.getSubjectInfo(subjectId:String, useSourceValue:String)
+GET     /report/:reportId/:origQuery		              controllers.ChartDataController.getReport(reportId:String, origQuery:String)
 
+GET    /source                                          controllers.IndexController.getSource
+GET    /source/sources                                  controllers.IndexController.getSources
 
 GET     /cohortview                                     controllers.CohortController.index
 GET     /cohorts                                        controllers.CohortController.getCohorts()
 GET     /cohortentities/:cohortId                       controllers.CohortController.getCohortEntities(cohortId)
 
-# The play demo page
-# GET     /play                               controllers.PlayController.index
+# Routes necessary for play-pac4j
+GET         /forceLogin                       controllers.IndexController.forceLogin()
+GET         /callback                         @org.pac4j.play.CallbackController.callback()
+POST        /callback                         @org.pac4j.play.CallbackController.callback()
+GET         /casProxyCallback                 @org.pac4j.play.CallbackController.callback()
+POST        /casProxyCallback                 @org.pac4j.play.CallbackController.callback()
+GET         /logout                           @org.pac4j.play.LogoutController.logout()
+GET         /centralLogout                    controllers.CentralLogoutController.logout()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               					controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file               			controllers.Assets.versioned(path="/public", file: Asset)
 
 # WebJars
 GET         /webjars/*file                    controllers.WebJarAssets.at(file)

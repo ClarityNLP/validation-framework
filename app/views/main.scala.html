@@ -1,6 +1,6 @@
-@(webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)(content: Html)
+@(loggedIn:Boolean, profiles: List[org.pac4j.core.profile.CommonProfile], csrfToken: String, sessionId: String, webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)(content: Html)
 <!DOCTYPE html>
-<html lang="en" ng-app="validationApp">
+<html lang="en">
     <head>
         <title>Chart Reviewer</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/AnonymousPro.css")">
@@ -29,11 +29,12 @@
 	            <a class="navbar-brand" href="/">Chart Reviewer</a>
 	          </div>
 	          <div id="navbar" class="navbar-collapse collapse">
+              @if(loggedIn) {
 	            <ul class="nav navbar-nav">
 	              @if(title == "Search") {
 	              	<li class="active"><a href="#">
 	              } else {
-	              	<li><a href="/">
+	              	<li><a href="/search">
 	              }
 	              Search</a>
 	              </li>
@@ -47,9 +48,17 @@
 	              </li>
 
 	            </ul>
+
 	            <ul class="nav navbar-nav navbar-right">
-	              <li class="active"><a href="./">User</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@profiles(0).getUsername <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/logout">Logout</a></li>
+						</ul>
+					</li>
 	            </ul>
+
+              }
 	          </div><!--/.nav-collapse -->
 	        </div><!--/.container-fluid -->
 	      </nav>

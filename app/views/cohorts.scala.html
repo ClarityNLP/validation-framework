@@ -1,6 +1,6 @@
-@(webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)
+@(loggedIn:Boolean, profiles: List[org.pac4j.core.profile.CommonProfile], csrfToken: String, sessionId: String, webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)
 
-@main(webJarAssets, requireJS, title) {
+@main(loggedIn:Boolean, profiles, csrfToken, sessionId, webJarAssets, requireJS, title) {
 
   <body>
       <div id="app"></div>
