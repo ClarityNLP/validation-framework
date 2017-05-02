@@ -27,10 +27,24 @@ class CohortController @Inject() (val config: Config, val playSessionStore: Play
      }
    }
 
+   def cohortdetails(cohortId:Option[Int], setId:Option[Int]) = Secure("FormClient") { profiles =>
+      Action { request =>
+        val webContext = new PlayWebContext(request, playSessionStore)
+        val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]
+        val sessionId = webContext.getSessionAttribute(Pac4jConstants.SESSION_ID).asInstanceOf[String]
+        Ok(views.html.cohortdetails(true, profiles, csrfToken, sessionId, webJarAssets, requireJS, "Cohort Details", cohortId.get, setId.get))
+      }
+    }
+
    def getCohorts = Action {
      val cohorts = wepAPIsvc.getCohortDefinitions()
      Ok(cohorts)
    }
+
+  def getCohortDefinition(cohortId:String) = Action {
+    val cohort = wepAPIsvc.getCohortDefinition(cohortId)
+    Ok(cohort)
+  }
 
    def getCohortEntities(cohortId:String) = Action {
      val cohortEntities = wepAPIsvc.getCohortEntities(cohortId)

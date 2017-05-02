@@ -1,4 +1,5 @@
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers += "JBoss" at "https://repository.jboss.org/"
 
 // The Play plugin
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")
@@ -33,3 +34,5 @@ addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.6")
 addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.0")
 
 addSbtPlugin("org.ensime" % "sbt-ensime" % "1.12.9")
+
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")

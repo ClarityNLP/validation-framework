@@ -107,6 +107,24 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
       }
   }
 
+  def getCohortDefinition(cohortId:String):JsValue = {
+    val response: HttpResponse[String]  = try {
+      Http(ohdsiUrl + "cohortdefinition/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+    } catch {
+      case e:Exception => e.printStackTrace()
+        null
+    }
+
+    if (response == null) {
+      JsObject(Seq(
+        "valid" -> JsString("false")
+      ))
+    } else {
+      val json = Json.parse(response.body)
+      json
+    }
+  }
+
   def getCohortEntities(cohortId:String) = {
        val response: HttpResponse[String]  = try {
         Http(baseUrl + "cohort/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString

@@ -15,4 +15,3 @@ nohup.out
 logs
 app/assets/javascripts/build
 node_modules
-.idea

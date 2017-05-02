@@ -9,7 +9,8 @@ var config = {
     target: 'web',
     entry: {
         app: path.join(srcPath, 'app.jsx'),
-        cohorts: path.join(srcPath, 'cohorts.jsx')
+        cohorts: path.join(srcPath, 'cohorts.jsx'),
+        cohortdetails: path.join(srcPath, 'cohortdetails.jsx')
         //, common: ['react-dom', 'react']
     },
     resolve: {
