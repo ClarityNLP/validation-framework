@@ -3,6 +3,7 @@ import React from 'react';
 import axios from 'axios';
 
 import CohortEntityList from './components/CohortEntityList.jsx';
+import SubjectDetail from './components/SubjectDetail.jsx';
 
 var QueryString = function () {
     var query_string = {};
@@ -28,8 +29,14 @@ class CohortDetails extends React.Component {
         super(props);
         this.state = {
             entities: [],
-            cohort : {}
+            cohort : {},
+            mode : "list-view",
+            subject : {}
         };
+
+        this.subjectSelected = this.subjectSelected.bind(this);
+        this.backToList = this.backToList.bind(this);
+        this.navigateSubjects = this.navigateSubjects.bind(this);
     }
 
     componentDidMount() {
@@ -51,14 +58,19 @@ class CohortDetails extends React.Component {
             axios.get("/cohortentities/" + cohortId)
                 .then((response) => {
                     this.setState(prevState => ({
-                        entities: response.data.map((d) => {
+                        entities: response.data.map((d, index) => {
+                            d.index = index;
                             if (d.demographics) {
                                 d.gender = d.demographics.gender;
                                 d.age = d.demographics.age;
+                                d.sourceValue = d.demographics.personSourceValue;
                             } else {
                                 d.gender = "";
                                 d.age = "";
+                                d.sourceValue = "";
                             }
+                            d.indexDate = d.cohortStartDate;
+                            d.url = "/chart"
                             return d;
                         })
                     }));
@@ -69,17 +81,49 @@ class CohortDetails extends React.Component {
         }
     };
 
+    subjectSelected(subject) {
+        console.log(subject);
+        this.setState(prevState => (
+            {
+                mode : "subject-view",
+                subject : subject
+            }));
+    }
+
+    backToList() {
+        this.setState(prevState => (
+            {
+                mode : "list-view",
+                subject : {}
+            }));
+    }
+
+    navigateSubjects(direction) {
+
+    };
+
     render() {
         return (
+
             <div className="container-fluid">
-                <div>
-                    <a className="btn btn-sm btn-default" href="/cohortview">&laquo; Back</a>
-                </div>
-                <div>
-                    <h2>{this.state.cohort.name}</h2>
-                </div>
-                <CohortEntityList entities={this.state.entities} cohort={this.state.cohort} />
+                {this.state.mode === "list-view"
+                    ?
+                    <div>
+                        <div>
+                            <a className="btn btn-sm btn-default" href="/cohortview">&laquo; Back</a>
+                        </div>
+                        <div>
+                            <h2>{this.state.cohort.name}</h2>
+                        </div>
+                        <CohortEntityList entities={this.state.entities} cohort={this.state.cohort}
+                            subjectSelected={this.subjectSelected}
+                            />
+                    </div>
+                    :
+                        <SubjectDetail subject={this.state.subject} backToList={this.backToList}/>
+                    }
             </div>
+
         );
     }
 }

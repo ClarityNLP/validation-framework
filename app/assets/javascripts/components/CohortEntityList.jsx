@@ -29,8 +29,10 @@ class CohortEntityList extends React.Component {
                 <tr key={p.subjectId} style={{
                   verticalAlign : "middle",
                   cursor: "pointer"
-                }}>
-                  <td>{p.subjectId}</td>
+
+                }}
+                onClick={()=>this.props.subjectSelected(p)}>
+                  <td>{p.sourceValue}</td>
                   <td>{p.age}</td>
                   <td>{p.gender}</td>
                   <td></td>

@@ -27,11 +27,11 @@ PUT     /annotation_set/:annotationSetId                controllers.AnnotationCo
 GET     /annotation_set_by_name/:username               controllers.AnnotationController.getAnnotationSetByUsername(username:String)
 
 
-GET     /cohortview                           controllers.CohortController.index
-GET     /cohorts                             controllers.CohortController.getCohorts()
-GET     /cohortentities/:cohortId            controllers.CohortController.getCohortEntities(cohortId)
-GET     /cohortdetails/                      controllers.CohortController.cohortdetails(cohortId:Option[Int], setId:Option[Int])
-GET     /cohort/:cohortId                    controllers.CohortController.getCohortDefinition(cohortId)
+GET     /cohortview                             controllers.CohortController.index
+GET     /cohorts                                controllers.CohortController.getCohorts()
+GET     /cohortentities/:cohortId               controllers.CohortController.getCohortEntities(cohortId)
+GET     /cohortdetails/                         controllers.CohortController.cohortdetails(cohortId:Option[Int], setId:Option[Int])
+GET     /cohort/:cohortId                       controllers.CohortController.getCohortDefinition(cohortId)
 
 # Routes necessary for play-pac4j
 GET         /forceLogin                       controllers.IndexController.forceLogin()
