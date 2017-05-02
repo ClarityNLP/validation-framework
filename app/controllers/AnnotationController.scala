@@ -220,4 +220,43 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     }
     Ok(Json.parse(jsonStr + "}"));
   }
+
+  def getAnnotationSetByUsername(username:String) = Action { request =>
+    var jsonStr = "{\"response\":"
+    var response = ""
+    val conn = db.getConnection()
+    val queryString = s"""select asd.annotation_set_definition_id, asd.name, asd.owner, s.annotation_set_id, s.cohort_name, s.cohort_id, s.cohort_source from validation.annotation_set_allocation asa inner join validation.annotation_set s on s.annotation_set_id = asa.annotation_set_id inner join validation.annotation_set_definition asd on asd.annotation_set_definition_id = s.annotation_set_definition_id inner join validation.validation_user vu on vu.user_id = asa.user_id where username = '$username'; """
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        val annotation_set_definition_id = rs.getString("annotation_set_definition_id")
+        val name = rs.getString("name")
+        val owner = rs.getString("owner")
+        val annotation_set_id = rs.getString("annotation_set_id")
+        val cohort_name = rs.getString("cohort_name")
+        val cohort_id = rs.getString("cohort_id")
+        val cohort_source = rs.getString("cohort_source")
+        response +=
+          s""" {
+             | "annotation_set_allocation_id":"$annotation_set_definition_id",
+             | "name":"$name",
+             | "owner":"$owner",
+             | "annotation_set_id":"$annotation_set_id",
+             | "cohort_name":"$cohort_name",
+             | "cohort_id":"$cohort_id",
+             | "cohort_source":"$cohort_source"
+             |}""".stripMargin
+      }
+    }
+    finally {
+      conn.close()
+    }
+    if (response.length > 1) {
+      jsonStr += response
+    }
+    else {
+      jsonStr += """ "" """ // Empty quotations
+    }
+    Ok(Json.parse(jsonStr + "}"))
+  }
 }
