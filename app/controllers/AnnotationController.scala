@@ -311,4 +311,37 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     }
     Ok(Json.toJson(annotationSetWithQuestion))
   }
+
+  case class AnnotationSetQuestion(annotation_question_id:Long, question_name:String, question_type:String, help_text:String,
+                                   constraints:String, date_created:String, date_updated:String)
+  object AnnotationSetQuestion {
+    implicit val format: Format[AnnotationSetQuestion] = (
+      (__ \ "annotation_question_id").format[Long] and
+        (__ \ "question_name").format[String] and
+        (__ \ "question_type").format[String] and
+        (__ \ "help_text").format[String] and
+        (__ \ "constraints").format[String] and
+        (__ \ "date_created").format[String] and
+        (__ \ "date_updated").format[String]
+      )(AnnotationSetQuestion.apply, unlift(AnnotationSetQuestion.unapply))
+  }
+
+  def getAnnotationSetQuestion(annotationSetDefinitionId:Long) = Action {
+    val conn = db.getConnection()
+    var annotationSetQuestion = List[AnnotationSetQuestion]()
+    val queryString = s"""select aq.* from validation.annotation_set_question asq
+                          inner join validation.annotation_question aq on aq.annotation_question_id = asq.annotation_question_id
+                          where asq.annotation_set_definition_id = $annotationSetDefinitionId"""
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        annotationSetQuestion ::= AnnotationSetQuestion(rs.getLong("annotation_question_id"),
+          rs.getString("question_name"), rs.getString("question_type"), rs.getString("help_text"),
+          rs.getString("constraints"), rs.getString("date_created"), rs.getString("date_updated"))
+      }
+    } finally {
+      conn.close()
+    }
+    Ok(Json.toJson(annotationSetQuestion))
+  }
 }
