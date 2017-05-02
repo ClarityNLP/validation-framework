@@ -1,6 +1,7 @@
 [
   {
     "annotation_set_id": 1,
+    "name": "My first survey",
     "annotation_set_definition_id": 1,
     "cohort_name": "Epilepsy",
     "cohort_source": "mimic",

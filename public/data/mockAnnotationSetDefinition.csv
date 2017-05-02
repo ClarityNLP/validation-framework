@@ -2,16 +2,8 @@
   {
     "annotation_set_definition_id": 1,
     "name": "My first survey",
-    "config": "{ todo : '",
-    "owner": "",
-    "date_created": "",
-    "date_updated": ""
-  },
-  {
-    "annotation_set_definition_id": "",
-    "name": "chilton9",
-    "config": "2017-04-26",
-    "owner": "2017-04-26",
+    "config": "",
+    "owner": "chilton9",
     "date_created": "",
     "date_updated": ""
   }

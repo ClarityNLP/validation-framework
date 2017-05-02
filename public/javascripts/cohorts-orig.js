@@ -8,7 +8,7 @@ angular.module('cohorts', [])
 	var validViewTypes = ["list", "subject_detail"];
 	$scope.activeView = "list";
 
-	$scope.validSubjectFilters = dataService.validSubjectFilters
+	$scope.validSubjectFilters = dataService.validSubjectFilters;
 	$scope.activeValidSubjectFilters = dataService.defaultSubjectFilters;
 
 	$scope.validJumpTypes = ["Patient ID", "Patient Source Value", "Index"];
@@ -42,18 +42,18 @@ angular.module('cohorts', [])
 		} else {
 			return "list-group-item";
 		}
-	}
+	};
 
 	$scope.setActiveJumpType = function(type) {
 		$scope.activeJumpType = type;
-	}
+	};
 
 	$scope.jumpToRecord = function() {
 		$scope.jumpError="";
 		$('#jumpModal').modal('show');
 		$('#jumpText').focus();
 
-	}
+	};
 
 	$scope.doJumpToRecord = function() {
 		var key = $scope.jumpText;
@@ -93,11 +93,11 @@ angular.module('cohorts', [])
 				console.log(error);
 			});
 		}
-	}
+	};
 
 	$scope.formatDate = function(d) {
 		return dataService.formatDate(d);
-	}
+	};
 
 	$scope.prettyDate = function(d) {
 		return dataService.prettyDate(d);
@@ -105,7 +105,7 @@ angular.module('cohorts', [])
 
 	$scope.formatLongDate = function(d) {
 		return dataService.formatLongDate(d);
-	}
+	};
 
 	$scope.capitalize = function(n) {
 		return dataService.capitalize(n);
@@ -119,7 +119,7 @@ angular.module('cohorts', [])
 			var indexDate = Date.parse($scope.activeSubject.indexDate);
 			return Date.daysBetween(indexDate, curDate);
 		}
-	}
+	};
 
 	$scope.docFunction = function(d, i) {
 		d.snippet = $sce.trustAsHtml(d.snippet);
@@ -197,9 +197,9 @@ angular.module('cohorts', [])
 		$scope.warning = {
 				title : title,
 				message : message
-		}
+		};
 		$('#warningsModal').modal('show');
-	}
+	};
 
 	$scope.gotoIndexDate = function() {
 		 $(".td-offset[attr-offset='0']:first")[0].scrollIntoView();
@@ -256,7 +256,7 @@ angular.module('cohorts', [])
 //				'max':  $scope.activeSubject.maxIndex ,
 //			}
 //		});
-	}
+	};
 
 	$scope.showSubject = function(subjectId, paging) {
 		$scope.resetSubjectFilters(false);
@@ -371,7 +371,7 @@ angular.module('cohorts', [])
 			$scope.doSearchWithinSubject();
 		}
 
-	}
+	};
 
 
 	$scope.doSearchWithinSubject = function() {

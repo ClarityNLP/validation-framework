@@ -52,12 +52,12 @@ angular.module('search', [])
 	$scope.runQuery = function(q) {
 		$scope.searchInput = q;
 		$scope.doSearch(false);
-	}
+	};
 	
 
 	$scope.formatDate = function(d) {
 		return dataService.formatDate(d);
-	}
+	};
 
 	$scope.prettyDate = function(d) {
 		return dataService.prettyDate(d);
@@ -65,7 +65,7 @@ angular.module('search', [])
 
 	$scope.formatLongDate = function(d) {
 		return dataService.formatLongDate(d);
-	}
+	};
 
 	$scope.capitalize = function(n) {
 		return dataService.capitalize(n);
@@ -369,7 +369,7 @@ angular.module('search', [])
 			$scope.doSearchWithinSubject();
 		}
 
-	}
+	};
 
 	$scope.pageChanged = function() {
 		if ($scope.searchInput != "") {
