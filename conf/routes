@@ -25,6 +25,9 @@ PUT     /annotation_question_answer/:annotationId       controllers.AnnotationCo
 GET     /annotation_set/:annotationSetId                controllers.AnnotationController.getAnnotationSet(annotationSetId:Int)
 PUT     /annotation_set/:annotationSetId                controllers.AnnotationController.putAnnotationSet(annotationSetId:Int)
 GET     /annotation_set_by_name/:username               controllers.AnnotationController.getAnnotationSetByUsername(username:String)
+GET     /annotation_sets                                controllers.AnnotationController.getAllAnnotationSets()
+
+GET     /annotation_set/name/id/:username/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
 
 
 GET     /cohortview                                     controllers.CohortController.index

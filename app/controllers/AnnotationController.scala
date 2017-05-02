@@ -4,8 +4,10 @@ import javax.inject.Inject
 
 import org.postgresql.util.PSQLException
 import play.api.db.Database
-import play.api.libs.json.{JsError, Json}
+import play.api.libs.json.{Format, JsError, Json}
 import play.api.mvc.{Action, Controller}
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 /**
   * Created by ncampbell7 on 4/25/17.
@@ -36,48 +38,42 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok("{success:True}")
   }
 
+  case class AnnotationQuestion(annotation_question_id: Long, question_name: String,
+                                question_type: String, help_text: String, constraints: String,
+                                date_created: String, date_updated: String)
+  object AnnotationQuestion {
+    implicit val format: Format[AnnotationQuestion] = (
+      (__ \ "annotation_question_id").format[Long] and
+        (__ \ "question_name").format[String] and
+        (__ \ "question_type").format[String] and
+        (__ \ "help_text").format[String] and
+        (__ \ "constraints").format[String] and
+        (__ \ "date_created").format[String] and
+        (__ \ "date_updated").format[String]
+      )(AnnotationQuestion.apply, unlift(AnnotationQuestion.unapply))
+  }
+
   def getAnnotationQuestion(annotationId: Int) = Action {
-    var jsonStr = "{\"response\":"
-    var response = ""
+    var annotationQuestions = List[AnnotationQuestion]()
     var queryString = "SELECT * from validation.annotation_question WHERE annotation_question_id='" + annotationId + "'"
     val conn = db.getConnection()
     try {
       val stmt = conn.createStatement()
       val rs = stmt.executeQuery(queryString)
       while (rs.next()) {
-        val annotation_question_id = rs.getString("annotation_question_id")
+        val annotation_question_id = rs.getLong("annotation_question_id")
         val question_name = rs.getString("question_name")
         val question_type = rs.getString("question_type")
         val help_text = rs.getString("help_text")
+        val constraints = rs.getString("constraints")
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
-        response +=
-          s"""
-               |{"annotation_question_id":"$annotation_question_id",
-               | "question_name":"$question_name",
-               | "question_type":"$question_type",
-               | "help_text":"$help_text",
-               | "date_created":"$date_created",
-               | "date_updated":"$date_updated"
-               |}
-           |""".stripMargin
+        annotationQuestions ::= AnnotationQuestion(annotation_question_id, question_name, question_type, help_text, constraints, date_created, date_updated)
       }
-    } catch {
-      case e: Exception => BadRequest(
-
-        "Something went horrifically wrong. Error: " + e.getMessage)
-    }
-    finally {
+    } finally {
       conn.close()
     }
-
-    if (response.length > 1) {
-      jsonStr += response
-    }
-    else {
-      jsonStr += """ "" """ // Empty quotations
-    }
-    Ok(Json.parse(jsonStr + "}"));
+    Ok(Json.toJson(annotationQuestions));
   }
 
   def putAnnotationQuestionAnswer(annotationId:Int) = Action { request =>
@@ -134,10 +130,6 @@ class AnnotationController @Inject() (db: Database) extends Controller {
              |}
              |""".stripMargin
       }
-    } catch {
-      case e : Exception => BadRequest("Something went horrifically wrong. Error: " +
-
-        e.getMessage)
     } finally {
       conn.close()
     }
@@ -178,9 +170,24 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Created("{success:True}")
   }
 
+  case class AnnotationSet(annotation_set_id: Long, annotation_set_definition_id: Long,
+                           cohort_name: String, cohort_source: String, cohort_id: Long,
+                           owner: String, date_created: String, date_updated: String)
+  object AnnotationSet {
+    implicit val format: Format[AnnotationSet] = (
+          (__ \ "annotation_set_id").format[Long] and
+          (__ \ "annotation_set_definition_id").format[Long] and
+          (__ \ "cohort_name").format[String] and
+          (__ \ "cohort_source").format[String] and
+          (__ \ "cohort_id").format[Long] and
+          (__ \ "owner").format[String] and
+          (__ \ "date_created").format[String] and
+          (__ \ "date_updated").format[String]
+      )(AnnotationSet.apply, unlift(AnnotationSet.unapply))
+  }
+
   def getAnnotationSet(annotationSetId:Int) = Action {
-    var jsonStr = "{\"response\":"
-    var response = ""
+    var annotationSet = List[AnnotationSet]()
     var queryString = "select * from validation.annotation_set WHERE annotation_set_id='" + annotationSetId + "'"
     val conn = db.getConnection()
     try {
@@ -191,39 +198,48 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val cohort_name = rs.getString("cohort_name")
         val cohort_source = rs.getString("cohort_source")
         val cohort_id = rs.getString("cohort_id")
-        var owner = rs.getString("owner")
+        val owner = rs.getString("owner")
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
-        response +=
-          s"""
-             |{"annotation_question_id":"$annotation_set_definition_id",
-             | "question_name":"$cohort_name",
-             | "question_type":"$cohort_source",
-             | "help_text":"$cohort_id",
-             | "owner":"$owner",
-             | "date_created":"$date_created",
-             | "date_updated":"$date_updated"
-             |}
-             |""".stripMargin
+        annotationSet ::= AnnotationSet(annotationSetId,
+          annotation_set_definition_id.toLong, cohort_name,
+          cohort_source, cohort_id.toLong, owner, date_created, date_updated)
       }
-    } catch {
-      case e: Exception => BadRequest("Something went horrifically wrong. Error: " + e.getMessage)
     }
     finally {
       conn.close()
     }
-    if (response.length > 1) {
-      jsonStr += response
-    }
-    else {
-      jsonStr += """ "" """ // Empty quotations
-    }
-    Ok(Json.parse(jsonStr + "}"));
+    Ok(Json.toJson(annotationSet))
   }
 
-  def getAnnotationSetByUsername(username:String) = Action { request =>
-    var jsonStr = "{\"response\":"
-    var response = ""
+  def getAllAnnotationSets() = Action {
+    var annotationSet = List[AnnotationSet]()
+    val conn = db.getConnection()
+    val queryString = "select * from validation.annotation_set"
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        val annotation_set_id = rs.getString("annotation_set_id")
+        val annotation_set_definition_id = rs.getString("annotation_set_definition_id")
+        val cohort_name = rs.getString("cohort_name")
+        val cohort_source = rs.getString("cohort_source")
+        val cohort_id = rs.getString("cohort_id")
+        val owner = rs.getString("owner")
+        val date_created = rs.getString("date_created")
+        val date_updated = rs.getString("date_updated")
+        annotationSet ::= AnnotationSet(annotation_set_id.toLong,
+          annotation_set_definition_id.toLong, cohort_name,
+          cohort_source, cohort_id.toLong, owner, date_created, date_updated)
+      }
+    }
+    finally {
+      conn.close()
+    }
+    Ok(Json.toJson(annotationSet))
+  }
+
+  def getAnnotationSetByUsername(username:String) = Action {
+    var annotationSet = List[AnnotationSet]()
     val conn = db.getConnection()
     val queryString = s"""select asd.annotation_set_definition_id, asd.name, asd.owner, s.annotation_set_id, s.cohort_name, s.cohort_id, s.cohort_source from validation.annotation_set_allocation asa inner join validation.annotation_set s on s.annotation_set_id = asa.annotation_set_id inner join validation.annotation_set_definition asd on asd.annotation_set_definition_id = s.annotation_set_definition_id inner join validation.validation_user vu on vu.user_id = asa.user_id where username = '$username'; """
     try {
@@ -236,27 +252,63 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val cohort_name = rs.getString("cohort_name")
         val cohort_id = rs.getString("cohort_id")
         val cohort_source = rs.getString("cohort_source")
-        response +=
-          s""" {
-             | "annotation_set_allocation_id":"$annotation_set_definition_id",
-             | "name":"$name",
-             | "owner":"$owner",
-             | "annotation_set_id":"$annotation_set_id",
-             | "cohort_name":"$cohort_name",
-             | "cohort_id":"$cohort_id",
-             | "cohort_source":"$cohort_source"
-             |}""".stripMargin
+        annotationSet ::= AnnotationSet(annotation_set_id.toLong,
+          annotation_set_definition_id.toLong, cohort_name,
+          cohort_source, cohort_id.toLong, owner, null, null)
       }
-    }
-    finally {
+    } finally {
       conn.close()
     }
-    if (response.length > 1) {
-      jsonStr += response
+    Ok(Json.toJson(annotationSet))
+  }
+
+  case class AnnotationSetWithQuestions(annotation_set_id: Long, comment: String, subject_id: Long, user_id: Long, date_reviewed: String,
+                         annotation_question_id: Long, question_name: String, answer_text: String,
+                         annotation_question_answer_id: Long, answer_label: String)
+  object AnnotationSetWithQuestions {
+    implicit val format: Format[AnnotationSetWithQuestions] = (
+      (__ \ "annotation_set_id").format[Long] and
+      (__ \ "comment").format[String] and
+      (__ \ "subject_id").format[Long] and
+      (__ \ "user_id").format[Long] and
+      (__ \ "date_reviewed").format[String] and
+      (__ \ "annotation_question_id").format[Long] and
+      (__ \ "question_name").format[String] and
+      (__ \ "answer_text").format[String] and
+      (__ \ "annotation_question_answer_id").format[Long] and
+      (__ \ "answer_label").format[String])(AnnotationSetWithQuestions.apply, unlift(AnnotationSetWithQuestions.unapply))
+  }
+
+  def getAnnotationSetByUsernameAndSetID(username:String, validationSetId:Int) = Action {
+    var annotationSetWithQuestion = List[AnnotationSetWithQuestions]()
+    val conn = db.getConnection()
+    val queryString = s"""select asr.annotation_set_id, asr.comment, asr.subject_id, asr.user_id, asr.date_reviewed, asr.annontation_question_id, aq.question_name,
+                         asr.answer_text, asr.annotation_question_answer_id, aqa.text as answer_label
+                         from validation.annotation_set_result asr
+                         inner join validation.validation_user vu on vu.user_id = asr.user_id
+                         inner join validation.annotation_question aq on aq.annotation_question_id = asr.annontation_question_id
+                         left outer join validation.annotation_question_answer aqa on asr.annotation_question_answer_id = aqa.annotation_question_answer_id
+                         where vu.username = '$username'
+                         and asr.annotation_set_id = $validationSetId"""
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        val annotation_set_id = rs.getString("annotation_set_id").toLong
+        val comment = rs.getString("comment")
+        val subject_id = rs.getString("subject_id").toLong
+        val user_id = rs.getString("user_id").toLong
+        val date_reviewed = rs.getString("date_reviewed")
+        val annotation_question_id = rs.getString("annontation_question_id").toLong
+        val question_name = rs.getString("question_name")
+        val answer_text = rs.getString("answer_text")
+        val annotation_question_answer_id = rs.getString("annotation_question_answer_id")
+        val answer_label = rs.getString("answer_label")
+        annotationSetWithQuestion ::= AnnotationSetWithQuestions(annotation_set_id, comment, subject_id, user_id,
+          date_reviewed, annotation_question_id, question_name, answer_text, 0, answer_label)
+      }
+    } finally {
+      conn.close()
     }
-    else {
-      jsonStr += """ "" """ // Empty quotations
-    }
-    Ok(Json.parse(jsonStr + "}"))
+    Ok(Json.toJson(annotationSetWithQuestion))
   }
 }
