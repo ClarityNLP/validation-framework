@@ -237,7 +237,15 @@ class AnnotationController @Inject() (db: Database) extends Controller {
   def getAnnotationSetByUsername(username:String) = Action {
     var annotationSet = List[AnnotationSet]()
     val conn = db.getConnection()
-    val queryString = s"""select asd.annotation_set_definition_id, asd.name, asd.owner, s.annotation_set_id, s.cohort_name, s.cohort_id, s.cohort_source from validation.annotation_set_allocation asa inner join validation.annotation_set s on s.annotation_set_id = asa.annotation_set_id inner join validation.annotation_set_definition asd on asd.annotation_set_definition_id = s.annotation_set_definition_id inner join validation.validation_user vu on vu.user_id = asa.user_id where username = '$username'; """
+    val queryString = s"""select asd.annotation_set_definition_id, asd.name, asd.owner, s.annotation_set_id, s.cohort_name, s.cohort_id,
+                              s.cohort_source, asd.date_created, asd.date_updated
+                        from validation.annotation_set_allocation asa
+                        inner join validation.annotation_set s on s.annotation_set_id = asa.annotation_set_id
+                        inner join validation.annotation_set_definition asd on asd.annotation_set_definition_id = s.annotation_set_definition_id
+                        inner join validation.validation_user vu on vu.user_id = asa.user_id
+                        where username = '$username'"""
+
+
     try {
       val rs = conn.createStatement().executeQuery(queryString)
       while(rs.next()) {
@@ -248,9 +256,11 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val cohort_name = rs.getString("cohort_name")
         val cohort_id = rs.getString("cohort_id")
         val cohort_source = rs.getString("cohort_source")
+        val date_created = rs.getString("date_created")
+        val date_updated = rs.getString("date_updated")
         annotationSet ::= AnnotationSet(annotation_set_id.toLong,
           annotation_set_definition_id.toLong, cohort_name,
-          cohort_source, cohort_id.toLong, owner, null, null)
+          cohort_source, cohort_id.toLong, owner, date_created, date_updated)
       }
     } finally {
       conn.close()
