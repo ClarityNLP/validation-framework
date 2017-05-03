@@ -79,23 +79,21 @@ class AnnotationController @Inject() (db: Database) extends Controller {
   def putAnnotationQuestionAnswer(annotationId:Int) = Action { request =>
     val json = request.body.asJson.get
     val conn = db.getConnection()
-
-      val annotation_question_id = (json \ "annotation_question_id").as[String]
-      val text = (json \ "text").as[String]
-      val value = (json \ "value").as[String]
-      val help_text = (json \ "help_text").as[String]
-
-      val queryString =
-        s"""insert into validation.annotation_question_answer
-           | (annotation_question_answer_id, annotation_question_id, text, value, help_text, date_created, date_updated)
-           | values ($annotationId, '$annotation_question_id', '$text', '$value', '$help_text', current_date, current_date)
-           | on conflict (annotation_question_answer_id) do update set
-           | annotation_question_id = '$annotation_question_id',
-           | text = '$text',
-           | value = '$value',
-           | help_text  = '$help_text',
-           | date_updated = current_date
-           | """.stripMargin
+    val annotation_question_id = (json \ "annotation_question_id").as[String]
+    val text = (json \ "text").as[String]
+    val value = (json \ "value").as[String]
+    val help_text = (json \ "help_text").as[String]
+    val queryString =
+      s"""insert into validation.annotation_question_answer
+         | (annotation_question_answer_id, annotation_question_id, text, value, help_text, date_created, date_updated)
+         | values ($annotationId, '$annotation_question_id', '$text', '$value', '$help_text', current_date, current_date)
+         | on conflict (annotation_question_answer_id) do update set
+         | annotation_question_id = '$annotation_question_id',
+         | text = '$text',
+         | value = '$value',
+         | help_text  = '$help_text',
+         | date_updated = current_date
+         | """.stripMargin
     try {
       var rs = conn.createStatement().execute(queryString)
     } finally {
@@ -104,42 +102,40 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Created("{success:True}")
   }
 
+  case class AnnotationQuestionAnswer(annotation_question_answer_id: Long, annotation_question_id: Long,
+                                      text: String, value: String, date_created: String, date_updated: String)
+  object AnnotationQuestionAnswer {
+    implicit val format: Format[AnnotationQuestionAnswer] = (
+        (__ \ "annotation_question_answer_id").format[Long] and
+        (__ \ "annotation_question_id").format[Long] and
+        (__ \ "text").format[String] and
+        (__ \ "value").format[String] and
+        (__ \ "date_created").format[String] and
+        (__ \ "date_updated").format[String]
+      )(AnnotationQuestionAnswer.apply, unlift(AnnotationQuestionAnswer.unapply))
+  }
+
   def getAnnotationQuestionAnswer(annotationId:Int) = Action {
-    var jsonStr = "{\"response\":"
-    var response = ""
+    var annotationQuestionAnswers = List[AnnotationQuestionAnswer]()
     var queryString = "select * from validation.annotation_question_answer where annotation_question_answer_id='" + annotationId + "'"
     val conn = db.getConnection()
     try {
       val stmt = conn.createStatement()
       val rs = stmt.executeQuery(queryString)
       while(rs.next()) {
-        val annotation_question_answer_id = rs.getString("annotation_question_answer_id")
-        val annotation_question_id = rs.getString("annotation_question_id")
+        val annotation_question_answer_id = rs.getLong("annotation_question_answer_id")
+        val annotation_question_id = rs.getLong("annotation_question_id")
         val text = rs.getString("text")
         val value = rs.getString("value")
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
-        response +=
-          s"""
-             |{"annotation_question_answer_id":"$annotation_question_answer_id",
-             | "annotation_question_id":"$annotation_question_id",
-             | "text":"$text",
-             | "value":"$value",
-             | "date_created":"$date_created",
-             | "date_updated":"$date_updated"
-             |}
-             |""".stripMargin
+        annotationQuestionAnswers ::= AnnotationQuestionAnswer(annotation_question_answer_id, annotation_question_id,
+                                                                text, value, date_created, date_updated)
       }
     } finally {
       conn.close()
     }
-    if (response.length > 1) {
-      jsonStr += response
-    }
-    else {
-      jsonStr += """ "" """ // Empty quotations
-    }
-    Ok(Json.parse(jsonStr + "}"));
+    Ok(Json.toJson(annotationQuestionAnswers));
   }
 
   def putAnnotationSet(annotationSetId:Int) = Action { request =>
@@ -262,6 +258,7 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.toJson(annotationSet))
   }
 
+  // TODO: Need a better name for this. It works but it looks hideous.
   case class AnnotationSetWithQuestions(annotation_set_id: Long, comment: String, subject_id: Long, user_id: Long, date_reviewed: String,
                          annotation_question_id: Long, question_name: String, answer_text: String,
                          annotation_question_answer_id: Long, answer_label: String)
