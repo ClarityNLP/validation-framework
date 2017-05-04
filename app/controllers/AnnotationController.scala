@@ -351,4 +351,43 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     }
     Ok(Json.toJson(annotationSetQuestion))
   }
+
+  case class AnnotationSetResult(annotation_set_result_id:Long, annotation_set_id:Long, comment:String,
+                                 annotation_question_answer_id:Long, subject_id:Long, document_id:Long, user_id:Long,
+                                date_reviewed:String, annotation_question_id:Long, answer_text:String)
+  object AnnotationSetResult {
+    implicit val format: Format[AnnotationSetResult] = (
+        (__ \ "annotation_set_result_id").format[Long] and
+        (__ \ "annotation_set_id").format[Long] and
+        (__ \ "comment").format[String] and
+        (__ \ "annotation_question_answer_id").format[Long] and
+        (__ \ "subject_id").format[Long] and
+        (__ \ "document_id").format[Long] and
+        (__ \ "user_id").format[Long] and
+        (__ \ "date_reviewed").format[String] and
+        (__ \ "annotation_question_id").format[Long] and
+        (__ \ "answer_text").format[String]
+      )(AnnotationSetResult.apply, unlift(AnnotationSetResult.unapply))
+    }
+
+  def getAnnotationSetResult(annotationSetResultId:Long) = Action {
+    var annotationSetResults = List[AnnotationSetResult]()
+    val conn = db.getConnection()
+    val queryString = s"""select * from validation.annotation_set_result where annotation_set_result_id='$annotationSetResultId'"""
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        annotationSetResults ::= AnnotationSetResult(rs.getLong("annotation_set_result_id"),
+          rs.getLong("annotation_set_id"), rs.getString("comment"), rs.getLong("annotation_question_answer_id"),
+          rs.getLong("subject_id"),
+          0 /*rs.getLong("document_id") TODO: Handle null values*/,
+          rs.getLong("user_id"), rs.getString("date_reviewed"),
+          0 /*rs.getLong("annotation_question_id") TODO: Handle null values */,
+          rs.getString("answer_text"))
+      }
+    } finally {
+      conn.close()
+    }
+    Ok(Json.toJson(annotationSetResults))
+  }
 }
