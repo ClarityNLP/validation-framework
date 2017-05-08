@@ -17,19 +17,26 @@ GET     /report/:reportId/:origQuery		              controllers.ChartDataControl
 GET     /source                                       controllers.IndexController.getSource
 GET     /source/sources                               controllers.IndexController.getSources
 
-# Annotation Tables
+# Annotation Table Endpoints
 GET     /annotation_question/:annotationId              controllers.AnnotationController.getAnnotationQuestion(annotationId:Int)
 PUT     /annotation_question/:annotationId              controllers.AnnotationController.putAnnotationQuestion(annotationId:Int)
+
 GET     /annotation_question_answer/:annotationId       controllers.AnnotationController.getAnnotationQuestionAnswer(annotationId:Int)
 PUT     /annotation_question_answer/:annotationId       controllers.AnnotationController.putAnnotationQuestionAnswer(annotationId:Int)
+
 GET     /annotation_set/:annotationSetId                controllers.AnnotationController.getAnnotationSet(annotationSetId:Int)
 PUT     /annotation_set/:annotationSetId                controllers.AnnotationController.putAnnotationSet(annotationSetId:Int)
-GET     /annotation_set/name/:username               controllers.AnnotationController.getAnnotationSetByUsername(username:String)
-GET     /annotation_sets                                controllers.AnnotationController.getAllAnnotationSets()
-GET     /annotation/set/question/:annotationSetDefinitionId controllers.AnnotationController.getAnnotationSetQuestion(annotationSetDefinitionId:Long)
-
+GET     /annotation_set/name/:username                  controllers.AnnotationController.getAnnotationSetByUsername(username:String)
+GET     /annotation_set                                controllers.AnnotationController.getAllAnnotationSets()
+GET     /annotation_set/question/:annotationSetDefinitionId controllers.AnnotationController.getAnnotationSetQuestion(annotationSetDefinitionId:Long)
 GET     /annotation_set/name/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
+GET     /annotation_set/result/:annotationSetResultId   controllers.AnnotationController.getAnnotationSetResult(annotationSetResultId:Long)
 
+# Validation Table Endpoints
+GET     /validation/users                           controllers.ValidationController.getUsers()
+GET     /validation/user/:user_id                   controllers.ValidationController.getUser(user_id:Long)
+
+# GET     /validation/local/cohort/definition/
 
 GET     /cohortview                             controllers.CohortController.index
 GET     /cohorts                                controllers.CohortController.getCohorts()
