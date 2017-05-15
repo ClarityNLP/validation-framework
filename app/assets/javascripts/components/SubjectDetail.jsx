@@ -24,6 +24,7 @@ class DataStore {
             return undefined;
         }
         if (this._cache[index] === undefined) {
+            console.log(index + " not found!");
             return undefined;
         }
         return this._cache[index];
@@ -92,10 +93,9 @@ class SubjectDetail extends React.Component {
     updateDimensions() {
         var element = document.getElementById('chart-data-div');
         var positionInfo = element.getBoundingClientRect();
-        var height = positionInfo.height;
+        var height = (window.innerHeight - 170) || positionInfo.height;
         var width = +positionInfo.width - 20;
-        this.setState(prevState => ({ chartWidth : width }));
-        console.log(width);
+        this.setState(prevState => ({ chartWidth : width, chartHeight : height }));
     };
 
     componentWillMount() {
@@ -154,6 +154,7 @@ class SubjectDetail extends React.Component {
                         }
 
                         this.setState(prevState => ({ loading:false }));
+                        this.updateDimensions();
 
                     }).catch(function (error) {
                     console.log(error);
@@ -169,14 +170,14 @@ class SubjectDetail extends React.Component {
                 <div className="col-xs-12">
                     <div className="row">
                         <div className="col-md-2">
-                            <div className="sidebar-nav-fixed affix">
+                            <div className="sidebar-nav-fixed">
                                 <div>
-                                    <button className="btn btn-primary btn-xs" onClick={() => {this.props.backToList()}}>&laquo; Back to List</button>
+                                    <button className="btn btn-default btn" onClick={() => {this.props.backToList()}}>&laquo; Back</button>
                                 </div>
-                                <div >
+                                <div style={{marginTop:"30px"}}>
                                     <div align="center">
-                                        <h3>Patient #{this.props.subject.sourceValue} <small>{this.state.loading ? <i className="fa fa-circle-o-notch fa-spin"></i> : <span></span>}</small></h3>
-                                        {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h5>{this.props.subject.age  + " yo " + this.props.subject.gender}</h5> : <div></div>}
+                                        <h4>Patient #{this.props.subject.sourceValue} <small>{this.state.loading ? <i className="fa fa-circle-o-notch fa-spin"></i> : <span></span>}</small></h4>
+                                        {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>
                                 <div style={{marginTop: "10px"}}>
@@ -184,16 +185,16 @@ class SubjectDetail extends React.Component {
                             </div>
                         </div>
                         <div id="chart-data-div" className="col-md-7">
-                            { this.state.loading ? <div> </div> :
+                            { this.state.loading ? <div style={{marginTop:"40px"}} align="center">Loading...</div> :
                                 <ChartData chartdata={this.dataStore} height={this.state.chartHeight}
                                            width={this.state.chartWidth}/>
                             }
                         </div>
                         <div className="col-md-3">
-                            <div className="sidebar-nav-fixed pull-right affix">
+                            <div className="sidebar-nav-fixed pull-right">
                                 <div >
-                                    <button className="btn btn-xs btn-default" onClick={() => {this.props.navigateSubjects(1)}}>Next &raquo;</button>
-                                    <button className="btn btn-xs btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(-1)}}>&laquo; Previous</button>
+                                    <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(1)}}>Next &raquo;</button>
+                                    <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(-1)}}>&laquo; Previous</button>
                                 </div>
                             </div>
                         </div>

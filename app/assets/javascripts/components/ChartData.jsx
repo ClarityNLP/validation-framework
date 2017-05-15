@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, Column, Cell} from 'fixed-data-table';
+import {Table, Column, Cell} from 'fixed-data-table-2';
 
 const TextCell = ({rowIndex, data, col, props}) => (
     <Cell>
@@ -71,9 +71,9 @@ class ChartData extends React.Component {
                 </div>
                 <br />
                 <Table
-                    rowHeight={50}
+                    rowHeight={60}
                     rowsCount={filteredDataList.getSize()}
-                    headerHeight={50}
+                    headerHeight={40}
                     width={this.props.width}
                     height={this.props.height}
                     {...this.props}>
@@ -81,7 +81,7 @@ class ChartData extends React.Component {
                         header={<Cell>Day</Cell>}
                         cell={<TextCell data={filteredDataList} col="dateOffset" />}
                         fixed={true}
-                        width={100}
+                        width={50}
                     />
                     <Column
                         header={<Cell>Date</Cell>}
@@ -96,13 +96,13 @@ class ChartData extends React.Component {
                     />
                     <Column
                         header={<Cell>Name</Cell>}
-                        cell={<TextCell data={filteredDataList} col="displayName" />}
-                        width={200}
+                        cell={<TextCell data={filteredDataList} col="displayName" style={{fontWeight:"bold"}} />}
+                        width={300}
                     />
                     <Column
                         header={<Cell>Value</Cell>}
                         cell={<TextCell data={filteredDataList} col="displayValue" />}
-                        width={200}
+                        width={100}
                     />
                 </Table>
             </div>

@@ -2,23 +2,24 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Chart Reviewer</title>
+        <title>Chart Review</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/AnonymousPro.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/OpenSans.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/raleway.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/droidsansmono.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/font-awesome.css")">
-        <link rel='stylesheet' href='@routes.WebJarAssets.at(webJarAssets.locate("css/bootstrap.min.css"))'>
+		<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/bootstrap.paper.min.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/nouislider.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
 		<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/fixed-data-table.css")">
+		<link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/fixed-data-table-custom.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
     </head>
     <body>
 
        <div class="container-fluid" style="padding:0">
 	      <!-- Static navbar -->
-	      <nav class="navbar navbar-inverse bg-inverse" style="border-radius:0">
+	      <nav class="navbar navbar-inverse navbar-fixed-top" style="border-radius:0">
 	        <div class="container-fluid">
 	          <div class="navbar-header">
 	            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -27,7 +28,7 @@
 	              <span class="icon-bar"></span>
 	              <span class="icon-bar"></span>
 	            </button>
-	            <a class="navbar-brand" href="/">Chart Reviewer</a>
+	            <a class="navbar-brand" href="/search">Chart Review</a>
 	          </div>
 	          <div id="navbar" class="navbar-collapse collapse">
               @if(loggedIn) {
@@ -63,10 +64,10 @@
 	          </div><!--/.nav-collapse -->
 	        </div><!--/.container-fluid -->
 	      </nav>
-
-	      <!-- Main component for a primary marketing message or call to action -->
-	      @content
-
+		  <div style="margin-top:85px">
+			  <!-- Main component for a primary marketing message or call to action -->
+			  @content
+		  </div>
 	    </div>
       <script type='text/javascript' src='@routes.WebJarAssets.at(webJarAssets.locate("jquery.js"))'></script>
       <script type='text/javascript' src='@routes.WebJarAssets.at(webJarAssets.locate("bootstrap.js"))'></script>

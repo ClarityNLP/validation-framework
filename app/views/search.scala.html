@@ -52,14 +52,14 @@
 										  <tr>
 											<th>Document</th>
 											<th>Patient</th>
-											<th style="min-width: 90px;">Date</th>
+											<th style="min-width: 110px;">Date</th>
 											<th>Snippet</th>
 										  </tr>
 										</thead>
 										<tbody>
 										  <tr ng-repeat="doc in currentDocuments">
-											<td style="vertical-align:top"><span class="h5"><a ng-click="showDoc(doc)" style="cursor:pointer">{{doc.reportId}}</a></span></td>
-											<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(doc.subject, false)" style="cursor:pointer">{{doc.subject}}</a></span></td>
+											<td style="vertical-align:top"><span class="h6"><a ng-click="showDoc(doc)" style="cursor:pointer">{{doc.reportId}}</a></span></td>
+											<td style="vertical-align:top"><span class="h6"><a ng-click="showSubject(doc.subject, false)" style="cursor:pointer">{{doc.subject}}</a></span></td>
 											<td style="vertical-align:top"><span>{{doc.date}}</span></td>
 
 											<td  style="vertical-align:top;"><span class="h5 readable" style="font-size:16px" ng-bind-html="doc.snippet"></span></td>
@@ -86,8 +86,8 @@
 								</thead>
 								<tbody>
 								  <tr ng-repeat="s in subjects | orderBy:'-count'">
-									<td style="vertical-align:top"><span class="h5"><a ng-click="showSubject(s.id, false)" style="cursor:pointer">{{s.id}}</a></span></td>
-									<td style="vertical-align:top"><span class="h5">{{s.count}}</td>
+									<td style="vertical-align:top"><span class="h6"><a ng-click="showSubject(s.id, false)" style="cursor:pointer">{{s.id}}</a></span></td>
+									<td style="vertical-align:top"><span class="h6">{{s.count}}</td>
 								  </tr>
 								</tbody>
 						  </table>

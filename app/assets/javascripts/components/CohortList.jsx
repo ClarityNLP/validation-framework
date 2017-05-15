@@ -4,7 +4,7 @@ const AnnotationSetButton = (props) => {
   console.log(props);
   let btn =
   <div className="btn-group">
-    <button type="button" className="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button type="button" className="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Annotate <span className="caret"></span>
     </button>
 

@@ -1,0 +1,29 @@
+.public_fixedDataTable_header,
+.public_fixedDataTable_header .public_fixedDataTableCell_main {
+    background-color: white !important;
+    background-image: none !important;
+    border-bottom-width: 3px;
+}
+
+.public_fixedDataTable_main {
+    border: none !important;
+}
+
+.fixedDataTableCellLayout_main {
+    border-right: none !important;
+    border-left: none !important;
+    border-bottom: none !important;
+}
+
+.public_fixedDataTable_topShadow {
+    background: none !important;
+}
+
+.public_fixedDataTable_bottomShadow {
+    background: none !important;
+}
+
+.public_fixedDataTableRow_columnsShadow {
+    background: none !important;;
+}
+
