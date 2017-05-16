@@ -8,12 +8,14 @@ class DataStore {
     constructor() {
         this.curIndex = 0;
         this._cache = [];
+        this._indexes = [];
     }
 
     addObject(data) {
         if (data) {
             data.id = this.curIndex;
             this._cache[this.curIndex] = data;
+            this._indexes.push(this.curIndex);
             this.curIndex += 1;
         }
     }
@@ -141,6 +143,8 @@ class SubjectDetail extends React.Component {
                                 if (d.reportText.length === 0) {
                                     return null;
                                 }
+                                d.displayName = d.reportText;
+                                d.reportText = null;
                                 d.rawDate = new Date(d.reportDate);
                                 d.date = this.formatDate(d.rawDate);
 
@@ -148,11 +152,15 @@ class SubjectDetail extends React.Component {
                                 d.dateOffset = this.getDateOffset(d.date);
                                 d.prettyDate = this.prettyDate(d.date);
 
-                                // TODO
+                                this.dataStore.addObject(d);
                                 return null;
                             });
-                        }
 
+
+                        }
+                        // do sort
+
+                        // update loading state and dimensions
                         this.setState(prevState => ({ loading:false }));
                         this.updateDimensions();
 
