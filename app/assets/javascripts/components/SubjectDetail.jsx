@@ -184,7 +184,7 @@ class SubjectDetail extends React.Component {
                                 </div>
                                 <div style={{marginTop:"30px"}}>
                                     <div align="center">
-                                        <h4>Patient #{this.props.subject.sourceValue} </h4>
+                                        <h4>Patient <small>#{this.props.subject.sourceValue}</small> </h4>
                                         {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>

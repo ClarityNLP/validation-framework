@@ -7,7 +7,7 @@ const TextCell = ({rowIndex, data, col, props}) => {
     let className = 'col-' + col;
     if (col === 'displayName') {
         if (dataContent.type === 'document') {
-            contents = <div style={{width:"100%"}}><pre>{dataContent[col]}</pre></div>
+            contents = <div style={{width:"100%"}}><pre style={{border:"none", background:"none", fontFamily: "Roboto,'Helvetica Neue',Helvetica,Arial,sans-serif"}}>{dataContent[col]}</pre></div>
         } else {
             contents = <div className="row" style={{width:"100%"}}>
                 <div className="col-xs-2">{dataContent.sourceConceptValue}</div>
@@ -82,7 +82,7 @@ class ChartData extends React.Component {
         var obj = this.state.filteredDataList.getObjectAt(index);
         if (obj) {
             if (obj.type === 'document') {
-                return (Math.round(obj.displayName.replace(/\n/g, this.fillerText).length / 65) * 26) + 22
+                return (Math.round(obj.displayName.replace(/\n/g, this.fillerText).length / 85) * 22) + 22
             } else {
                 return Math.max(Math.round(obj.displayName.length / 45) * 28, 36);
             }
@@ -101,12 +101,12 @@ class ChartData extends React.Component {
                         placeholder="Filter"
                     />
                 </div>
-                <br />
                 <Table
                     rowHeightGetter={this._rowHeightGetter}
                     rowHeight={40}
                     rowsCount={filteredDataList.getSize()}
                     headerHeight={40}
+                    style={{marginTop:"5px"}}
                     width={this.props.width}
                     height={this.props.height}
                     {...this.props}>
