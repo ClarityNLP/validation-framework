@@ -5,13 +5,21 @@ const TextCell = ({rowIndex, data, col, props}) => {
     var dataContent = data.getObjectAt(rowIndex);
     let contents;
     let className = 'col-' + col;
-    if (dataContent.type === 'document' && col === 'displayName') {
-        contents = <pre>{dataContent[col]}</pre>
+    if (col === 'displayName') {
+        if (dataContent.type === 'document') {
+            contents = <div style={{width:"100%"}}><pre>{dataContent[col]}</pre></div>
+        } else {
+            contents = <div className="row" style={{width:"100%"}}>
+                <div className="col-xs-2">{dataContent.sourceConceptValue}</div>
+                <div className="col-xs-8">{dataContent.displayName}</div>
+                <div className="col-xs-2">{dataContent.displayValue}</div>
+            </div>
+        }
     } else {
-        contents = <span>{dataContent[col]}</span>
+        contents = <div>{dataContent[col]}</div>
     }
 
-    return (<Cell className={className}>
+    return (<Cell style={{width:"100%"}} className={className} >
         {contents}
     </Cell>);
 };
@@ -76,7 +84,7 @@ class ChartData extends React.Component {
             if (obj.type === 'document') {
                 return (Math.round(obj.displayName.replace(/\n/g, this.fillerText).length / 65) * 26) + 22
             } else {
-                return Math.max(Math.round(obj.displayName.length / 65) * 28, 36);
+                return Math.max(Math.round(obj.displayName.length / 45) * 28, 36);
             }
         } else {
             return 0;
@@ -115,20 +123,9 @@ class ChartData extends React.Component {
                         width={75}
                     />
                     <Column
-                        header={<Cell>Code</Cell>}
-                        cell={<TextCell data={filteredDataList} col="sourceConceptValue" />}
-                        width={100}
-                    />
-                    <Column
-                        header={<Cell>Name</Cell>}
+                        header={<Cell>Data</Cell>}
                         cell={<TextCell data={filteredDataList} col="displayName" style={{fontWeight:"bold"}} />}
-                        width={300}
-                        flexGrow={2}
-                    />
-                    <Column
-                        header={<Cell>Value</Cell>}
-                        cell={<TextCell data={filteredDataList} col="displayValue" />}
-                        width={100}
+                        width={600}
                     />
                 </Table>
             </div>

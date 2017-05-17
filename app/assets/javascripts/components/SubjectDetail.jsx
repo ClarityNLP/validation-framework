@@ -184,7 +184,7 @@ class SubjectDetail extends React.Component {
                                 </div>
                                 <div style={{marginTop:"30px"}}>
                                     <div align="center">
-                                        <h4>Patient #{this.props.subject.sourceValue} <small>{this.state.loading ? <i className="fa fa-circle-o-notch fa-spin"></i> : <span></span>}</small></h4>
+                                        <h4>Patient #{this.props.subject.sourceValue} </h4>
                                         {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>
@@ -192,13 +192,13 @@ class SubjectDetail extends React.Component {
                                 </div>
                             </div>
                         </div>
-                        <div id="chart-data-div" className="col-md-7">
-                            { this.state.loading ? <div style={{marginTop:"40px"}} align="center">Loading...</div> :
+                        <div id="chart-data-div" className="col-md-8">
+                            { this.state.loading ? <div style={{marginTop:"40px"}} align="center"><span><i className="fa fa-circle-o-notch fa-spin"></i></span>  Loading...</div> :
                                 <ChartData chartdata={this.dataStore} height={this.state.chartHeight}
                                            width={this.state.chartWidth}/>
                             }
                         </div>
-                        <div className="col-md-3">
+                        <div className="col-md-2">
                             <div className="sidebar-nav-fixed pull-right">
                                 <div >
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(1)}}>Next &raquo;</button>
