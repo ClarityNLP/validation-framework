@@ -21,7 +21,7 @@ import scala.collection.JavaConversions._
 class IndexController @Inject() (val config: Config, val playSessionStore: PlaySessionStore, override val ec: HttpExecutionContext, configuration: play.api.Configuration, webJarAssets: WebJarAssets, requireJS: RequireJS, webAPIsvc:WebAPIService) extends Controller with Security[CommonProfile] with JsonMapper {
 
   val defaultOhdsiSource = configuration.underlying.getString("ohdsi.default.core")
-  val auth = new modules.UsernamePasswordAuthenticator()
+  val auth = new modules.UsernamePasswordAuthenticator(configuration)
 
   def getSources = Action {
     val sources = webAPIsvc.getSources()

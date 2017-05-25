@@ -29,12 +29,16 @@ class CohortDetails extends React.Component {
         super(props);
         this.state = {
             entities: [],
+            length : 0,
             cohort : {},
             mode : "list-view",
-            subject : {}
+            subject : {},
+            ready : false,
+            currentIndex : 0
         };
 
         this.subjectSelected = this.subjectSelected.bind(this);
+        this.subjectSelectedByIndex = this.subjectSelectedByIndex.bind(this);
         this.backToList = this.backToList.bind(this);
         this.navigateSubjects = this.navigateSubjects.bind(this);
     }
@@ -42,12 +46,14 @@ class CohortDetails extends React.Component {
     componentDidMount() {
         console.log(QueryString);
         var cohortId = QueryString.cohortId;
-        var setId = QueryString.setId;
-        if (cohortId && setId) {
+        var setId = QueryString.setId || -1;
+        var viewOnly = QueryString.viewOnly === 'true';
+        if (cohortId) {
             this.setState(prevState => (
                 {
                     cohortId: cohortId,
-                    setId : setId
+                    setId : setId,
+                    viewOnly : viewOnly
                 }));
             axios.get("/cohort/" + cohortId)
                 .then((response) => {
@@ -57,22 +63,29 @@ class CohortDetails extends React.Component {
             });
             axios.get("/cohortentities/" + cohortId)
                 .then((response) => {
+
+                    const entities = response.data.map((d, index) => {
+                        d.index = index;
+                        if (d.demographics) {
+                            d.gender = d.demographics.gender;
+                            d.age = d.demographics.age;
+                            d.sourceValue = d.demographics.personSourceValue;
+                        } else {
+                            d.gender = "";
+                            d.age = "";
+                            d.sourceValue = "";
+                        }
+                        d.completed = "";
+                        d.status = "";
+                        d.comments = "";
+                        d.indexDate = d.cohortStartDate;
+                        d.url = "/chart";
+                        return d;
+                    });
                     this.setState(prevState => ({
-                        entities: response.data.map((d, index) => {
-                            d.index = index;
-                            if (d.demographics) {
-                                d.gender = d.demographics.gender;
-                                d.age = d.demographics.age;
-                                d.sourceValue = d.demographics.personSourceValue;
-                            } else {
-                                d.gender = "";
-                                d.age = "";
-                                d.sourceValue = "";
-                            }
-                            d.indexDate = d.cohortStartDate;
-                            d.url = "/chart"
-                            return d;
-                        })
+                        entities: entities,
+                        length : entities.length,
+                        ready : true
                     }));
                 })
                 .catch(function (error) {
@@ -81,13 +94,21 @@ class CohortDetails extends React.Component {
         }
     };
 
-    subjectSelected(subject) {
-        console.log(subject);
+    subjectSelected(index, subject) {
         this.setState(prevState => (
             {
+                currentIndex : index,
                 mode : "subject-view",
                 subject : subject
             }));
+    }
+
+
+    subjectSelectedByIndex(index) {
+        if (index >= 0 && index < this.state.length) {
+            const subject = this.state.entities[index];
+            this.subjectSelected(index, subject);
+        }
     }
 
     backToList() {
@@ -98,8 +119,16 @@ class CohortDetails extends React.Component {
             }));
     }
 
-    navigateSubjects(direction) {
-
+    navigateSubjects(offset) {
+        if (this.state.length > 0) {
+            let currentIndex = this.state.currentIndex + offset;
+            if (currentIndex < 0) {
+                currentIndex = this.state.length - 1;
+            } else if (currentIndex > (this.state.length - 1)) {
+                currentIndex = 0;
+            }
+            this.subjectSelectedByIndex(currentIndex);
+        }
     };
 
     render() {
@@ -113,14 +142,19 @@ class CohortDetails extends React.Component {
                             <a className="btn btn-sm btn-default" href="/cohortview">&laquo; Back</a>
                         </div>
                         <div>
-                            <h2>{this.state.cohort.name}</h2>
+                            <h2>{this.state.cohort.name} <small>({this.state.entities.length} Subjects)</small></h2>
                         </div>
-                        <CohortEntityList entities={this.state.entities} cohort={this.state.cohort}
-                            subjectSelected={this.subjectSelected}
-                            />
+                        {this.state.ready ?
+                            <CohortEntityList entities={this.state.entities} cohort={this.state.cohort}
+                                              viewOnly={this.state.viewOnly}
+                                              subjectSelected={this.subjectSelected}
+                            /> : <div><h4 style={{color:"grey"}}>Loading...</h4></div>
+                        }
                     </div>
                     :
-                        <SubjectDetail subject={this.state.subject} backToList={this.backToList}/>
+                        <SubjectDetail subject={this.state.subject} backToList={this.backToList}
+                                       navigateSubjects={this.navigateSubjects}
+                            />
                     }
             </div>
 

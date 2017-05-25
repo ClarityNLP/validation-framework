@@ -4,7 +4,7 @@ const AnnotationSetButton = (props) => {
   console.log(props);
   let btn =
   <div className="btn-group">
-    <button type="button" className="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <button type="button" className="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       Annotate <span className="caret"></span>
     </button>
 
@@ -33,7 +33,8 @@ class CohortList extends React.Component {
           <thead>
             <tr>
               <th>#</th>
-              <th>Action</th>
+              <th>Annotate</th>
+              <th>View</th>
               <th>Name</th>
               <th>Description</th>
               <th>Date</th>
@@ -42,7 +43,7 @@ class CohortList extends React.Component {
           <tbody>
             {this.props.cohorts.map((cohort) => {
               return (
-                <tr key={cohort.id} style={{
+                <tr key={cohort.id} onClick={() => {window.location.url = cohort.viewUrl}} style={{
                   verticalAlign : "middle",
                   cursor: "pointer"
                 }}>
@@ -52,6 +53,9 @@ class CohortList extends React.Component {
                           <AnnotationSetButton cohort={cohort} />
                           : <div></div>
                       }
+                  </td>
+                  <td>
+                    <a className="btn btn-xs btn-primary" href={cohort.viewUrl}>View</a>
                   </td>
                   <td>{cohort.name}</td>
                   <td>{cohort.description}</td>

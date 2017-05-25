@@ -2,20 +2,41 @@ import React from 'react';
 import axios from 'axios';
 import _ from 'lodash';
 
-import ChartData from './ChartData.jsx';
+import ChartData from './SubjectChartData.jsx';
+
+const Filter = (props) => {
+    let className = "text-filter text-" + props.name;
+    let display = " " + _.capitalize(props.name);
+    let checked = props.filterMap[props.name].checked;
+    return (
+        <div>
+            <label className={className}>
+                <input type="checkbox" name={props.name} className="subject-filter-checkbox" checked={checked} onChange={props.handleFilterChange} />
+                {display}
+            </label>
+        </div>
+    );
+};
+
+const FilterList = (props) => {
+    const filterList = Object.keys(props.filters);
+    return (
+        <div>
+            {filterList.map(filter => <Filter key={filter} name={filter} handleFilterChange={props.handleFilterChange} filterMap={props.filters} />)}
+        </div>
+    );
+};
 
 class DataStore {
-    constructor() {
-        this.curIndex = 0;
-        this._cache = [];
-        this._indexes = [];
+    constructor(data) {
+        this.curIndex = (data && data.length) || 0;
+        this._cache = data || [];
     }
 
     addObject(data) {
         if (data) {
             data.id = this.curIndex;
             this._cache[this.curIndex] = data;
-            this._indexes.push(this.curIndex);
             this.curIndex += 1;
         }
     }
@@ -50,19 +71,41 @@ class SubjectDetail extends React.Component {
 
     constructor(props) {
         super(props);
+
         this.state = {
             loading: true,
             chartHeight : 500,
-            chartWidth: 400
+            chartWidth: 400,
+            chartData : new DataStore([]),
+            goToDay : 'index',
+            filters : {
+                condition : { checked : true },
+                conditionera : {},
+                death : {},
+                device : {},
+                drug : { checked : true },
+                drugera : {},
+                measurement : {},
+                observation : {},
+                procedure : {},
+                specimen : {},
+                visit : {},
+                documents : { checked : true }
+            }
         };
 
-        this.maxIndex = 0;
-        this.minIndex = 0;
-        this.dataStore = new DataStore();
+        this.lookupPatientData = this.lookupPatientData.bind(this);
         this.formatDate = this.formatDate.bind(this);
         this.prettyDate = this.prettyDate.bind(this);
         this.formatLongDate = this.formatLongDate.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
+        this.handleFilterChange = this.handleFilterChange.bind(this);
+        this.sort = this.sort.bind(this);
+        this.selectFilters = this.selectFilters.bind(this);
+
+        this.maxIndex = 0;
+        this.minIndex = 0;
+        this.dataStore = new DataStore([]);
     }
 
     formatDate(d) {
@@ -100,17 +143,56 @@ class SubjectDetail extends React.Component {
         this.setState(prevState => ({ chartWidth : width, chartHeight : height }));
     };
 
-    componentWillMount() {
-    };
+    sort(sortDir, columnKey, secondaryColumnKey) {
+        var sorted = this.dataStore._cache.slice();
 
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.updateDimensions);
-        this.updateDimensions();
+        sorted.sort((indexA, indexB) => {
+            var valueA = indexA[columnKey];
+            var valueB = indexB[columnKey];
+
+            var valueA2 = indexA[secondaryColumnKey];
+            var valueB2 = indexB[secondaryColumnKey];
+
+            var sortVal = valueA === valueB ? 0 : valueA < valueB ? -1 : 1;
+
+            if (sortVal === 0) {
+                sortVal = valueA2 === valueB2 ? 0 : valueA2 < valueB2 ? -1 : 1;
+            }
+
+            if (sortVal !== 0 && sortDir === 'desc') {
+                sortVal = sortVal * -1;
+            }
+
+            return sortVal;
+        });
+
+        return sorted;
     }
 
-    componentDidMount() {
-        window.addEventListener("resize", this.updateDimensions);
+    selectFilters(which) {
+        var filterMap = this.state.filters;
+        Object.keys(filterMap).forEach((f) => filterMap[f].checked = (which === 'all'));
+        this.setState(prevState => ({ filters : filterMap }));
+    }
 
+    handleFilterChange(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+
+        var filterMap = this.state.filters;
+        filterMap[name].checked = value;
+        console.log(filterMap);
+
+        this.setState(prevState => ({
+            filters : filterMap
+        }));
+    };
+
+    lookupPatientData() {
+        console.log('lookup patient data');
+        this.dataStore = new DataStore([]);
+        this.setState(prevState => ({ loading : true , chartData : new DataStore([])}));
         axios.get("/subjectrecords/" + this.props.subject.subjectId + "/false")
             .then((response) => {
                 response.data.map((d, i) => {
@@ -148,6 +230,7 @@ class SubjectDetail extends React.Component {
                                 d.rawDate = new Date(d.reportDate);
                                 d.date = this.formatDate(d.rawDate);
 
+                                d.domain = 'documents';
                                 d.type = 'document';
                                 d.dateOffset = this.getDateOffset(d.date);
                                 d.prettyDate = this.prettyDate(d.date);
@@ -155,13 +238,17 @@ class SubjectDetail extends React.Component {
                                 this.dataStore.addObject(d);
                                 return null;
                             });
-
-
                         }
                         // do sort
 
-                        // update loading state and dimensions
-                        this.setState(prevState => ({ loading:false }));
+                        this.setState(prevState => ({
+                            chartData : new DataStore(this.sort('asc', 'dateOffset', 'displayName')),
+                            loading : false,
+                            goToDay : 'top'
+                        }));
+                        this.dataStore = null;
+
+                        // update state and dimensions
                         this.updateDimensions();
 
                     }).catch(function (error) {
@@ -172,6 +259,26 @@ class SubjectDetail extends React.Component {
         });
     };
 
+    componentWillMount() {
+    };
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+        this.updateDimensions();
+    };
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
+        this.lookupPatientData();
+    };
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.subject && prevProps.subject.subjectId !== this.props.subject.subjectId) {
+            console.log(this);
+            this.lookupPatientData();
+        }
+    };
+
     render() {
         return (
             <div className="row" style={{padding:"0px 20px"}}>
@@ -180,22 +287,27 @@ class SubjectDetail extends React.Component {
                         <div className="col-md-2">
                             <div className="sidebar-nav-fixed">
                                 <div>
-                                    <button className="btn btn-default btn" onClick={() => {this.props.backToList()}}>&laquo; Back</button>
+                                    <button className="btn btn-default btn-sm" onClick={() => {this.props.backToList()}}>&laquo; Back</button>
                                 </div>
                                 <div style={{marginTop:"30px"}}>
-                                    <div align="center">
-                                        <h4>Patient <small>#{this.props.subject.sourceValue}</small> </h4>
+                                    <div>
+                                        <h5><small style={{color:"#555"}}>#{this.props.subject.sourceValue}</small> </h5>
                                         {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>
-                                <div style={{marginTop: "10px"}}>
+                                <div style={{marginTop: "20px"}}>
+                                    <a onClick={() => this.setState({goToDay : 'top'})}>Top</a> | <a onClick={() => this.setState({goToDay : 'index'})}>Index</a> | <a onClick={() => this.setState({goToDay : 'bottom'})}>Bottom</a>
+                                </div>
+                                <div style={{marginTop: "20px"}}>
+                                    <h6>Filters: <small><a onClick={() => {this.selectFilters('all')}}>all</a> | <a onClick={() => {this.selectFilters('none')}}>none</a></small></h6>
+                                    <FilterList filters={this.state.filters} handleFilterChange={this.handleFilterChange} />
                                 </div>
                             </div>
                         </div>
                         <div id="chart-data-div" className="col-md-8">
                             { this.state.loading ? <div style={{marginTop:"40px"}} align="center"><span><i className="fa fa-circle-o-notch fa-spin"></i></span>  Loading...</div> :
-                                <ChartData chartdata={this.dataStore} height={this.state.chartHeight}
-                                           width={this.state.chartWidth}/>
+                                <ChartData chartdata={this.state.chartData} height={this.state.chartHeight}
+                                           width={this.state.chartWidth} filters={this.state.filters} goToDay={this.state.goToDay} />
                             }
                         </div>
                         <div className="col-md-2">

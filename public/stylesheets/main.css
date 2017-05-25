@@ -5,11 +5,9 @@
 pre {
     font-size: 14px;
     line-height: 1.618em;
-    white-space: pre-wrap;       /* css-3 */
-    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-    white-space: -pre-wrap;      /* Opera 4-6 */
-    white-space: -o-pre-wrap;    /* Opera 7 */
-    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    word-wrap: break-word;      /* IE 5.5-7 */
+    white-space: -moz-pre-wrap; /* Firefox 1.0-2.0 */
+    white-space: pre-wrap;      /* current browsers */
     font-family: 'droid_sans_monoregular','Anonymous Pro', monospace;
     text-indent: 0px;
     color: #565656;
@@ -38,50 +36,50 @@ table {
 }
 
 .text-measurement {
-    color: #c9302c;
+    color: #F44336;
 }
 
 .text-drug {
-    color: #1b8dbb;
+    color: #2196F3;
 }
 .text-drugera  {
-    color: #74c8eb
+    color: #03A9F4
 }
 
 .text-condition {
-    color: 	#79a736;
+    color: 	#4CAF50;
 }
 
 .text-conditionera {
-    color: #b9d98a
+    color: #8BC34A
 }
 
 .text-death {
-    color: #3e3f3a;
+    color: #000000;
 }
 
 .text-observation {
-    color: #e68f8d;
+    color: #E91E63;
 }
 
 .text-specimen {
-    color: #325d88;
+    color: #009688;
 }
 
 .text-device {
-    color: #7a96b2;
+    color: #607D8B;
 }
 
 .text-visit {
-    color: #82827f;
+    color: #673AB7;
 }
 
 .text-procedure {
-    color: #f47c3c;
+    color: #795548;
 }
 
 .text-documents {
-    color: #f8aa80;
+    color: #9C27B0;
 }
 
 .text-input-small {
@@ -119,4 +117,20 @@ table {
     height: 800px;
 }
 
+a {
+    cursor: pointer;
+}
+
+@keyframes highlight {
+    0% {
+        background: #FFFF8D;
+    }
+    100% {
+        background: inherit;
+    }
+}
+
+.active-row:target {
+    animation: highlight 1s;
+}
 

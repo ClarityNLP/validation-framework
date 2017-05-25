@@ -4,8 +4,7 @@ import com.google.inject.AbstractModule
 import controllers.{CustomAuthorizer, HttpActionAdapter}
 import org.pac4j.core.client.Clients
 import org.pac4j.http.client.direct.{DirectBasicAuthClient, ParameterClient}
-import org.pac4j.http.client.indirect.{FormClient, IndirectBasicAuthClient}
-import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator
+import org.pac4j.http.client.indirect.FormClient
 import org.pac4j.jwt.credentials.authenticator.JwtAuthenticator
 import org.pac4j.play.{CallbackController, LogoutController}
 import play.api.{Configuration, Environment}
@@ -17,10 +16,10 @@ class SecurityModule(environment: Environment, configuration: Configuration) ext
 
   override def configure(): Unit = {
     val baseUrl = ""
-    val secretSignature = configuration.underlying.getString("signature.secret");
+    val secretSignature = configuration.underlying.getString("signature.secret")
 
-    val directBasicAuthClient = new DirectBasicAuthClient(new UsernamePasswordAuthenticator)
-    val formClient = new FormClient(baseUrl + "/loginForm", new UsernamePasswordAuthenticator())
+    val directBasicAuthClient = new DirectBasicAuthClient(new UsernamePasswordAuthenticator(configuration))
+    val formClient = new FormClient(baseUrl + "/loginForm", new UsernamePasswordAuthenticator(configuration))
 
     val jwtAuthenticator = new JwtAuthenticator()
     jwtAuthenticator.addSignatureConfiguration(new SecretSignatureConfiguration(secretSignature))

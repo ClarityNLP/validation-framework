@@ -28,13 +28,14 @@ class App extends React.Component {
             var cohort = elem;
             if (annotationSets[elem.id]) {
               var sets = annotationSets[elem.id].map((item) => {
-                item.url = "/cohortdetails/?cohortId=" + cohort.id + "&setId=" + item.annotation_set_id;
+                item.url = "/cohortdetails/?viewOnly=false&cohortId=" + cohort.id + "&setId=" + item.annotation_set_id;
                 return item;
               });
               elem.annotationSets = sets
             } else {
               elem.annotationSets = [];
             }
+            elem.viewUrl = "/cohortdetails/?viewOnly=true&cohortId=" + cohort.id
           });
           this.setState(prevState => (
               {

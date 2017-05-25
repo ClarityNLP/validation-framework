@@ -1,52 +1,44 @@
 import React from 'react';
-
+import CohortChartData from './CohortChartData.jsx';
 
 class CohortEntityList extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
+        chartHeight : 500,
+        chartWidth: 400
     };
+    this.updateDimensions = this.updateDimensions.bind(this);
   }
 
-  render() {
-    return (
-      <div className="row" style={{padding:"0px 20px"}}>
-        <table className="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Age</th>
-              <th>Gender</th>
-              <th>Completed</th>
-              <th>Status</th>
-              <th>Comments</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.entities.map((p) => {
-              return (
-                <tr key={p.subjectId} style={{
-                  verticalAlign : "middle",
-                  cursor: "pointer"
+    updateDimensions() {
+        var height = (window.innerHeight - 250);
+        var width = (window.innerWidth - 50);
+        this.setState(prevState => ({ chartWidth : width, chartHeight : height }));
+    };
 
-                }}
-                onClick={()=>this.props.subjectSelected(p)}>
-                  <td>{p.sourceValue}</td>
-                  <td>{p.age}</td>
-                  <td>{p.gender}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-              </tr>
-              )
-            })
-           }
-          </tbody>
-        </table>
-      </div>
-    );
-  };
+    componentWillMount() {
+        this.updateDimensions();
+    };
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+        this.updateDimensions();
+    }
+
+    componentDidMount() {
+        window.addEventListener("resize", this.updateDimensions);
+    }
+
+    render() {
+        return (
+            <div>
+                <CohortChartData subjectSelected={this.props.subjectSelected} entities={this.props.entities}
+                                 width={this.state.chartWidth} height={this.state.chartHeight}/>
+            </div>
+        );
+      };
 }
 
 export default CohortEntityList;

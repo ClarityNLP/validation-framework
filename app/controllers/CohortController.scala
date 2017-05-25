@@ -18,7 +18,7 @@ import org.pac4j.play.store.PlaySessionStore
 
 class CohortController @Inject() (val config: Config, val playSessionStore: PlaySessionStore, override val ec: HttpExecutionContext, configuration: play.api.Configuration, webJarAssets: WebJarAssets, requireJS: RequireJS, solrDAO: dao.SolrDAO, wepAPIsvc:WebAPIService) extends Controller with Security[CommonProfile] with JsonMapper {
 
-  def index = Secure("FormClient") { profiles =>
+  def index() = Secure("FormClient") { profiles =>
      Action { request =>
        val webContext = new PlayWebContext(request, playSessionStore)
        val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]
@@ -27,12 +27,13 @@ class CohortController @Inject() (val config: Config, val playSessionStore: Play
      }
    }
 
-   def cohortdetails(cohortId:Option[Int], setId:Option[Int]) = Secure("FormClient") { profiles =>
+   def cohortdetails(cohortId:Option[Int], setId:Option[Int], viewOnly:Option[Boolean]) = Secure("FormClient") { profiles =>
       Action { request =>
         val webContext = new PlayWebContext(request, playSessionStore)
         val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]
         val sessionId = webContext.getSessionAttribute(Pac4jConstants.SESSION_ID).asInstanceOf[String]
-        Ok(views.html.cohortdetails(true, profiles, csrfToken, sessionId, webJarAssets, requireJS, "Cohort Details", cohortId.get, setId.get))
+        Ok(views.html.cohortdetails(true, profiles, csrfToken, sessionId, webJarAssets, requireJS, "Cohort Details",
+          cohortId.getOrElse(-1), setId.getOrElse(-1), viewOnly.getOrElse(true)))
       }
     }
 
