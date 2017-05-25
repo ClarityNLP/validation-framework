@@ -58,6 +58,6 @@ import play.api.Configuration
   }
 
   def hashPassword(text:String) = {
-    text.salt("paul").sha512.hex
+    text.salt("4edb2891bdb3ae6a0830891d3e6a120405e93ee5636fdf6ca05ab22167482628f1f7611da3fa7318143b129ba9125d632d5f33291603bf3594cd8019d8e6cc96").sha512.hex
   }
 }
