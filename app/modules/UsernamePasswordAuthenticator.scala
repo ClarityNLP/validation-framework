@@ -45,6 +45,11 @@ import play.api.Configuration
       if (!resultSet.next()) {
         throw new Exception("Invalid username/password combination!")
       }
+      val roles = resultSet.getString("user_roles")
+      if (roles != null) {
+        roles.split(",").foreach(profile.addRole(_))
+      }
+      profile.setClientName(resultSet.getString("name_first") + " " + resultSet.getString("name_last"))
       profile.setId(resultSet.getString("user_id"))
       profile.addAttribute(Pac4jConstants.USERNAME, username)
     } finally {
