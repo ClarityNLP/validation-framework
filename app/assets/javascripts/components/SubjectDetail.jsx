@@ -12,7 +12,7 @@ const Filter = (props) => {
         <div>
             <label className={className}>
                 <input type="checkbox" name={props.name} className="subject-filter-checkbox" checked={checked} onChange={props.handleFilterChange} />
-                {display}
+                {display} ({props.count})
             </label>
         </div>
     );
@@ -20,9 +20,10 @@ const Filter = (props) => {
 
 const FilterList = (props) => {
     const filterList = Object.keys(props.filters);
+    const counts = props.counts;
     return (
         <div>
-            {filterList.map(filter => <Filter key={filter} name={filter} handleFilterChange={props.handleFilterChange} filterMap={props.filters} />)}
+            {filterList.map(filter => <Filter key={filter} name={filter} handleFilterChange={props.handleFilterChange} filterMap={props.filters} count={counts[filter] || 0} />)}
         </div>
     );
 };
@@ -91,7 +92,22 @@ class SubjectDetail extends React.Component {
                 specimen : {},
                 visit : {},
                 documents : { checked : true }
-            }
+            },
+            domainCounts : {
+                condition : 0,
+                conditionera : 0,
+                death : 0,
+                device : 0,
+                drug : 0,
+                drugera : 0,
+                measurement : 0,
+                observation :0,
+                procedure : 0,
+                specimen : 0,
+                visit : 0,
+                documents : 0
+            },
+            totalCount : 0
         };
 
         this.lookupPatientData = this.lookupPatientData.bind(this);
@@ -102,6 +118,8 @@ class SubjectDetail extends React.Component {
         this.handleFilterChange = this.handleFilterChange.bind(this);
         this.sort = this.sort.bind(this);
         this.selectFilters = this.selectFilters.bind(this);
+        this.setDomainCounts = this.setDomainCounts.bind(this);
+        this.setTotalCount = this.setTotalCount.bind(this);
 
         this.maxIndex = 0;
         this.minIndex = 0;
@@ -180,19 +198,41 @@ class SubjectDetail extends React.Component {
         const value = target.type === 'checkbox' ? target.checked : target.value;
         const name = target.name;
 
-        var filterMap = this.state.filters;
+        let filterMap = this.state.filters;
         filterMap[name].checked = value;
-        console.log(filterMap);
+        //console.log(filterMap);
 
         this.setState(prevState => ({
             filters : filterMap
         }));
     };
 
+    setDomainCounts(newCounts) {
+        if (newCounts != this.state.domainCounts) {
+            //console.log(newCounts);
+            this.setState(prevState => ({
+                domainCounts: newCounts
+            }));
+        }
+    }
+
+    setTotalCount(newCount) {
+        if (newCount !== this.state.totalCount) {
+            //console.log(newCount);
+            this.setState(prevState => ({
+                totalCount: newCount
+            }));
+        }
+    }
+
     lookupPatientData() {
         console.log('lookup patient data');
         this.dataStore = new DataStore([]);
-        this.setState(prevState => ({ loading : true , chartData : new DataStore([])}));
+        this.setState(prevState => ({
+            loading : true,
+            chartData : new DataStore([]),
+            domainCounts : {}
+        }));
         axios.get("/subjectrecords/" + this.props.subject.subjectId + "/false")
             .then((response) => {
                 response.data.map((d, i) => {
@@ -299,15 +339,17 @@ class SubjectDetail extends React.Component {
                                     <a onClick={() => this.setState({goToDay : 'top'})}>Top</a> | <a onClick={() => this.setState({goToDay : 'index'})}>Index</a> | <a onClick={() => this.setState({goToDay : 'bottom'})}>Bottom</a>
                                 </div>
                                 <div style={{marginTop: "20px"}}>
-                                    <h6>Filters: <small><a onClick={() => {this.selectFilters('all')}}>all</a> | <a onClick={() => {this.selectFilters('none')}}>none</a></small></h6>
-                                    <FilterList filters={this.state.filters} handleFilterChange={this.handleFilterChange} />
+                                    <h6>Filters ({this.state.totalCount}): <small><a onClick={() => {this.selectFilters('all')}}>all</a> | <a onClick={() => {this.selectFilters('none')}}>none</a></small></h6>
+                                    <FilterList filters={this.state.filters} handleFilterChange={this.handleFilterChange} counts={this.state.domainCounts} />
                                 </div>
                             </div>
                         </div>
                         <div id="chart-data-div" className="col-md-8">
                             { this.state.loading ? <div style={{marginTop:"40px"}} align="center"><span><i className="fa fa-circle-o-notch fa-spin"></i></span>  Loading...</div> :
                                 <ChartData chartdata={this.state.chartData} height={this.state.chartHeight}
-                                           width={this.state.chartWidth} filters={this.state.filters} goToDay={this.state.goToDay} />
+                                           width={this.state.chartWidth} filters={this.state.filters} goToDay={this.state.goToDay}
+                                           setDomainCounts={this.setDomainCounts} setTotalCount={this.setTotalCount}
+                                />
                             }
                         </div>
                         <div className="col-md-2">

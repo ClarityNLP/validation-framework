@@ -28,7 +28,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
     if (option.isEmpty) {
       val response: HttpResponse[String]  = try {
-        Http(baseUrl + "person/" + personId + "/records?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+        Http(baseUrl + "person/" + personId + "/records?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 60000).asString
       } catch {
         case e:Exception => e.printStackTrace()
         null

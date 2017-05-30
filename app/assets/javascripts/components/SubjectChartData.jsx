@@ -2,7 +2,7 @@ import React from 'react';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 
 const TextCell = ({rowIndex, data, col, props}) => {
-    var dataContent = data.getObjectAt(rowIndex);
+    const dataContent = data.getObjectAt(rowIndex);
     let contents;
     let className = 'col-' + col;
     let domainClass = 'text-' + dataContent.domain;
@@ -37,7 +37,7 @@ class DataListWrapper {
     }
 
     getSize() {
-        return this._indexMap.length;
+        return this._indexMap ? this._indexMap.length : 0;
     }
 
     getObjectAt(index) {
@@ -58,6 +58,9 @@ class ChartData extends React.Component {
 
         this._dataList = props.chartdata;
         let filteredList = this.doFilter(this._dataList, props.filters, '');
+        this.counts = filteredList.domainCounts;
+        this.totalCount = filteredList.totalCount;
+
         this.state = {
             filteredDataList : new DataListWrapper(filteredList.filteredIndexes, this._dataList),
             filterBy : '',
@@ -67,9 +70,7 @@ class ChartData extends React.Component {
             indexRow : filteredList.indexRow
         };
         this.fillerText = '                                                                      ';
-
     }
-
 
     _onFilterChange(e) {
         if (!e.target.value) {
@@ -78,8 +79,12 @@ class ChartData extends React.Component {
             });
         }
 
-        var filterBy = e.target.value.toLowerCase();
-        var filtered = this.doFilter(this._dataList, this.props.filters, filterBy);
+        const filterBy = e.target.value.toLowerCase();
+        const filtered = this.doFilter(this._dataList, this.props.filters, filterBy);
+        this.props.setDomainCounts(filtered.domainCounts);
+        this.props.setTotalCount(filtered.totalCount);
+        this.counts = filtered.domainCounts;
+        this.totalCount = filtered.totalCount;
 
         this.setState({
             filterBy : filterBy,
@@ -90,16 +95,24 @@ class ChartData extends React.Component {
     }
 
     doFilter(dataList, domainFilters, filterText) {
-        var indexDate = null, indexRow = 0;
-        var size = dataList.getSize();
-        var filteredIndexes = [];
-        var filteredIndex = -1;
-        for (var index = 0; index < size; index++) {
-            var {displayName, domain, dateOffset} = dataList.getObjectAt(index);
+        let indexDate = null, indexRow = 0;
+        const size = dataList.getSize();
+        let filteredIndexes = [];
+        let filteredIndex = -1;
+        let domainCounts = {};
+        let totalCount = 0;
+        for (let index = 0; index < size; index++) {
+            const {displayName, domain, dateOffset} = dataList.getObjectAt(index);
             if (domainFilters[domain].checked) {
                 if (displayName.toLowerCase().indexOf(filterText) !== -1) {
                     filteredIndexes.push(index);
                     filteredIndex++;
+
+                    if (!domainCounts[domain]) {
+                        domainCounts[domain] = 0;
+                    }
+                    domainCounts[domain]++;
+                    totalCount++;
                 }
             }
 
@@ -131,7 +144,9 @@ class ChartData extends React.Component {
         return {
             filteredIndexes : filteredIndexes,
             indexRow : indexRow,
-            indexDate : indexDate
+            indexDate : indexDate,
+            domainCounts : domainCounts,
+            totalCount : totalCount
         };
     }
 
@@ -141,7 +156,7 @@ class ChartData extends React.Component {
             if (obj.type === 'document') {
                 return (Math.round(obj.displayName.replace(/\n/g, this.fillerText).length / 70) * 22) + 28
             } else {
-                return Math.max(Math.round(obj.displayName.length / 55) * 30, 40);
+                return Math.max(Math.round(obj.displayName.length / 50) * 36, 40);
             }
         } else {
             return 0;
@@ -154,14 +169,27 @@ class ChartData extends React.Component {
         }
     }
 
+    componentDidMount() {
+        this.props.setDomainCounts(this.counts);
+        this.props.setTotalCount(this.totalCount);
+    }
+
     componentWillReceiveProps(nextProps) {
         const filtered = this.doFilter(this._dataList, nextProps.filters, this.state.filterBy);
         const filteredWrapper = new DataListWrapper(filtered.filteredIndexes, this._dataList);
+        if (filtered.totalCount !== this.totalCount) {
+            this.totalCount = filtered.totalCount;
+            this.counts = filtered.domainCounts;
+            this.props.setDomainCounts(this.counts);
+            this.props.setTotalCount(this.totalCount);
+        }
+
         this.setState({
             filteredDataList: filteredWrapper,
             indexRow : filtered.indexRow,
             indexDate : filtered.indexDate
         });
+
 
         if (this.state.goToDay !== nextProps.goToDay) {
             // do something - go to index day.

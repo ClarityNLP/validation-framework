@@ -153,6 +153,7 @@ class CohortDetails extends React.Component {
                     </div>
                     :
                         <SubjectDetail subject={this.state.subject} backToList={this.backToList}
+                                       viewOnly={this.state.viewOnly}
                                        navigateSubjects={this.navigateSubjects}
                             />
                     }
