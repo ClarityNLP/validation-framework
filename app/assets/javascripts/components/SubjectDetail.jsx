@@ -23,7 +23,27 @@ const FilterList = (props) => {
     const counts = props.counts;
     return (
         <div>
-            {filterList.map(filter => <Filter key={filter} name={filter} handleFilterChange={props.handleFilterChange} filterMap={props.filters} count={counts[filter] || 0} />)}
+            {filterList.map(filter => <Filter key={filter} name={filter}
+                                              handleFilterChange={props.handleFilterChange}
+                                              filterMap={props.filters} count={counts[filter] || 0} />)}
+        </div>
+    );
+};
+
+const Question = (props) => {
+    return (
+        <div>
+            <h5>{props.index}. {props.question_name}</h5>
+        </div>
+    )
+};
+
+const QuestionList = (props) => {
+    return (
+        <div>
+            
+            {props.questions.map(q => <Question key={q.annotation_question_id}
+                        index={q.index} name={q.question_name} answers={props.answers[q.annotation_question_id]}/>) }
         </div>
     );
 };
@@ -231,7 +251,8 @@ class SubjectDetail extends React.Component {
         this.setState(prevState => ({
             loading : true,
             chartData : new DataStore([]),
-            domainCounts : {}
+            domainCounts : {},
+            totalCount : 0
         }));
         axios.get("/subjectrecords/" + this.props.subject.subjectId + "/false")
             .then((response) => {
@@ -280,7 +301,6 @@ class SubjectDetail extends React.Component {
                             });
                         }
                         // do sort
-
                         this.setState(prevState => ({
                             chartData : new DataStore(this.sort('asc', 'dateOffset', 'displayName')),
                             loading : false,
@@ -353,12 +373,18 @@ class SubjectDetail extends React.Component {
                             }
                         </div>
                         <div className="col-md-2">
-                            <div className="sidebar-nav-fixed pull-right">
+                            <div className="pull-right">
                                 <div >
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(1)}}>Next &raquo;</button>
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(-1)}}>&laquo; Previous</button>
                                 </div>
                             </div>
+                            { this.props.viewOnly && this.props.questions ? <span></span> :
+                                <div>
+                                    <QuestionList questions={this.props.questions} answers={this.props.answers}
+                                        results={this.props.results} />
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

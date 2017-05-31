@@ -34,20 +34,26 @@ class CohortDetails extends React.Component {
             mode : "list-view",
             subject : {},
             ready : false,
-            currentIndex : 0
+            currentIndex : 0,
+            cohortId : -1,
+            setId : -1,
+            questions : {},
+            answers : {},
+            results : {}
         };
 
         this.subjectSelected = this.subjectSelected.bind(this);
         this.subjectSelectedByIndex = this.subjectSelectedByIndex.bind(this);
         this.backToList = this.backToList.bind(this);
         this.navigateSubjects = this.navigateSubjects.bind(this);
+        this.updateAnswers = this.updateAnswers.bind(this);
     }
 
     componentDidMount() {
         console.log(QueryString);
-        var cohortId = QueryString.cohortId;
-        var setId = QueryString.setId || -1;
-        var viewOnly = QueryString.viewOnly === 'true';
+        const cohortId = QueryString.cohortId;
+        const setId = QueryString.setId || -1;
+        const viewOnly = QueryString.viewOnly === 'true';
         if (cohortId) {
             this.setState(prevState => (
                 {
@@ -91,8 +97,40 @@ class CohortDetails extends React.Component {
                 .catch(function (error) {
                     console.log(error);
                 });
+            if (setId !== -1) {
+                axios.get("/annotation_set/question/" + setId)
+                    .then((response) => {
+                    console.log(response.data);
+                        this.setState(prevState => ({
+                            questions : response.data,
+                            answers : {}
+                        }));
+                        response.data.forEach((q) => {
+
+                            axios.get("/annotation_question_answer/" + q.annotation_question_id)
+                                .then((response) => {
+                                    console.log(response.data)
+                                    this.setState(prevState => ({
+                                        answers : this.updateAnswers(prevState.answers, q, response.data)
+                                    }));
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                });
+                        });
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
         }
+
     };
+
+    updateAnswers(obj, q, answerList) {
+        obj[q.annotation_question_id] = answerList;
+        return obj;
+    }
 
     subjectSelected(index, subject) {
         this.setState(prevState => (
@@ -155,6 +193,9 @@ class CohortDetails extends React.Component {
                         <SubjectDetail subject={this.state.subject} backToList={this.backToList}
                                        viewOnly={this.state.viewOnly}
                                        navigateSubjects={this.navigateSubjects}
+                                       questions={this.state.questions}
+                                       answers={this.state.answers}
+                                       results={this.state.results}
                             />
                     }
             </div>

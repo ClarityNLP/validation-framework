@@ -17,7 +17,8 @@ class App extends React.Component {
   componentDidMount() {
     axios.get("/cohorts").then((response) => {
       var cohorts = response.data;
-      axios.get('/assets/data/mockAnnotationSet.json')
+      var uid = document.getElementById("uid").value;
+      axios.get('/annotation_set/name/'  + uid)
         .then((response) => {
           var annotationSets = {};
           response.data.forEach((elem, index) => {
@@ -53,7 +54,7 @@ class App extends React.Component {
   };
 
   handleChange(event) {
-      var val = event.target.value.toLowerCase();
+      const val = event.target.value.toLowerCase();
       if (val.trim() === "") {
           this.setState(prevState =>
               ({

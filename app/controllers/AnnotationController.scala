@@ -102,12 +102,13 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Created("{success:True}")
   }
 
-  case class AnnotationQuestionAnswer(annotation_question_answer_id: Long, annotation_question_id: Long,
+  case class AnnotationQuestionAnswer(annotation_question_answer_id: Long, annotation_question_id: Long, index:Int,
                                       text: String, value: String, date_created: String, date_updated: String)
   object AnnotationQuestionAnswer {
     implicit val format: Format[AnnotationQuestionAnswer] = (
         (__ \ "annotation_question_answer_id").format[Long] and
         (__ \ "annotation_question_id").format[Long] and
+          (__ \ "index").format[Int] and
         (__ \ "text").format[String] and
         (__ \ "value").format[String] and
         (__ \ "date_created").format[String] and
@@ -115,13 +116,14 @@ class AnnotationController @Inject() (db: Database) extends Controller {
       )(AnnotationQuestionAnswer.apply, unlift(AnnotationQuestionAnswer.unapply))
   }
 
-  def getAnnotationQuestionAnswer(annotationId:Int) = Action {
+  def getAnnotationQuestionAnswer(annotationQuestionId:Int) = Action {
     var annotationQuestionAnswers = List[AnnotationQuestionAnswer]()
-    var queryString = "select * from validation.annotation_question_answer where annotation_question_answer_id='" + annotationId + "'"
+    val queryString = "select * from validation.annotation_question_answer where annotation_question_id='" + annotationQuestionId + "' order by annotation_question_answer_id asc"
     val conn = db.getConnection()
     try {
       val stmt = conn.createStatement()
       val rs = stmt.executeQuery(queryString)
+      var i = 0
       while(rs.next()) {
         val annotation_question_answer_id = rs.getLong("annotation_question_answer_id")
         val annotation_question_id = rs.getLong("annotation_question_id")
@@ -129,8 +131,9 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val value = rs.getString("value")
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
+        i += 1
         annotationQuestionAnswers ::= AnnotationQuestionAnswer(annotation_question_answer_id, annotation_question_id,
-                                                                text, value, date_created, date_updated)
+                                                                i, text, value, date_created, date_updated)
       }
     } finally {
       conn.close()
@@ -166,13 +169,14 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Created("{success:True}")
   }
 
-  case class AnnotationSet(annotation_set_id: Long, annotation_set_definition_id: Long,
+  case class AnnotationSet(annotation_set_id: Long, annotation_set_definition_id: Long, name:String,
                            cohort_name: String, cohort_source: String, cohort_id: Long,
                            owner: String, date_created: String, date_updated: String)
   object AnnotationSet {
     implicit val format: Format[AnnotationSet] = (
           (__ \ "annotation_set_id").format[Long] and
           (__ \ "annotation_set_definition_id").format[Long] and
+            (__ \ "name").format[String] and
           (__ \ "cohort_name").format[String] and
           (__ \ "cohort_source").format[String] and
           (__ \ "cohort_id").format[Long] and
@@ -198,7 +202,7 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
         annotationSet ::= AnnotationSet(annotationSetId,
-          annotation_set_definition_id.toLong, cohort_name,
+          annotation_set_definition_id.toLong, "", cohort_name,
           cohort_source, cohort_id.toLong, owner, date_created, date_updated)
       }
     }
@@ -224,7 +228,7 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
         annotationSet ::= AnnotationSet(annotation_set_id.toLong,
-          annotation_set_definition_id.toLong, cohort_name,
+          annotation_set_definition_id.toLong, "", cohort_name,
           cohort_source, cohort_id.toLong, owner, date_created, date_updated)
       }
     }
@@ -234,6 +238,7 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.toJson(annotationSet))
   }
 
+  // TODO just need to change to read username from the session
   def getAnnotationSetByUsername(username:String) = Action {
     var annotationSet = List[AnnotationSet]()
     val conn = db.getConnection()
@@ -258,8 +263,9 @@ class AnnotationController @Inject() (db: Database) extends Controller {
         val cohort_source = rs.getString("cohort_source")
         val date_created = rs.getString("date_created")
         val date_updated = rs.getString("date_updated")
+
         annotationSet ::= AnnotationSet(annotation_set_id.toLong,
-          annotation_set_definition_id.toLong, cohort_name,
+          annotation_set_definition_id.toLong, name, cohort_name,
           cohort_source, cohort_id.toLong, owner, date_created, date_updated)
       }
     } finally {
