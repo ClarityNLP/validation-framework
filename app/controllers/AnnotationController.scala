@@ -325,11 +325,12 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.toJson(annotationSetWithQuestion))
   }
 
-  case class AnnotationSetQuestion(annotation_question_id:Long, question_name:String, question_type:String, help_text:String,
+  case class AnnotationSetQuestion(annotation_question_id:Long, index:Int, question_name:String, question_type:String, help_text:String,
                                    constraints:String, date_created:String, date_updated:String)
   object AnnotationSetQuestion {
     implicit val format: Format[AnnotationSetQuestion] = (
       (__ \ "annotation_question_id").format[Long] and
+        (__ \ "index").format[Int] and
         (__ \ "question_name").format[String] and
         (__ \ "question_type").format[String] and
         (__ \ "help_text").format[String] and
@@ -344,13 +345,16 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     var annotationSetQuestion = List[AnnotationSetQuestion]()
     val queryString = s"""select aq.* from validation.annotation_set_question asq
                           inner join validation.annotation_question aq on aq.annotation_question_id = asq.annotation_question_id
-                          where asq.annotation_set_definition_id = $annotationSetDefinitionId"""
+                          where asq.annotation_set_definition_id = $annotationSetDefinitionId
+                          order by aq.annotation_question_id asc"""
     try {
       val rs = conn.createStatement().executeQuery(queryString)
+      var i = 1
       while(rs.next()) {
-        annotationSetQuestion ::= AnnotationSetQuestion(rs.getLong("annotation_question_id"),
+        annotationSetQuestion ::= AnnotationSetQuestion(rs.getLong("annotation_question_id"), i,
           rs.getString("question_name"), rs.getString("question_type"), rs.getString("help_text"),
           rs.getString("constraints"), rs.getString("date_created"), rs.getString("date_updated"))
+        i += 1
       }
     } finally {
       conn.close()

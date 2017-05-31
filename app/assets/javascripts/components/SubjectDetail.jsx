@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import _ from 'lodash';
+import $ from 'jquery';
 
 import ChartData from './SubjectChartData.jsx';
 
@@ -30,20 +31,55 @@ const FilterList = (props) => {
     );
 };
 
-const Question = (props) => {
+const AnswerList = (props) => {
     return (
-        <div>
-            <h5>{props.index}. {props.question_name}</h5>
+        <ul className="list-group">
+            {props.answers.map(a => <li key={a.annotation_question_answer_id} className="list-group-item">
+                <label> <input name={props.aName} value={a.value} type={props.qType === 'MULTIPLE_CHOICE' ? 'radio' : 'checkbox'} />{a.text}</label></li>)}
+        </ul>
+    )
+};
+
+const Question = (props) => {
+    console.log(props);
+    let qBody;
+    const answerName = 'answer-' + props.annotation_question_id;
+    const commentName = 'comment-' + props.annotation_question_id;
+
+    switch(props.question_type) {
+        case ('MULTIPLE_CHOICE'):
+        case ('MULTIPLE_SELECT'):
+            qBody =
+                <AnswerList answers={props.answers} aName={answerName} qType={props.question_type} />;
+            break;
+        case ('NUMERIC'):
+            qBody = <input name={answerName} type="number" className="form-control" />;
+            break;
+        case ('DATE'):
+            qBody = <input name={answerName} type="date" className="form-control" />;
+            break;
+        case ('TEXT'):
+        default:
+            qBody = <input name={answerName} type="text" className="form-control" />;
+    }
+    return (
+        <div style={{marginTop:"30px"}}>
+            <label>{props.index}. <b>{props.name}</b></label>
+            {qBody}
+            <a onClick={(e) => {$('#' + commentName).show(); $(e.target).hide();}}>Add comment&raquo;</a>
+            <input name={commentName} id={commentName} type="text" className="form-control" style={{display:"none"}} placeholder="Add comment..."></input>
         </div>
     )
 };
 
 const QuestionList = (props) => {
     return (
-        <div>
-            
-            {props.questions.map(q => <Question key={q.annotation_question_id}
-                        index={q.index} name={q.question_name} answers={props.answers[q.annotation_question_id]}/>) }
+        <div style={{marginTop:"40px"}}>
+            <form>
+                {_.sortBy(props.questions, ['index']).map(q => <Question key={q.annotation_question_id}
+                            index={q.index} name={q.question_name} answers={props.answers[q.annotation_question_id]} {...q}/>) }
+                <a style={{marginTop:"15px"}} type="submit" className="btn btn-success">Submit</a>
+            </form>
         </div>
     );
 };
@@ -63,7 +99,7 @@ class DataStore {
     }
 
 
-    getObjectAt(/*number*/ index) /*?object*/ {
+    getObjectAt(index) {
         if (index < 0 || index > this.size){
             return undefined;
         }
@@ -167,31 +203,31 @@ class SubjectDetail extends React.Component {
         if (!this.props.subject.indexDate) {
             return 0;
         } else {
-            var curDate = Date.parse(d);
-            var indexDate = Date.parse(this.props.subject.indexDate);
+            const curDate = Date.parse(d);
+            const indexDate = Date.parse(this.props.subject.indexDate);
             return Date.daysBetween(indexDate, curDate);
         }
     };
 
     updateDimensions() {
-        var element = document.getElementById('chart-data-div');
-        var positionInfo = element.getBoundingClientRect();
-        var height = (window.innerHeight - 170) || positionInfo.height;
-        var width = +positionInfo.width - 20;
+        const element = document.getElementById('chart-data-div');
+        const positionInfo = element.getBoundingClientRect();
+        const height = (window.innerHeight - 170) || positionInfo.height;
+        const width = +positionInfo.width - 20;
         this.setState(prevState => ({ chartWidth : width, chartHeight : height }));
     };
 
     sort(sortDir, columnKey, secondaryColumnKey) {
-        var sorted = this.dataStore._cache.slice();
+        const sorted = this.dataStore._cache.slice();
 
         sorted.sort((indexA, indexB) => {
-            var valueA = indexA[columnKey];
-            var valueB = indexB[columnKey];
+            const valueA = indexA[columnKey];
+            const valueB = indexB[columnKey];
 
-            var valueA2 = indexA[secondaryColumnKey];
-            var valueB2 = indexB[secondaryColumnKey];
+            const valueA2 = indexA[secondaryColumnKey];
+            const valueB2 = indexB[secondaryColumnKey];
 
-            var sortVal = valueA === valueB ? 0 : valueA < valueB ? -1 : 1;
+            let sortVal = valueA === valueB ? 0 : valueA < valueB ? -1 : 1;
 
             if (sortVal === 0) {
                 sortVal = valueA2 === valueB2 ? 0 : valueA2 < valueB2 ? -1 : 1;
@@ -208,7 +244,7 @@ class SubjectDetail extends React.Component {
     }
 
     selectFilters(which) {
-        var filterMap = this.state.filters;
+        const filterMap = this.state.filters;
         Object.keys(filterMap).forEach((f) => filterMap[f].checked = (which === 'all'));
         this.setState(prevState => ({ filters : filterMap }));
     }
@@ -364,7 +400,7 @@ class SubjectDetail extends React.Component {
                                 </div>
                             </div>
                         </div>
-                        <div id="chart-data-div" className="col-md-8">
+                        <div id="chart-data-div" className="col-md-8" style={{borderRight:"3px solid #d3d3d3", height:"100%"}}>
                             { this.state.loading ? <div style={{marginTop:"40px"}} align="center"><span><i className="fa fa-circle-o-notch fa-spin"></i></span>  Loading...</div> :
                                 <ChartData chartdata={this.state.chartData} height={this.state.chartHeight}
                                            width={this.state.chartWidth} filters={this.state.filters} goToDay={this.state.goToDay}
@@ -372,14 +408,14 @@ class SubjectDetail extends React.Component {
                                 />
                             }
                         </div>
-                        <div className="col-md-2">
+                        <div className="col-md-2" >
                             <div className="pull-right">
                                 <div >
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(1)}}>Next &raquo;</button>
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(-1)}}>&laquo; Previous</button>
                                 </div>
                             </div>
-                            { this.props.viewOnly && this.props.questions ? <span></span> :
+                            { (this.props.viewOnly || this.state.loading) ? <span></span> :
                                 <div>
                                     <QuestionList questions={this.props.questions} answers={this.props.answers}
                                         results={this.props.results} />
