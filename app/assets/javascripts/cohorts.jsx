@@ -16,19 +16,19 @@ class App extends React.Component {
 
   componentDidMount() {
     axios.get("/cohorts").then((response) => {
-      var cohorts = response.data;
-      var uid = document.getElementById("uid").value;
-      axios.get('/annotation_set/name/'  + uid)
+      const cohorts = response.data;
+      const uname = document.getElementById("uname").value;
+      axios.get('/annotation_set/name/'  + uname)
         .then((response) => {
-          var annotationSets = {};
+          const annotationSets = {};
           response.data.forEach((elem, index) => {
             if (!annotationSets[elem.cohort_id]) { annotationSets[elem.cohort_id] = []; }
             annotationSets[elem.cohort_id].push(elem);
           });
           cohorts.forEach((elem, index) => {
-            var cohort = elem;
+            const cohort = elem;
             if (annotationSets[elem.id]) {
-              var sets = annotationSets[elem.id].map((item) => {
+              const sets = annotationSets[elem.id].map((item) => {
                 item.url = "/cohortdetails/?viewOnly=false&cohortId=" + cohort.id + "&setId=" + item.annotation_set_id;
                 return item;
               });

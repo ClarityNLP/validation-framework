@@ -35,13 +35,13 @@ const AnswerList = (props) => {
     return (
         <ul className="list-group">
             {props.answers.map(a => <li key={a.annotation_question_answer_id} className="list-group-item">
-                <label> <input name={props.aName} value={a.value} type={props.qType === 'MULTIPLE_CHOICE' ? 'radio' : 'checkbox'} />{a.text}</label></li>)}
+                <label> <input name={props.aName} value={a.value} answer-id={a.annotation_question_answer_id} type={props.qType === 'MULTIPLE_CHOICE' ? 'radio' : 'checkbox'}
+                               onChange={props.handleInputChange} />{a.text}</label></li>)}
         </ul>
     )
 };
 
 const Question = (props) => {
-    console.log(props);
     let qBody;
     const answerName = 'answer-' + props.annotation_question_id;
     const commentName = 'comment-' + props.annotation_question_id;
@@ -50,24 +50,24 @@ const Question = (props) => {
         case ('MULTIPLE_CHOICE'):
         case ('MULTIPLE_SELECT'):
             qBody =
-                <AnswerList answers={props.answers} aName={answerName} qType={props.question_type} />;
+                <AnswerList answers={props.answers} aName={answerName} qType={props.question_type} handleInputChange={props.handleInputChange} />;
             break;
         case ('NUMERIC'):
-            qBody = <input name={answerName} type="number" className="form-control" />;
+            qBody = <input name={answerName} type="number" className="form-control" onChange={props.handleInputChange} />;
             break;
         case ('DATE'):
-            qBody = <input name={answerName} type="date" className="form-control" />;
+            qBody = <input name={answerName} type="date" className="form-control" onChange={props.handleInputChange}  />;
             break;
         case ('TEXT'):
         default:
-            qBody = <input name={answerName} type="text" className="form-control" />;
+            qBody = <input name={answerName} type="text" className="form-control" onChange={props.handleInputChange}  />;
     }
     return (
         <div style={{marginTop:"30px"}}>
             <label>{props.index}. <b>{props.name}</b></label>
             {qBody}
             <a onClick={(e) => {$('#' + commentName).show(); $(e.target).hide();}}>Add comment&raquo;</a>
-            <input name={commentName} id={commentName} type="text" className="form-control" style={{display:"none"}} placeholder="Add comment..."></input>
+            <input name={commentName} id={commentName} type="text" className="form-control" style={{display:"none"}} onChange={props.handleInputChange} placeholder="Add comment..."></input>
         </div>
     )
 };
@@ -76,9 +76,9 @@ const QuestionList = (props) => {
     return (
         <div style={{marginTop:"40px"}}>
             <form>
-                {_.sortBy(props.questions, ['index']).map(q => <Question key={q.annotation_question_id}
+                {_.sortBy(props.questions, ['index']).map(q => <Question key={q.annotation_question_id} handleInputChange={props.handleInputChange}
                             index={q.index} name={q.question_name} answers={props.answers[q.annotation_question_id]} {...q}/>) }
-                <a style={{marginTop:"15px"}} type="submit" className="btn btn-success">Submit</a>
+                <a style={{marginTop:"15px"}} type="submit" className="btn btn-success" onClick={props.submitAnswers}>Submit</a>
             </form>
         </div>
     );
@@ -112,7 +112,7 @@ class DataStore {
 
     getAll() {
         if (this._cache.length < this.size) {
-            for (var i = 0; i < this.size; i++) {
+            for (let i = 0; i < this.size; i++) {
                 this.getObjectAt(i);
             }
         }
@@ -176,10 +176,63 @@ class SubjectDetail extends React.Component {
         this.selectFilters = this.selectFilters.bind(this);
         this.setDomainCounts = this.setDomainCounts.bind(this);
         this.setTotalCount = this.setTotalCount.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
+        this.submitAnswers = this.submitAnswers.bind(this);
 
         this.maxIndex = 0;
         this.minIndex = 0;
         this.dataStore = new DataStore([]);
+    }
+
+    submitAnswers(e) {
+        const setId = +this.props.setId;
+        const subjectId = this.props.subject.subjectId + "";
+        const documentId = '';
+        const userId = +document.getElementById("uid").value;
+        this.props.questions.forEach((q) => {
+            const qId = q.annotation_question_id;
+            const answerValue = this.state['answer-' + qId] || '';
+            const commentValue = this.state['comment-' + qId] || '';
+            const pk = -1;
+            let answerId = null;
+            if (this.props.answers[qId] && this.props.answers[qId].length > 0) {
+                this.props.answers[qId].forEach(a => {
+                    if (a.value === answerValue) {
+                        answerId = a.annotation_question_answer_id;
+                    }
+                });
+            }
+            const answer = {
+                annotation_set_result_id : pk,
+                annotation_set_id : setId,
+                comment : commentValue,
+                annotation_question_answer_id : answerId,
+                subject_id : subjectId,
+                user_id : userId,
+                document_id : documentId,
+                annotation_question_id : qId,
+                answer_text : answerValue
+            };
+
+            axios.post('/annotation_set/result', answer)
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        });
+
+    }
+
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+
+        this.setState({
+            [name]: value
+        });
     }
 
     formatDate(d) {
@@ -187,7 +240,7 @@ class SubjectDetail extends React.Component {
     };
 
     prettyDate(dString) {
-        var d = Date.parse(dString);
+        const d = Date.parse(dString);
         if (d) {
             return d.toString('M/d/yy');
         } else {
@@ -256,7 +309,6 @@ class SubjectDetail extends React.Component {
 
         let filterMap = this.state.filters;
         filterMap[name].checked = value;
-        //console.log(filterMap);
 
         this.setState(prevState => ({
             filters : filterMap
@@ -370,7 +422,6 @@ class SubjectDetail extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.subject && prevProps.subject.subjectId !== this.props.subject.subjectId) {
-            console.log(this);
             this.lookupPatientData();
         }
     };
@@ -417,8 +468,8 @@ class SubjectDetail extends React.Component {
                             </div>
                             { (this.props.viewOnly || this.state.loading) ? <span></span> :
                                 <div>
-                                    <QuestionList questions={this.props.questions} answers={this.props.answers}
-                                        results={this.props.results} />
+                                    <QuestionList questions={this.props.questions} answers={this.props.answers} submitAnswers={this.submitAnswers}
+                                                  handleInputChange={this.handleInputChange} results={this.props.results} />
                                 </div>
                             }
                         </div>

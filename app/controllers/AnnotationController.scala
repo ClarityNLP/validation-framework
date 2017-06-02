@@ -362,17 +362,17 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.toJson(annotationSetQuestion))
   }
 
-  case class AnnotationSetResult(annotation_set_result_id:Long, annotation_set_id:Long, comment:String,
-                                 annotation_question_answer_id:Long, subject_id:Long, document_id:Long, user_id:Long,
+  case class AnnotationSetResult(annotation_set_result_id:Long, annotation_set_id:Long, comment:Option[String],
+                                 annotation_question_answer_id:Option[Long], subject_id:Option[String], document_id:Option[String], user_id:Long,
                                 date_reviewed:String, annotation_question_id:Long, answer_text:String)
   object AnnotationSetResult {
     implicit val format: Format[AnnotationSetResult] = (
         (__ \ "annotation_set_result_id").format[Long] and
         (__ \ "annotation_set_id").format[Long] and
-        (__ \ "comment").format[String] and
-        (__ \ "annotation_question_answer_id").format[Long] and
-        (__ \ "subject_id").format[Long] and
-        (__ \ "document_id").format[Long] and
+        (__ \ "comment").formatNullable[String] and
+        (__ \ "annotation_question_answer_id").formatNullable[Long] and
+        (__ \ "subject_id").formatNullable[String] and
+        (__ \ "document_id").formatNullable[String] and
         (__ \ "user_id").format[Long] and
         (__ \ "date_reviewed").format[String] and
         (__ \ "annotation_question_id").format[Long] and
@@ -388,16 +388,53 @@ class AnnotationController @Inject() (db: Database) extends Controller {
       val rs = conn.createStatement().executeQuery(queryString)
       while(rs.next()) {
         annotationSetResults ::= AnnotationSetResult(rs.getLong("annotation_set_result_id"),
-          rs.getLong("annotation_set_id"), rs.getString("comment"), rs.getLong("annotation_question_answer_id"),
-          rs.getLong("subject_id"),
-          0 /*rs.getLong("document_id") TODO: Handle null values*/,
-          rs.getLong("user_id"), rs.getString("date_reviewed"),
-          0 /*rs.getLong("annotation_question_id") TODO: Handle null values */,
+          rs.getLong("annotation_set_id"),
+          Some(rs.getString("comment")),
+          Some(rs.getLong("annotation_question_answer_id")),
+          Some(rs.getString("subject_id")),
+          Some(rs.getString("document_id")),
+          rs.getLong("user_id"),
+          rs.getString("date_reviewed"),
+          rs.getLong("annotation_question_id"),
           rs.getString("answer_text"))
       }
     } finally {
       conn.close()
     }
     Ok(Json.toJson(annotationSetResults))
+  }
+
+  def putAnnotationSetResult() = Action { request =>
+    val json = request.body.asJson.get
+    val conn = db.getConnection()
+
+    try {
+      val seqQuery = "select nextval('validation.annotation_set_result_seq')"
+      val seqRs = conn.createStatement().executeQuery(seqQuery)
+      while (seqRs.next()) {
+        val annotationSetResultId = seqRs.getLong(1)
+        val annotation_set_id = (json \ "annotation_set_id").as[Long]
+        val comment = (json \ "comment").asOpt[String].getOrElse(null)
+        val annotation_question_answer_id = (json \ "annotation_question_answer_id").asOpt[Long].getOrElse(null)
+        val subject_id = (json \ "subject_id").asOpt[String].getOrElse(null)
+        val document_id = (json \ "document_id").asOpt[String].getOrElse(null)
+        val user_id = (json \ "user_id").as[Long]
+        val annotation_question_id = (json \ "annotation_question_id").as[Long]
+        val answer_text = (json \ "answer_text").as[String]
+
+        val insertString =
+          s"""insert into validation.annotation_set_result
+             | (annotation_set_result_id, annotation_set_id, comment, annotation_question_answer_id, subject_id, document_id, user_id, date_reviewed, annontation_question_id, answer_text)
+             | values ($annotationSetResultId, $annotation_set_id, '$comment', $annotation_question_answer_id, '$subject_id', '$document_id', $user_id, current_date, $annotation_question_id, '$answer_text')
+             | """.stripMargin
+
+        conn.createStatement().execute(insertString)
+      }
+
+
+    } finally {
+      conn.close()
+    }
+    Created("{success:True}")
   }
 }

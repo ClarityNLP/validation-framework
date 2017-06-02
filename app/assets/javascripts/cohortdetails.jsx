@@ -37,7 +37,7 @@ class CohortDetails extends React.Component {
             currentIndex : 0,
             cohortId : -1,
             setId : -1,
-            questions : {},
+            questions : [],
             answers : {},
             results : {}
         };
@@ -50,7 +50,7 @@ class CohortDetails extends React.Component {
     }
 
     componentDidMount() {
-        console.log(QueryString);
+        //console.log(QueryString);
         const cohortId = QueryString.cohortId;
         const setId = QueryString.setId || -1;
         const viewOnly = QueryString.viewOnly === 'true';
@@ -100,7 +100,6 @@ class CohortDetails extends React.Component {
             if (setId !== -1) {
                 axios.get("/annotation_set/question/" + setId)
                     .then((response) => {
-                    console.log(response.data);
                         this.setState(prevState => ({
                             questions : response.data,
                             answers : {}
@@ -109,7 +108,6 @@ class CohortDetails extends React.Component {
 
                             axios.get("/annotation_question_answer/" + q.annotation_question_id)
                                 .then((response) => {
-                                    console.log(response.data)
                                     this.setState(prevState => ({
                                         answers : this.updateAnswers(prevState.answers, q, response.data)
                                     }));
@@ -196,6 +194,8 @@ class CohortDetails extends React.Component {
                                        questions={this.state.questions}
                                        answers={this.state.answers}
                                        results={this.state.results}
+                                       cohortId={this.state.cohortId}
+                                       setId={this.state.setId}
                             />
                     }
             </div>

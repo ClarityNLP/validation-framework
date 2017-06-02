@@ -31,6 +31,7 @@ GET     /annotation_set                                 controllers.AnnotationCo
 GET     /annotation_set/question/:annotationSetDefinitionId controllers.AnnotationController.getAnnotationSetQuestion(annotationSetDefinitionId:Long)
 GET     /annotation_set/name/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
 GET     /annotation_set/result/:annotationSetResultId   controllers.AnnotationController.getAnnotationSetResult(annotationSetResultId:Long)
+POST     /annotation_set/result                          controllers.AnnotationController.putAnnotationSetResult()
 
 # Validation Table Endpoints
 GET     /validation/users                           controllers.ValidationController.getUsers()

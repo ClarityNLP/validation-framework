@@ -151,12 +151,12 @@ class ChartData extends React.Component {
     }
 
     _rowHeightGetter(index) {
-        var obj = this.state.filteredDataList.getObjectAt(index);
+        const obj = this.state.filteredDataList.getObjectAt(index);
         if (obj) {
             if (obj.type === 'document') {
                 return (Math.round(obj.displayName.replace(/\n/g, this.fillerText).length / 70) * 22) + 28
             } else {
-                return Math.max(Math.round(obj.displayName.length / 50) * 36, 40);
+                return Math.max(Math.round(obj.displayName.length / 30) * 36, 40);
             }
         } else {
             return 0;
