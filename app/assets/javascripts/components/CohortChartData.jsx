@@ -1,10 +1,31 @@
 import React from 'react';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 
-const TextCell = ({rowIndex, data, col, props}) => {
+const TextCell = ({rowIndex, data, col, results, props}) => {
     const dataContent = data.getObjectAt(rowIndex);
+    const subjectId = dataContent.subject_id;
+    let displayContent = dataContent[col];
+
+    if (col === 'comments') {
+        if (results[subjectId] && results[subjectId].length > 0) {
+            let comments = '';
+            results[subjectId].forEach((r, i) => {
+                if (r.comment && r.comment.length > 0) {
+                    if (comments.length > 0) {
+                        comments += ', ';
+                    }
+                    comments += r.comment;
+                }
+            });
+            displayContent = comments;
+        }
+    } else if (col === 'completed') {
+        if (results[subjectId] && results[subjectId].length > 0) {
+            displayContent = "True";
+        }
+    }
     return (<Cell style={{width:"100%"}} >
-        <div>{dataContent[col]}</div>
+        <div>{displayContent}</div>
     </Cell>);
 };
 
@@ -44,6 +65,7 @@ class ChartData extends React.Component {
 
     render() {
         let {finalDataList} = this.state;
+        let {results} = this.props;
         return (
             <div>
                 <Table
@@ -57,33 +79,28 @@ class ChartData extends React.Component {
                     {...this.props}>
                     <Column
                         header={<Cell>#</Cell>}
-                        cell={<TextCell data={finalDataList} col="sourceValue"  />}
+                        cell={<TextCell data={finalDataList} col="sourceValue" results={results}   />}
                         width={100}
                     />
                     <Column
                         header={<Cell>Age</Cell>}
-                        cell={<TextCell data={finalDataList} col="age" />}
+                        cell={<TextCell data={finalDataList} col="age" results={results}  />}
                         width={75}
                     />
                     <Column
                         header={<Cell>Gender</Cell>}
-                        cell={<TextCell data={finalDataList} col="gender"  />}
+                        cell={<TextCell data={finalDataList} col="gender" results={results}   />}
                         width={75}
                     />
                     <Column
                         header={<Cell>Completed</Cell>}
-                        cell={<TextCell data={finalDataList} col="completed"  />}
+                        cell={<TextCell data={finalDataList} col="completed"  results={results}  />}
                         width={200}
-                    />
-                    <Column
-                        header={<Cell>Status</Cell>}
-                        cell={<TextCell data={finalDataList} col="status" />}
-                        width={150}
                     />
                     <Column
                         header={<Cell>Comments</Cell>}
-                        cell={<TextCell data={finalDataList} col="comments" />}
-                        width={200}
+                        cell={<TextCell data={finalDataList} col="comments" results={results} />}
+                        width={300}
                     />
                 </Table>
             </div>

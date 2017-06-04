@@ -35,7 +35,10 @@ const AnswerList = (props) => {
     return (
         <ul className="list-group">
             {props.answers.map(a => <li key={a.annotation_question_answer_id} className="list-group-item">
-                <label> <input name={props.aName} value={a.value} answer-id={a.annotation_question_answer_id} type={props.qType === 'MULTIPLE_CHOICE' ? 'radio' : 'checkbox'}
+                <label> <input name={props.aName} value={a.value}
+                               answer-id={a.annotation_question_answer_id}
+                               checked={(props.value === a.value)}
+                               type={props.qType === 'MULTIPLE_CHOICE' ? 'radio' : 'checkbox'}
                                onChange={props.handleInputChange} />{a.text}</label></li>)}
         </ul>
     )
@@ -50,35 +53,75 @@ const Question = (props) => {
         case ('MULTIPLE_CHOICE'):
         case ('MULTIPLE_SELECT'):
             qBody =
-                <AnswerList answers={props.answers} aName={answerName} qType={props.question_type} handleInputChange={props.handleInputChange} />;
+                <AnswerList
+                    answers={props.answers}
+                    aName={answerName}
+                    qType={props.question_type}
+                    result={props.result}
+                    value={props.value}
+                    comment={props.comment}
+                    handleInputChange={props.handleInputChange} />;
             break;
         case ('NUMERIC'):
-            qBody = <input name={answerName} type="number" className="form-control" onChange={props.handleInputChange} />;
+            qBody = <input value={props.value} name={answerName} type="number" className="form-control" onChange={props.handleInputChange} />;
             break;
         case ('DATE'):
-            qBody = <input name={answerName} type="date" className="form-control" onChange={props.handleInputChange}  />;
+            qBody = <input value={props.value} name={answerName} type="date" className="form-control" onChange={props.handleInputChange}  />;
             break;
         case ('TEXT'):
         default:
-            qBody = <input name={answerName} type="text" className="form-control" onChange={props.handleInputChange}  />;
+            qBody = <input value={props.value} name={answerName} type="text" className="form-control" onChange={props.handleInputChange}  />;
     }
+    const hasComment = props.comment && props.comment.length > 0;
+
     return (
         <div style={{marginTop:"30px"}}>
             <label>{props.index}. <b>{props.name}</b></label>
             {qBody}
-            <a onClick={(e) => {$('#' + commentName).show(); $(e.target).hide();}}>Add comment&raquo;</a>
-            <input name={commentName} id={commentName} type="text" className="form-control" style={{display:"none"}} onChange={props.handleInputChange} placeholder="Add comment..."></input>
+            <a
+                style={ hasComment ? {display:"none"} : {display:"block"}}
+                onClick={(e) => {$('#' + commentName).show(); $(e.target).hide();}}>
+                Add comment&raquo;
+            </a>
+            <input
+                name={commentName}
+                id={commentName}
+                type="text"
+                className="form-control"
+                style={ hasComment ? {display:"block"} : {display:"none"}}
+                onChange={props.handleInputChange}
+                value={props.comment}
+                placeholder="Add comment..."></input>
         </div>
     )
 };
 
 const QuestionList = (props) => {
+    const mappedResults = {};
+
+    if (props.results) {
+        props.results.forEach((r, i) => {
+            mappedResults[r.annotation_question_id] = r;
+        });
+    }
     return (
         <div style={{marginTop:"40px"}}>
             <form>
-                {_.sortBy(props.questions, ['index']).map(q => <Question key={q.annotation_question_id} handleInputChange={props.handleInputChange}
-                            index={q.index} name={q.question_name} answers={props.answers[q.annotation_question_id]} {...q}/>) }
-                <a style={{marginTop:"15px"}} type="submit" className="btn btn-success" onClick={props.submitAnswers}>Submit</a>
+                {_.sortBy(props.questions, ['index']).map(q =>
+
+                    <Question key={q.annotation_question_id}
+                              handleInputChange={props.handleInputChange}
+                              index={q.index}
+                              name={q.question_name}
+                              comment={props.state['comment-' + q.annotation_question_id]}
+                              value={props.state['answer-' + q.annotation_question_id]}
+                              answers={props.answers[q.annotation_question_id]}
+                              result={mappedResults[q.annotation_question_id]}
+                              {...q}/>) }
+                <a style={{marginTop:"15px"}}
+                   type="submit"
+                   className="btn btn-success"
+                   onClick={props.submitAnswers}>Submit</a>
             </form>
         </div>
     );
@@ -149,6 +192,7 @@ class SubjectDetail extends React.Component {
                 visit : {},
                 documents : { checked : true }
             },
+            mappedResults : {},
             domainCounts : {
                 condition : 0,
                 conditionera : 0,
@@ -178,6 +222,7 @@ class SubjectDetail extends React.Component {
         this.setTotalCount = this.setTotalCount.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.submitAnswers = this.submitAnswers.bind(this);
+        this.presetAnswers = this.presetAnswers.bind(this);
 
         this.maxIndex = 0;
         this.minIndex = 0;
@@ -189,16 +234,25 @@ class SubjectDetail extends React.Component {
         const subjectId = this.props.subject.subjectId + "";
         const documentId = '';
         const userId = +document.getElementById("uid").value;
-        this.props.questions.forEach((q) => {
+        const results = [];
+        this.props.questions.forEach((q, i) => {
             const qId = q.annotation_question_id;
             const answerValue = this.state['answer-' + qId] || '';
             const commentValue = this.state['comment-' + qId] || '';
-            const pk = -1;
+            let pk = -1;
             let answerId = null;
             if (this.props.answers[qId] && this.props.answers[qId].length > 0) {
                 this.props.answers[qId].forEach(a => {
                     if (a.value === answerValue) {
                         answerId = a.annotation_question_answer_id;
+                    }
+                });
+            }
+            const prevResults = this.props.results[subjectId];
+            if (prevResults) {
+                prevResults.forEach((p, i) => {
+                    if (p.annotation_question_id === qId) {
+                        pk = p.annotation_set_result_id;
                     }
                 });
             }
@@ -213,10 +267,14 @@ class SubjectDetail extends React.Component {
                 annotation_question_id : qId,
                 answer_text : answerValue
             };
+            results.push(answer);
 
             axios.post('/annotation_set/result', answer)
                 .then((res) => {
-                    console.log(res);
+                    if ((i + 1) === this.props.questions.length) {
+                        this.props.updateResults(+subjectId, results);
+                        this.props.navigateSubjects(1);
+                    }
                 })
                 .catch((err) => {
                     console.log(err);
@@ -361,7 +419,7 @@ class SubjectDetail extends React.Component {
                     this.maxIndex = +d.dateOffset > this.minIndex ? + d.dateOffset : this.maxIndex;
 
                     d.type = 'record';
-                    if (d.domain == 'drug') {
+                    if (d.domain === 'drug') {
                         d.sourceConceptValue = "";
                     }
                     this.dataStore.addObject(d);
@@ -407,6 +465,35 @@ class SubjectDetail extends React.Component {
         });
     };
 
+    presetAnswers() {
+        if (this.props.answers) {
+            console.log(this.props.answers);
+            Object.keys(this.props.answers).forEach((a, i) => {
+                const aName = 'answer-' + a;
+                const cName = 'comment-' + a;
+                this.setState(prevState => ({
+                    [aName]: '',
+                    [cName]: ''
+                }));
+
+            }, () => {console.log(this.state)});
+        }
+        if (this.props.results && this.props.subject) {
+            const curResults = this.props.results[this.props.subject.subjectId];
+            if (curResults) {
+                curResults.forEach((r, i) => {
+                    const aName = 'answer-' + r.annotation_question_id;
+                    const cName = 'comment-' + r.annotation_question_id;
+                    this.setState(prevState => ({
+                        [aName]: r.answer_text,
+                        [cName]: r.comment
+                    }), () => {console.log(this.state)});
+                });
+                console.log(this.state);
+            }
+        }
+    };
+
     componentWillMount() {
     };
 
@@ -418,11 +505,13 @@ class SubjectDetail extends React.Component {
     componentDidMount() {
         window.addEventListener("resize", this.updateDimensions);
         this.lookupPatientData();
+        this.presetAnswers();
     };
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.subject && prevProps.subject.subjectId !== this.props.subject.subjectId) {
             this.lookupPatientData();
+            this.presetAnswers();
         }
     };
 
@@ -453,9 +542,14 @@ class SubjectDetail extends React.Component {
                         </div>
                         <div id="chart-data-div" className="col-md-8" style={{borderRight:"3px solid #d3d3d3", height:"100%"}}>
                             { this.state.loading ? <div style={{marginTop:"40px"}} align="center"><span><i className="fa fa-circle-o-notch fa-spin"></i></span>  Loading...</div> :
-                                <ChartData chartdata={this.state.chartData} height={this.state.chartHeight}
-                                           width={this.state.chartWidth} filters={this.state.filters} goToDay={this.state.goToDay}
-                                           setDomainCounts={this.setDomainCounts} setTotalCount={this.setTotalCount}
+                                <ChartData
+                                    chartdata={this.state.chartData}
+                                    height={this.state.chartHeight}
+                                    width={this.state.chartWidth}
+                                    filters={this.state.filters}
+                                    goToDay={this.state.goToDay}
+                                    setDomainCounts={this.setDomainCounts}
+                                    setTotalCount={this.setTotalCount}
                                 />
                             }
                         </div>
@@ -468,8 +562,14 @@ class SubjectDetail extends React.Component {
                             </div>
                             { (this.props.viewOnly || this.state.loading) ? <span></span> :
                                 <div>
-                                    <QuestionList questions={this.props.questions} answers={this.props.answers} submitAnswers={this.submitAnswers}
-                                                  handleInputChange={this.handleInputChange} results={this.props.results} />
+                                    <QuestionList
+                                        questions={this.props.questions}
+                                        answers={this.props.answers}
+                                        submitAnswers={this.submitAnswers}
+                                        handleInputChange={this.handleInputChange}
+                                        results={this.props.results[this.props.subject.subjectId]}
+                                        state={this.state}
+                                    />
                                 </div>
                             }
                         </div>

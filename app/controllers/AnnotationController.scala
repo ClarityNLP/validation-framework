@@ -409,27 +409,32 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     val conn = db.getConnection()
 
     try {
-      val seqQuery = "select nextval('validation.annotation_set_result_seq')"
-      val seqRs = conn.createStatement().executeQuery(seqQuery)
-      while (seqRs.next()) {
-        val annotationSetResultId = seqRs.getLong(1)
-        val annotation_set_id = (json \ "annotation_set_id").as[Long]
-        val comment = (json \ "comment").asOpt[String].getOrElse(null)
-        val annotation_question_answer_id = (json \ "annotation_question_answer_id").asOpt[Long].getOrElse(null)
-        val subject_id = (json \ "subject_id").asOpt[String].getOrElse(null)
-        val document_id = (json \ "document_id").asOpt[String].getOrElse(null)
-        val user_id = (json \ "user_id").as[Long]
-        val annotation_question_id = (json \ "annotation_question_id").as[Long]
-        val answer_text = (json \ "answer_text").as[String]
+      var annotationSetResultId = (json \ "annotation_set_result_id").as[Long]
 
-        val insertString =
-          s"""insert into validation.annotation_set_result
-             | (annotation_set_result_id, annotation_set_id, comment, annotation_question_answer_id, subject_id, document_id, user_id, date_reviewed, annontation_question_id, answer_text)
-             | values ($annotationSetResultId, $annotation_set_id, '$comment', $annotation_question_answer_id, '$subject_id', '$document_id', $user_id, current_date, $annotation_question_id, '$answer_text')
-             | """.stripMargin
-
-        conn.createStatement().execute(insertString)
+      if (annotationSetResultId == -1) {
+        val seqQuery = "select nextval('validation.annotation_set_result_seq')"
+        val seqRs = conn.createStatement().executeQuery(seqQuery)
+        while (seqRs.next()) {
+          annotationSetResultId = seqRs.getLong(1)
+        }
       }
+      val annotation_set_id = (json \ "annotation_set_id").as[Long]
+      val comment = (json \ "comment").asOpt[String].getOrElse(null)
+      val annotation_question_answer_id = (json \ "annotation_question_answer_id").asOpt[Long].getOrElse(null)
+      val subject_id = (json \ "subject_id").asOpt[String].getOrElse(null)
+      val document_id = (json \ "document_id").asOpt[String].getOrElse(null)
+      val user_id = (json \ "user_id").as[Long]
+      val annotation_question_id = (json \ "annotation_question_id").as[Long]
+      val answer_text = (json \ "answer_text").as[String]
+
+      val insertString =
+        s"""insert into validation.annotation_set_result
+           | (annotation_set_result_id, annotation_set_id, comment, annotation_question_answer_id, subject_id, document_id, user_id, date_reviewed, annontation_question_id, answer_text)
+           | values ($annotationSetResultId, $annotation_set_id, '$comment', $annotation_question_answer_id, '$subject_id', '$document_id', $user_id, current_date, $annotation_question_id, '$answer_text')
+           | """.stripMargin
+
+      conn.createStatement().execute(insertString)
+
 
 
     } finally {

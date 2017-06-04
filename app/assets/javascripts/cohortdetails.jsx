@@ -5,16 +5,16 @@ import axios from 'axios';
 import CohortEntityList from './components/CohortEntityList.jsx';
 import SubjectDetail from './components/SubjectDetail.jsx';
 
-var QueryString = function () {
-    var query_string = {};
-    var query = window.location.search.substring(1);
-    var vars = query.split("&");
-    for (var i=0;i<vars.length;i++) {
-        var pair = vars[i].split("=");
+const QueryString = function () {
+    const query_string = {};
+    const query = window.location.search.substring(1);
+    const vars = query.split("&");
+    for (let i=0;i<vars.length;i++) {
+        const pair = vars[i].split("=");
         if (typeof query_string[pair[0]] === "undefined") {
             query_string[pair[0]] = decodeURIComponent(pair[1]);
         } else if (typeof query_string[pair[0]] === "string") {
-            var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+            const arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
             query_string[pair[0]] = arr;
         } else {
             query_string[pair[0]].push(decodeURIComponent(pair[1]));
@@ -47,6 +47,7 @@ class CohortDetails extends React.Component {
         this.backToList = this.backToList.bind(this);
         this.navigateSubjects = this.navigateSubjects.bind(this);
         this.updateAnswers = this.updateAnswers.bind(this);
+        this.updateResults = this.updateResults.bind(this);
     }
 
     componentDidMount() {
@@ -81,13 +82,30 @@ class CohortDetails extends React.Component {
                             d.age = "";
                             d.sourceValue = "";
                         }
-                        d.completed = "";
-                        d.status = "";
+                        d.subject_id = d.subjectId;
+                        d.completed = "False";
                         d.comments = "";
                         d.indexDate = d.cohortStartDate;
                         d.url = "/chart";
                         return d;
                     });
+                    const uname = document.getElementById("uname").value;
+                    axios.get("/annotation_set/name/" + uname + "/id/" + setId)
+                        .then((response) => {
+                            const results = {};
+                            response.data.forEach((r) => {
+                                if (!results[r.subject_id]) {
+                                    results[r.subject_id] = [];
+                                }
+                                results[r.subject_id].push(r);
+                            });
+                            this.setState(prevState => ({
+                                results : results
+                            }));
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
                     this.setState(prevState => ({
                         entities: entities,
                         length : entities.length,
@@ -120,6 +138,7 @@ class CohortDetails extends React.Component {
                     .catch(function (error) {
                         console.log(error);
                     });
+
             }
         }
 
@@ -128,6 +147,15 @@ class CohortDetails extends React.Component {
     updateAnswers(obj, q, answerList) {
         obj[q.annotation_question_id] = answerList;
         return obj;
+    }
+
+    updateResults(subjectId, subjectResults) {
+        const results = this.state.results;
+        results[subjectId] = subjectResults;
+        this.setState(prevState => (
+            {
+                results : results
+            }));
     }
 
     subjectSelected(index, subject) {
@@ -182,7 +210,7 @@ class CohortDetails extends React.Component {
                         </div>
                         {this.state.ready ?
                             <CohortEntityList entities={this.state.entities} cohort={this.state.cohort}
-                                              viewOnly={this.state.viewOnly}
+                                              viewOnly={this.state.viewOnly} results={this.state.results}
                                               subjectSelected={this.subjectSelected}
                             /> : <div><h4 style={{color:"grey"}}>Loading...</h4></div>
                         }
@@ -196,6 +224,7 @@ class CohortDetails extends React.Component {
                                        results={this.state.results}
                                        cohortId={this.state.cohortId}
                                        setId={this.state.setId}
+                                       updateResults={this.updateResults}
                             />
                     }
             </div>

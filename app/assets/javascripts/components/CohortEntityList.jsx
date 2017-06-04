@@ -13,8 +13,8 @@ class CohortEntityList extends React.Component {
   }
 
     updateDimensions() {
-        var height = (window.innerHeight - 250);
-        var width = (window.innerWidth - 50);
+        const height = (window.innerHeight - 250);
+        const width = (window.innerWidth - 50);
         this.setState(prevState => ({ chartWidth : width, chartHeight : height }));
     };
 
@@ -34,8 +34,12 @@ class CohortEntityList extends React.Component {
     render() {
         return (
             <div>
-                <CohortChartData subjectSelected={this.props.subjectSelected} entities={this.props.entities}
-                                 width={this.state.chartWidth} height={this.state.chartHeight}/>
+                <CohortChartData
+                    subjectSelected={this.props.subjectSelected}
+                    entities={this.props.entities}
+                    width={this.state.chartWidth}
+                    height={this.state.chartHeight}
+                    results={this.props.results}/>
             </div>
         );
       };
