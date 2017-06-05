@@ -8,7 +8,8 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cohorts: []
+        cohorts: [],
+        adminCohorts : {}
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -26,7 +27,7 @@ class App extends React.Component {
             annotationSets[elem.cohort_id].push(elem);
           });
           cohorts.forEach((elem, index) => {
-            const cohort = elem;
+            let cohort = elem;
             if (annotationSets[elem.id]) {
               const sets = annotationSets[elem.id].map((item) => {
                 item.url = "/cohortdetails/?viewOnly=false&cohortId=" + cohort.id + "&setId=" + item.annotation_set_id;
@@ -38,6 +39,22 @@ class App extends React.Component {
             }
             elem.viewUrl = "/cohortdetails/?viewOnly=true&cohortId=" + cohort.id
           });
+          axios.get('/annotation_set/owner/' + uname)
+              .then((response) => {
+                  const adminCohorts = {};
+                  response.data.forEach((c, i) => {
+                    if (!adminCohorts[c.cohort_id]) { adminCohorts[c.cohort_id] = []; }
+                    adminCohorts[c.cohort_id].push(c);
+                  });
+                  this.setState(prevState => (
+                      {
+                          adminCohorts: adminCohorts
+                      }
+                  ));
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
           this.setState(prevState => (
               {
                   cohorts: cohorts,
@@ -78,7 +95,7 @@ class App extends React.Component {
             <input className="form-control" type="text" placeholder="Type to filter..." onChange={this.handleChange} />
           </div>
         </div>
-        <CohortList cohorts={this.state.cohorts}/>
+        <CohortList cohorts={this.state.cohorts} adminCohorts={this.state.adminCohorts}/>
       </div>
 
     );

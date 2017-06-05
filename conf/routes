@@ -28,9 +28,12 @@ GET     /annotation_set/:annotationSetId                controllers.AnnotationCo
 PUT     /annotation_set/:annotationSetId                controllers.AnnotationController.putAnnotationSet(annotationSetId:Int)
 GET     /annotation_set/name/:username                  controllers.AnnotationController.getAnnotationSetByUsername(username:String)
 GET     /annotation_set                                 controllers.AnnotationController.getAllAnnotationSets()
+GET     /annotation_set/owner/:owner                    controllers.AnnotationController.getAllAnnotationSetsByOwner(owner:String)
 GET     /annotation_set/question/:annotationSetDefinitionId controllers.AnnotationController.getAnnotationSetQuestion(annotationSetDefinitionId:Long)
 GET     /annotation_set/name/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
-GET     /annotation_set/result/:annotationSetResultId   controllers.AnnotationController.getAnnotationSetResult(annotationSetResultId:Long)
+GET     /annotation_set/result/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
+GET     /annotation_set/result/:annotationSetId   controllers.AnnotationController.getAnnotationSetBySetID(annotationSetId:Long)
+GET     /download_result/:annotationSetId   controllers.AnnotationController.downloadAnnotationSetById(annotationSetId:Long)
 POST     /annotation_set/result                          controllers.AnnotationController.putAnnotationSetResult()
 
 # Validation Table Endpoints

@@ -17,6 +17,23 @@ const AnnotationSetButton = (props) => {
   return (btn);
 };
 
+const AdminButton = (props) => {
+    console.log(props);
+    let btn =
+        <div className="btn-group">
+            <button type="button" className="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Download <span className="caret"></span>
+            </button>
+
+            <ul className="dropdown-menu">
+                {props.admin.map(a => (
+                    <li key={a.name} {...a}><a href={'/download_result/' + a.annotation_set_id}>{a.name}</a></li>
+                ))}
+            </ul>
+        </div>;
+    return (btn);
+};
+
 class CohortList extends React.Component {
   constructor(props) {
     super(props);
@@ -38,10 +55,12 @@ class CohortList extends React.Component {
               <th>Name</th>
               <th>Description</th>
               <th>Date</th>
+              <th>Admin</th>
             </tr>
           </thead>
           <tbody>
             {this.props.cohorts.map((cohort) => {
+              const admin = this.props.adminCohorts[cohort.id];
               return (
                 <tr key={cohort.id} onClick={() => {window.location.url = cohort.viewUrl}} style={{
                   verticalAlign : "middle",
@@ -60,6 +79,12 @@ class CohortList extends React.Component {
                   <td>{cohort.name}</td>
                   <td>{cohort.description}</td>
                   <td>{cohort.createdDate}</td>
+                  <td>
+                      {admin && admin.length > 0 ?
+                          <AdminButton cohort={cohort} admin={admin} />
+                          : <div></div>
+                      }
+                  </td>
               </tr>
               )
             })

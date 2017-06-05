@@ -5,9 +5,14 @@ import javax.inject.Inject
 import org.postgresql.util.PSQLException
 import play.api.db.Database
 import play.api.libs.json.{Format, JsError, Json}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import au.com.bytecode.opencsv.CSVWriter
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
+import java.io._
+
 
 /**
   * Created by ncampbell7 on 4/25/17.
@@ -238,6 +243,38 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.toJson(annotationSet))
   }
 
+  def getAllAnnotationSetsByOwner(owner:String) = Action {
+    var annotationSet = List[AnnotationSet]()
+    val conn = db.getConnection()
+    val queryString =
+      s"""select asd.annotation_set_definition_id, asd.name, asd.owner, s.annotation_set_id, s.cohort_name, s.cohort_id,
+                                       s.cohort_source, asd.date_created, asd.date_updated
+         from validation.annotation_set s
+         inner join validation.annotation_set_definition asd on asd.annotation_set_definition_id = s.annotation_set_definition_id
+         where s.owner = '$owner'""".stripMargin
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        val annotation_set_id = rs.getString("annotation_set_id")
+        val annotation_set_definition_id = rs.getString("annotation_set_definition_id")
+        val cohort_name = rs.getString("cohort_name")
+        val cohort_source = rs.getString("cohort_source")
+        val cohort_id = rs.getString("cohort_id")
+        val owner = rs.getString("owner")
+        val name = rs.getString("name")
+        val date_created = rs.getString("date_created")
+        val date_updated = rs.getString("date_updated")
+        annotationSet ::= AnnotationSet(annotation_set_id.toLong,
+          annotation_set_definition_id.toLong, name, cohort_name,
+          cohort_source, cohort_id.toLong, owner, date_created, date_updated)
+      }
+    }
+    finally {
+      conn.close()
+    }
+    Ok(Json.toJson(annotationSet))
+  }
+
   // TODO just need to change to read username from the session
   def getAnnotationSetByUsername(username:String) = Action {
     var annotationSet = List[AnnotationSet]()
@@ -325,6 +362,65 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     Ok(Json.toJson(annotationSetWithQuestion))
   }
 
+  def downloadAnnotationSetById(validationSetId:Long) = Action {
+    val filename = "/tmp/" + validationSetId + "-results.csv"
+    val outputFile = new BufferedWriter(new FileWriter(filename))
+    val csvWriter = new CSVWriter(outputFile)
+    val csvFields = Array("annotation_set_id", "comment", "subject_id", "user_id", "date_reviewed",
+      "annontation_question_id", "question_name",
+      "answer_text", "annotation_question_answer_id", "answer_label")
+
+    val results = getAnnotationSetLookup(validationSetId)
+    val iterator = results.iterator
+    var listOfRecords = new ListBuffer[Array[String]]()
+    listOfRecords += csvFields
+    while (iterator.hasNext()) {
+      val next = iterator.next()
+      listOfRecords += Array(next.annotation_set_id.toString, next.comment, next.subject_id.toString, next.user_id.toString, next.date_reviewed.toString,
+        next.annotation_question_id.toString, next.question_name,
+        next.answer_text, next.annotation_question_answer_id.toString, next.answer_label)
+    }
+    csvWriter.writeAll(listOfRecords.toList)
+    outputFile.close()
+
+    Ok.sendFile(new java.io.File(filename))
+  }
+
+  def getAnnotationSetBySetID(validationSetId:Long) = Action {
+    Ok(Json.toJson(getAnnotationSetLookup(validationSetId)))
+  }
+
+  def getAnnotationSetLookup(validationSetId:Long) = {
+    var annotationSetWithQuestion = List[AnnotationSetWithQuestions]()
+    val conn = db.getConnection()
+    val queryString = s"""select asr.annotation_set_id, asr.comment, asr.subject_id, asr.user_id, asr.date_reviewed, asr.annontation_question_id, aq.question_name,
+                         asr.answer_text, asr.annotation_question_answer_id, aqa.text as answer_label
+                         from validation.annotation_set_result asr
+                         inner join validation.annotation_question aq on aq.annotation_question_id = asr.annontation_question_id
+                         left outer join validation.annotation_question_answer aqa on asr.annotation_question_answer_id = aqa.annotation_question_answer_id
+                         where asr.annotation_set_id = $validationSetId"""
+    try {
+      val rs = conn.createStatement().executeQuery(queryString)
+      while(rs.next()) {
+        val annotation_set_id = rs.getString("annotation_set_id").toLong
+        val comment = rs.getString("comment")
+        val subject_id = rs.getString("subject_id").toLong
+        val user_id = rs.getString("user_id").toLong
+        val date_reviewed = rs.getString("date_reviewed")
+        val annotation_question_id = rs.getString("annontation_question_id").toLong
+        val question_name = rs.getString("question_name")
+        val answer_text = rs.getString("answer_text")
+        val annotation_question_answer_id = rs.getString("annotation_question_answer_id")
+        val answer_label = rs.getString("answer_label")
+        annotationSetWithQuestion ::= AnnotationSetWithQuestions(annotation_set_id, comment, subject_id, user_id,
+          date_reviewed, annotation_question_id, question_name, answer_text, 0, answer_label)
+      }
+    } finally {
+      conn.close()
+    }
+    annotationSetWithQuestion
+  }
+
   case class AnnotationSetQuestion(annotation_question_id:Long, index:Int, question_name:String, question_type:String, help_text:String,
                                    constraints:String, date_created:String, date_updated:String)
   object AnnotationSetQuestion {
@@ -380,10 +476,10 @@ class AnnotationController @Inject() (db: Database) extends Controller {
       )(AnnotationSetResult.apply, unlift(AnnotationSetResult.unapply))
     }
 
-  def getAnnotationSetResult(annotationSetResultId:Long) = Action {
+  def getAnnotationSetResults(annotationSetId:Long) = Action {
     var annotationSetResults = List[AnnotationSetResult]()
     val conn = db.getConnection()
-    val queryString = s"""select * from validation.annotation_set_result where annotation_set_result_id='$annotationSetResultId'"""
+    val queryString = s"""select * from validation.annotation_set_result where annotation_set_id='$annotationSetId'"""
     try {
       val rs = conn.createStatement().executeQuery(queryString)
       while(rs.next()) {

@@ -40,7 +40,8 @@ libraryDependencies ++= Seq(
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
   "org.scalaj" %% "scalaj-http" % "2.3.0",
   "commons-io" % "commons-io" % "2.5",
-  "com.roundeights" %% "hasher" % "1.2.0"
+  "com.roundeights" %% "hasher" % "1.2.0",
+  "au.com.bytecode" % "opencsv" % "2.4"
 )
 
 playRunHooks <+= baseDirectory.map(Webpack.apply)
