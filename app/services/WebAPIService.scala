@@ -28,24 +28,24 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
     if (option.isEmpty) {
       val response: HttpResponse[String]  = try {
-        Http(baseUrl + "person/" + personId + "/records?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 60000).asString
+        Http(baseUrl + "person/" + personId + "/records?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
       } catch {
         case e:Exception => e.printStackTrace()
-        null
+          null
       }
 
       if (response == null) {
         JsObject(Seq(
           "valid" -> JsString("false")
-          ))
+        ))
       } else {
         val json = Json.parse(response.body)
-//        val gender = (json \ "gender").get
-//        val yearOfBirth = (json \ "yearOfBirth").get
-//        val records = (json \ "records").get.as[JsArray].value.asInstanceOf[ListBuffer[PatientRecord]]
-//        val cohorts = (json \ "cohorts").get.as[JsArray].value.asInstanceOf[ListBuffer[PatientCohort]]
-//        val observationPeriods = (json \ "observationPeriods").get.as[JsArray].value.asInstanceOf[ListBuffer[PatientObservationPeriod]]
-//        val demographics = PatientDemographics("", 0, 0, records, cohorts, observationPeriods)
+        //        val gender = (json \ "gender").get
+        //        val yearOfBirth = (json \ "yearOfBirth").get
+        //        val records = (json \ "records").get.as[JsArray].value.asInstanceOf[ListBuffer[PatientRecord]]
+        //        val cohorts = (json \ "cohorts").get.as[JsArray].value.asInstanceOf[ListBuffer[PatientCohort]]
+        //        val observationPeriods = (json \ "observationPeriods").get.as[JsArray].value.asInstanceOf[ListBuffer[PatientObservationPeriod]]
+        //        val demographics = PatientDemographics("", 0, 0, records, cohorts, observationPeriods)
         cache.set(key, json, 7.day)
         json
       }
@@ -68,16 +68,16 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
     if (option.isEmpty) {
       val response: HttpResponse[String]  = try {
-        Http(baseUrl + "person/" + personId + "/demographics?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+        Http(baseUrl + "person/" + personId + "/demographics?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
       } catch {
         case e:Exception => e.printStackTrace()
-        null
+          null
       }
 
       if (response == null) {
         JsObject(Seq(
           "valid" -> JsString("false")
-          ))
+        ))
       } else {
         val json = Json.parse(response.body)
         cache.set(key, json, 7.day)
@@ -91,25 +91,25 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
   def getCohortDefinitions():JsValue = {
     val response: HttpResponse[String]  = try {
-        Http(ohdsiUrl + "cohortdefinition").timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+      Http(ohdsiUrl + "cohortdefinition").timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
     } catch {
       case e:Exception => e.printStackTrace()
-      null
+        null
     }
 
     if (response == null) {
-        JsObject(Seq(
-          "valid" -> JsString("false")
-          ))
-      } else {
-        val json = Json.parse(response.body)
-        json
-      }
+      JsObject(Seq(
+        "valid" -> JsString("false")
+      ))
+    } else {
+      val json = Json.parse(response.body)
+      json
+    }
   }
 
   def getCohortDefinition(cohortId:String):JsValue = {
     val response: HttpResponse[String]  = try {
-      Http(ohdsiUrl + "cohortdefinition/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+      Http(ohdsiUrl + "cohortdefinition/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
     } catch {
       case e:Exception => e.printStackTrace()
         null
@@ -126,38 +126,38 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
   }
 
   def getCohortEntities(cohortId:String) = {
-       val response: HttpResponse[String]  = try {
-        Http(baseUrl + "cohort/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+    val response: HttpResponse[String]  = try {
+      Http(baseUrl + "cohort/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
     } catch {
       case e:Exception => e.printStackTrace()
-      null
+        null
     }
 
     if (response == null) {
-        JsObject(Seq(
-          "valid" -> JsString("false")
-          ))
-      } else {
-        val json = Json.parse(response.body)
-        json
-      }
+      JsObject(Seq(
+        "valid" -> JsString("false")
+      ))
+    } else {
+      val json = Json.parse(response.body)
+      json
+    }
   }
 
   def getSources() = {
     val response: HttpResponse[String]  = try {
-        Http(ohdsiUrl + "source/sources").timeout(connTimeoutMs = 1000, readTimeoutMs = 10000).asString
+      Http(ohdsiUrl + "source/sources").timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
     } catch {
       case e:Exception => e.printStackTrace()
-      null
+        null
     }
 
     if (response == null) {
-        JsObject(Seq(
-          "valid" -> JsString("false")
-          ))
-      } else {
-        val json = Json.parse(response.body)
-        json
-      }
+      JsObject(Seq(
+        "valid" -> JsString("false")
+      ))
+    } else {
+      val json = Json.parse(response.body)
+      json
+    }
   }
 }
