@@ -13,5 +13,4 @@ nohup.out
 /RUNNING_PID
 /bin/
 logs
-app/assets/javascripts/build
 node_modules
