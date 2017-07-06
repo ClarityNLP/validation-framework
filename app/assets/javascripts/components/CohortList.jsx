@@ -38,8 +38,21 @@ class CohortList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cohorts: []
+        cohorts : []
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.cohorts && nextProps.cohorts.length !== this.state.cohorts) {
+        const newCohorts = nextProps.cohorts.filter((c) => {
+            const admin = nextProps.adminCohorts[c.id];
+            return c.annotationSets.length > 0 || (admin && admin.length > 0)
+        });
+        this.setState({
+            cohorts : newCohorts
+        })
+
+    }
   }
 
   render() {
@@ -59,9 +72,10 @@ class CohortList extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.cohorts.map((cohort) => {
+            {this.state.cohorts.map((cohort) => {
               const admin = this.props.adminCohorts[cohort.id];
               return (
+
                 <tr key={cohort.id} onClick={() => {window.location.url = cohort.viewUrl}} style={{
                   verticalAlign : "middle",
                   cursor: "pointer"
