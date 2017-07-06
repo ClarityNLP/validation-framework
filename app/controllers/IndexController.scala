@@ -55,5 +55,23 @@ class IndexController @Inject() (val config: Config, val playSessionStore: PlayS
     Redirect(client.getRedirectAction(context).getLocation)
   }
 
+  def postLogin = Secure("FormClient") { profiles =>
+    Action { request =>
+      val webContext = new PlayWebContext(request, playSessionStore)
+      val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]
+      val sessionId = webContext.getSessionAttribute(Pac4jConstants.SESSION_ID).asInstanceOf[String]
+      val roles = profiles.head.getRoles
+      if (roles.contains("SEARCH")) {
+        Redirect("/search")
+      } else if (roles.contains("CHART_REVIEW")) {
+        Redirect("/cohortview")
+      } else {
+        Ok(views.html.placeholder(true, profiles, csrfToken, sessionId, webJarAssets, requireJS, "Home"))
+      }
+
+
+    }
+  }
+
 
 }

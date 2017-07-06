@@ -17,7 +17,7 @@ import services.{JsonMapper, WebAPIService}
 
 class SearchController @Inject() (val config: Config, val playSessionStore: PlaySessionStore, override val ec: HttpExecutionContext, configuration: play.api.Configuration, webJarAssets: WebJarAssets, requireJS: RequireJS, solrDAO: SolrDAO, wepAPIsvc:WebAPIService) extends Controller with Security[CommonProfile] with JsonMapper  {
 
-  def index = Secure("FormClient") { profiles =>
+  def index = Secure("FormClient", "search") { profiles =>
     Action { request =>
       val webContext = new PlayWebContext(request, playSessionStore)
       val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]

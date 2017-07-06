@@ -3,7 +3,7 @@
 # ~~~~
 
 # TODO may want a pretty welcome page besides search
-GET     /                                             controllers.SearchController.index
+GET     /                                             controllers.IndexController.postLogin
 # TODO don't need this endpoint once some things are setup
 GET     /hash/:text                                   controllers.IndexController.hash(text:String)
 GET     /loginForm                                    controllers.IndexController.loginForm
@@ -32,9 +32,9 @@ GET     /annotation_set/owner/:owner                    controllers.AnnotationCo
 GET     /annotation_set/question/:annotationSetDefinitionId controllers.AnnotationController.getAnnotationSetQuestion(annotationSetDefinitionId:Long)
 GET     /annotation_set/name/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
 GET     /annotation_set/result/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
-GET     /annotation_set/result/:annotationSetId   controllers.AnnotationController.getAnnotationSetBySetID(annotationSetId:Long)
-GET     /download_result/:annotationSetId   controllers.AnnotationController.downloadAnnotationSetById(annotationSetId:Long)
-POST     /annotation_set/result                          controllers.AnnotationController.putAnnotationSetResult()
+GET     /annotation_set/result/:annotationSetId         controllers.AnnotationController.getAnnotationSetBySetID(annotationSetId:Long)
+GET     /download_result/:annotationSetId               controllers.AnnotationController.downloadAnnotationSetById(annotationSetId:Long)
+POST    /annotation_set/save                            controllers.AnnotationController.putAnnotationSetResult()
 
 # Validation Table Endpoints
 GET     /validation/users                           controllers.ValidationController.getUsers()

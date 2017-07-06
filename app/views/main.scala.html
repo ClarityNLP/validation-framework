@@ -1,4 +1,20 @@
+@import org.pac4j.core.profile.CommonProfile
+
 @(loggedIn:Boolean, profiles: List[org.pac4j.core.profile.CommonProfile], csrfToken: String, sessionId: String, webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)(content: Html)
+@canSearch() = @{
+	if (profiles(0).getRoles().contains("ADMIN") || profiles(0).getRoles().contains("SEARCH")) {
+		true
+	} else {
+		false
+	}
+}
+@canReviewChart() = @{
+	if (profiles(0).getRoles().contains("ADMIN") || profiles(0).getRoles().contains("CHART_REVIEW")) {
+		true
+	} else {
+		false
+	}
+}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -28,26 +44,30 @@
 	              <span class="icon-bar"></span>
 	              <span class="icon-bar"></span>
 	            </button>
-	            <a class="navbar-brand" href="/search">Chart Review</a>
+	            <a class="navbar-brand" href="/">Chart Review</a>
 	          </div>
 	          <div id="navbar" class="navbar-collapse collapse">
               @if(loggedIn) {
-	            <ul class="nav navbar-nav">
-	              @if(title == "Search") {
-	              	<li class="active"><a href="#">
-	              } else {
-	              	<li><a href="/search">
-	              }
-	              Search</a>
-	              </li>
 
-	              @if(title == "Cohorts") {
-	              	<li class="active"><a href="#">
-	              } else {
-	              	<li><a href="/cohortview">
-	              }
-	              Cohorts</a>
-	              </li>
+	            <ul class="nav navbar-nav">
+					@if(canSearch()) {
+						@if(title == "Search") {
+							<li class="active"><a href="#">
+						} else {
+							<li><a href="/search">
+							}
+						Search</a>
+						</li>
+					}
+				  @if(canReviewChart()) {
+					  @if(title == "Cohorts") {
+						<li class="active"><a href="#">
+					  } else {
+						<li><a href="/cohortview">
+					  }
+					  Cohorts</a>
+					  </li>
+					}
 
 	            </ul>
 				<!-- TODO read from session -->

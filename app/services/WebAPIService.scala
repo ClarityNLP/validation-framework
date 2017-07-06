@@ -10,10 +10,10 @@ import scala.concurrent.duration._
 class WebAPIService @Inject() (configuration: play.api.Configuration, cache: CacheApi) extends JsonMapper  {
 
 
-  val ohdsiUrl = configuration.underlying.getString("ohdsi.base_url");
-  val defaultOhdsiCore = configuration.underlying.getString("ohdsi.default.core");
-  val baseUrl = ohdsiUrl + defaultOhdsiCore + "/"
-  val solrSourceValueConfig = configuration.underlying.getString("solr.use.subject.source.value");
+  val ohdsiUrl:String = configuration.underlying.getString("ohdsi.base_url")
+  val defaultOhdsiCore:String = configuration.underlying.getString("ohdsi.default.core")
+  val baseUrl:String = ohdsiUrl + defaultOhdsiCore + "/"
+  val solrSourceValueConfig:String = configuration.underlying.getString("solr.use.subject.source.value")
 
   def getPersonRecords(personId:String, useSourceValueParam:String):JsValue = {
 
@@ -23,7 +23,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
       solrSourceValueConfig
     }
 
-    val key = "patient.records."+ useSourceValue + "." + personId;
+    val key = "patient.records."+ useSourceValue + "." + personId
     val option = cache.get[JsValue](key)
 
     if (option.isEmpty) {

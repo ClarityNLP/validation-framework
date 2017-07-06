@@ -269,7 +269,7 @@ class SubjectDetail extends React.Component {
             };
             results.push(answer);
 
-            axios.post('/annotation_set/result', answer)
+            axios.post('/annotation_set/save', answer)
                 .then((res) => {
                     if ((i + 1) === this.props.questions.length) {
                         this.props.updateResults(+subjectId, results);

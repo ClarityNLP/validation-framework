@@ -2,6 +2,7 @@ package modules
 
 import com.google.inject.AbstractModule
 import controllers.{CustomAuthorizer, HttpActionAdapter}
+import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer
 import org.pac4j.core.client.Clients
 import org.pac4j.http.client.direct.{DirectBasicAuthClient, ParameterClient}
 import org.pac4j.http.client.indirect.FormClient
@@ -30,8 +31,9 @@ class SecurityModule(environment: Environment, configuration: Configuration) ext
     val clients = new Clients(baseUrl + "/callback", directBasicAuthClient, formClient, parameterClient)
 
     val config = new Config(clients)
-    // config.addAuthorizer("admin", new RequireAnyRoleAuthorizer[Nothing]("ROLE_ADMIN"))
-    config.addAuthorizer("custom", new CustomAuthorizer)
+    config.addAuthorizer("admin", new RequireAnyRoleAuthorizer[Nothing]("ADMIN"))
+    config.addAuthorizer("search", new RequireAnyRoleAuthorizer[Nothing]("ADMIN", "SEARCH"))
+    config.addAuthorizer("chart_review", new RequireAnyRoleAuthorizer[Nothing]("ADMIN", "CHART_REVIEW"))
     config.setHttpActionAdapter(new HttpActionAdapter())
     bind(classOf[Config]).toInstance(config)
 

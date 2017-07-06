@@ -1,0 +1,14 @@
+@(loggedIn:Boolean, profiles: List[org.pac4j.core.profile.CommonProfile], csrfToken: String, sessionId: String, webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)
+
+@main(loggedIn:Boolean, profiles, csrfToken, sessionId, webJarAssets, requireJS, title) {
+
+  <body>
+    <div id="app" class="container">
+      <div class="jumbotron">
+        <h2>Oops.</h2>
+        <h5>Looks like your user isn't quite setup correctly. Contact your administrator for support.</h5>
+      </div>
+    </div>
+  </body>
+
+}

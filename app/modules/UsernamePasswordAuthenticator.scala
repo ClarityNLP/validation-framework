@@ -49,6 +49,8 @@ import play.api.Configuration
       if (roles != null) {
         roles.split(",").foreach(profile.addRole(_))
       }
+      println("Found user roles:")
+      println(profile.getRoles)
       profile.setClientName(resultSet.getString("name_first") + " " + resultSet.getString("name_last"))
       profile.setId(resultSet.getString("user_id"))
       profile.addAttribute(Pac4jConstants.USERNAME, username)
