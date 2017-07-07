@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 
 const TextCell = ({rowIndex, data, col, props}) => {
@@ -10,7 +11,8 @@ const TextCell = ({rowIndex, data, col, props}) => {
     
     if (col === 'displayName') {
         if (dataContent.type === 'document') {
-            contents = <div style={{width:"100%"}}><pre style={{border:"none", background:"#fff", color:"#141823"}}>{dataContent[col]}</pre></div>
+            contents = <div style={{width:"100%"}}><pre style={{border:"none", background:"#fff", color:"#141823"}}>
+                {(dataContent[col]).replace(new RegExp('_+', 'g'), '\n')}</pre></div>
         } else {
             contents = <div className="row" style={{width:"100%"}}>
                 <div className="col-xs-2">{dataContent.sourceConceptValue}</div>
@@ -154,7 +156,8 @@ class ChartData extends React.Component {
         const obj = this.state.filteredDataList.getObjectAt(index);
         if (obj) {
             if (obj.type === 'document') {
-                return (Math.round(obj.displayName.replace(/\n/g, this.fillerText).length / 70) * 22) + 28
+                const txt = obj.displayName.replace(new RegExp('_+', 'g'), '\n');
+                return (Math.round(txt.length / 45) * 36) + 26
             } else {
                 return Math.max(Math.round(obj.displayName.length / 30) * 36, 40);
             }
@@ -214,7 +217,7 @@ class ChartData extends React.Component {
 
 
     render() {
-        var {filteredDataList, currentIndex} = this.state;
+        const {filteredDataList, currentIndex} = this.state;
         return (
             <div>
                 <div>
@@ -249,8 +252,7 @@ class ChartData extends React.Component {
                     <Column
                         header={<Cell>Data</Cell>}
                         cell={<TextCell data={filteredDataList} col="displayName" style={{fontWeight:"bold"}} />}
-                        width={600}
-                        flexGrow={1}
+                        width={550}
                     />
                 </Table>
             </div>

@@ -467,7 +467,6 @@ class SubjectDetail extends React.Component {
 
     presetAnswers() {
         if (this.props.answers) {
-            console.log(this.props.answers);
             Object.keys(this.props.answers).forEach((a, i) => {
                 const aName = 'answer-' + a;
                 const cName = 'comment-' + a;
@@ -476,7 +475,7 @@ class SubjectDetail extends React.Component {
                     [cName]: ''
                 }));
 
-            }, () => {console.log(this.state)});
+            });
         }
         if (this.props.results && this.props.subject) {
             const curResults = this.props.results[this.props.subject.subjectId];
@@ -487,9 +486,8 @@ class SubjectDetail extends React.Component {
                     this.setState(prevState => ({
                         [aName]: r.answer_text,
                         [cName]: r.comment
-                    }), () => {console.log(this.state)});
+                    }));
                 });
-                console.log(this.state);
             }
         }
     };

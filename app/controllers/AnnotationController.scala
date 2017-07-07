@@ -505,7 +505,7 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     val conn = db.getConnection()
 
     try {
-      var annotationSetResultId = (json \ "annotation_set_result_id").as[Long]
+      var annotationSetResultId = (json \ "annotation_set_result_id").asOpt[Long].getOrElse(-1L)
 
       if (annotationSetResultId == -1) {
         val seqQuery = "select nextval('validation.annotation_set_result_seq')"
