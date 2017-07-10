@@ -27,7 +27,7 @@
   	<div class="row">
   		<div class="col-xs-12">
   			<div align="center">
-	  			<h3 title="Patient ID: {{activeSubject.subjectId}} Patient Source: {{activeSubject.sourceId}}" style="margin-top: 0px;">Patient #{{activeSubject.subjectId}}</h3>
+	  			<h3 title="Patient ID: {{activeSubject.subjectId}} Patient Source: {{activeSubject.sourceId}}" style="margin-top: 0px;">Patient #{{activeSubject.sourceId}}</h3>
 	  			<h5 ng-show="activeSubject.gender && activeSubject.gender.length > 0">{{activeSubject.gender}}, <span title="Born: {{activeSubject.yearOfBirth}}">{{activeSubject.age}}</span></h5>
 	  			<h6 ng-show="activeSubject.subjectCallsPending > 0" style="color:#006687"><i class="fa fa-circle-o-notch fa-spin"></i></h6>
 	  		</div>
