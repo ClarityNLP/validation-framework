@@ -184,14 +184,18 @@ class CohortDetails extends React.Component {
     }
 
     navigateSubjects(offset) {
+        let reset = false;
         if (this.state.length > 0) {
             let currentIndex = this.state.currentIndex + offset;
-            if (currentIndex < 0) {
-                currentIndex = this.state.length - 1;
-            } else if (currentIndex > (this.state.length - 1)) {
-                currentIndex = 0;
+            if (currentIndex < 0 || (currentIndex > (this.state.length - 1))) {
+                reset = true;
             }
-            this.subjectSelectedByIndex(currentIndex);
+            if (reset) {
+                this.backToList();
+            } else {
+                this.subjectSelectedByIndex(currentIndex);
+            }
+
         }
     };
 
@@ -224,6 +228,8 @@ class CohortDetails extends React.Component {
                                        results={this.state.results}
                                        cohortId={this.state.cohortId}
                                        setId={this.state.setId}
+                                       length={this.state.length}
+                                       currentIndex={this.state.currentIndex}
                                        updateResults={this.updateResults}
                             />
                     }

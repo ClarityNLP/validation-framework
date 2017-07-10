@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import _ from 'lodash';
 import $ from 'jquery';
+import { Button } from 'react-bootstrap';
 
 import ChartData from './SubjectChartData.jsx';
 
@@ -118,10 +119,13 @@ const QuestionList = (props) => {
                               answers={props.answers[q.annotation_question_id]}
                               result={mappedResults[q.annotation_question_id]}
                               {...q}/>) }
-                <a style={{marginTop:"15px"}}
-                   type="submit"
-                   className="btn btn-success"
-                   onClick={props.submitAnswers}>Submit</a>
+                <Button style={{marginTop:"15px"}}
+                   type="button"
+                   className="btn-submit-answer" bsStyle="success"
+                   disabled={props.isSaving}
+                   onClick={props.submitAnswers}>{props.isSaving ? 'Saving...' : 'Submit'}</Button>
+                <br/>
+                <label>{props.submitStatus}</label>
             </form>
         </div>
     );
@@ -207,7 +211,9 @@ class SubjectDetail extends React.Component {
                 visit : 0,
                 documents : 0
             },
-            totalCount : 0
+            totalCount : 0,
+            submitStatus : "",
+            isSaving : false
         };
 
         this.lookupPatientData = this.lookupPatientData.bind(this);
@@ -230,11 +236,16 @@ class SubjectDetail extends React.Component {
     }
 
     submitAnswers(e) {
+        if (this.state.isSaving) {
+            return;
+        }
         const setId = +this.props.setId;
         const subjectId = this.props.subject.subjectId + "";
         const documentId = '';
         const userId = +document.getElementById("uid").value;
         const results = [];
+
+        this.setState({"submitStatus" : "Submitting...", "isSaving" : true});
         this.props.questions.forEach((q, i) => {
             const qId = q.annotation_question_id;
             const answerValue = this.state['answer-' + qId] || '';
@@ -272,12 +283,19 @@ class SubjectDetail extends React.Component {
             axios.post('/annotation_set/save', answer)
                 .then((res) => {
                     if ((i + 1) === this.props.questions.length) {
-                        this.props.updateResults(+subjectId, results);
-                        this.props.navigateSubjects(1);
+
+                        this.setState({"submitStatus" : "Success!"});
+                        setTimeout(() => {
+                            this.props.updateResults(+subjectId, results);
+                            this.props.navigateSubjects(1);
+                            this.setState({"submitStatus" : "", "isSaving" : false});
+                        }, 1500);
+
                     }
                 })
                 .catch((err) => {
                     console.log(err);
+                    this.setState({"submitStatus" : "Error!", "isSaving" : false});
                 });
         });
 
@@ -552,11 +570,15 @@ class SubjectDetail extends React.Component {
                             }
                         </div>
                         <div className="col-md-2" >
-                            <div className="pull-right">
-                                <div >
+                            <div className="pull-right" style={{paddingBottom:"25px", color: "#989898"}}>
+                                <div>
+                                    {this.props.currentIndex + 1} of {this.props.length}
+                                </div>
+                                <div>
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(1)}}>Next &raquo;</button>
                                     <button className="btn btn-sm btn-default" style={{float:"right"}} onClick={() => {this.props.navigateSubjects(-1)}}>&laquo; Previous</button>
                                 </div>
+
                             </div>
                             { (this.props.viewOnly || this.state.loading) ? <span></span> :
                                 <div>
@@ -565,6 +587,8 @@ class SubjectDetail extends React.Component {
                                         answers={this.props.answers}
                                         submitAnswers={this.submitAnswers}
                                         handleInputChange={this.handleInputChange}
+                                        submitStatus={this.state.submitStatus}
+                                        isSaving={this.state.isSaving}
                                         results={this.props.results[this.props.subject.subjectId]}
                                         state={this.state}
                                     />
