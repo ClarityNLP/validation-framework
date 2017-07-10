@@ -61,7 +61,7 @@ class IndexController @Inject() (val config: Config, val playSessionStore: PlayS
       val csrfToken = webContext.getSessionAttribute(Pac4jConstants.CSRF_TOKEN).asInstanceOf[String]
       val sessionId = webContext.getSessionAttribute(Pac4jConstants.SESSION_ID).asInstanceOf[String]
       val roles = profiles.head.getRoles
-      if (roles.contains("SEARCH")) {
+      if (roles.contains("SEARCH") || roles.contains("ADMIN")) {
         Redirect("/search")
       } else if (roles.contains("CHART_REVIEW")) {
         Redirect("/cohortview")
