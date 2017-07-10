@@ -5,6 +5,7 @@ const TextCell = ({rowIndex, data, col, results, props}) => {
     const dataContent = data.getObjectAt(rowIndex);
     const subjectId = dataContent.subject_id;
     let displayContent = dataContent[col];
+    let completed = false;
 
     if (col === 'comments') {
         if (results[subjectId] && results[subjectId].length > 0) {
@@ -21,11 +22,16 @@ const TextCell = ({rowIndex, data, col, results, props}) => {
         }
     } else if (col === 'completed') {
         if (results[subjectId] && results[subjectId].length > 0) {
-            displayContent = "True";
+            displayContent = "YES";
+            completed = true;
+        } else {
+            displayContent = "NO";
         }
     }
+
+    const className = completed ? "clickrow clickrow-completed" : "clickrow";
     return (<Cell style={{width:"100%"}} >
-        <div>{displayContent}</div>
+        <div className={className}>{displayContent}</div>
     </Cell>);
 };
 

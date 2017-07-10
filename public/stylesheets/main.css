@@ -134,3 +134,13 @@ a {
     animation: highlight 1s;
 }
 
+.clickrow {
+}
+
+.clickrow:hover {
+    cursor:pointer
+}
+
+.clickrow-completed {
+    font-weight: bold;
+}
