@@ -547,6 +547,11 @@ class SubjectDetail extends React.Component {
                                         {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>
+                                <div style={{marginTop:"10px"}}>
+                                    <div>
+                                        <h6>Index: <b>{(this.prettyDate(this.props.subject.indexDate))}</b></h6>
+                                    </div>
+                                </div>
                                 <div style={{marginTop: "20px"}}>
                                     <a onClick={() => this.setState({goToDay : 'top'})}>Top</a> | <a onClick={() => this.setState({goToDay : 'index'})}>Index</a> | <a onClick={() => this.setState({goToDay : 'bottom'})}>Bottom</a>
                                 </div>
