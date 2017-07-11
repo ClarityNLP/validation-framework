@@ -123,9 +123,8 @@ const QuestionList = (props) => {
                    type="button"
                    className="btn-submit-answer" bsStyle="success"
                    disabled={props.isSaving}
-                   onClick={props.submitAnswers}>{props.isSaving ? 'Saving...' : 'Submit'}</Button>
+                   onClick={props.submitAnswers}>{props.submitStatus}</Button>
                 <br/>
-                <label>{props.submitStatus}</label>
             </form>
         </div>
     );
@@ -212,7 +211,7 @@ class SubjectDetail extends React.Component {
                 documents : 0
             },
             totalCount : 0,
-            submitStatus : "",
+            submitStatus : "Submit",
             isSaving : false
         };
 
@@ -284,11 +283,11 @@ class SubjectDetail extends React.Component {
                 .then((res) => {
                     if ((i + 1) === this.props.questions.length) {
 
-                        this.setState({"submitStatus" : "Success!"});
+                        this.setState({"submitStatus" : "Submitted!"});
                         setTimeout(() => {
                             this.props.updateResults(+subjectId, results);
                             this.props.navigateSubjects(1);
-                            this.setState({"submitStatus" : "", "isSaving" : false});
+                            this.setState({"submitStatus" : "Submit", "isSaving" : false});
                         }, 1500);
 
                     }
