@@ -2,21 +2,45 @@ import React from 'react';
 import $ from 'jquery';
 import {Table, Column, Cell} from 'fixed-data-table-2';
 
-const TextCell = ({rowIndex, data, col, props}) => {
+const TextCell = ({rowIndex, data, col, filter, props}) => {
     const dataContent = data.getObjectAt(rowIndex);
     let contents;
     let className = 'col-' + col;
-    let domainClass = 'text-' + dataContent.domain;
-    
+    let domainClass = 'text-display text-' + dataContent.domain;
     
     if (col === 'displayName') {
+        let displayText = dataContent[col];
+        let filtered = false;
+        if (filter && filter.length > 0) {
+            const regex = new RegExp(filter.toLowerCase(), 'ig');
+
+            displayText = displayText.replace(regex, (match, key, value) => {
+                filtered = true;
+                return '<span class="min-highlighting">' + match + '</span>';
+            });
+        }
         if (dataContent.type === 'document') {
-            contents = <div style={{width:"100%"}}><pre style={{border:"none", background:"#fff", color:"#141823"}}>
-                {(dataContent[col]).replace(new RegExp('_+', 'g'), '\n')}</pre></div>
+            let noteText = displayText.replace(new RegExp('_+', 'g'), '\n');
+            let pre;
+            const preStyle = {border:"none", background:"#fff", color:"#141823"};
+            if (filtered) {
+                const innerHtml = { __html: noteText };
+                pre = <pre style={preStyle} dangerouslySetInnerHTML={innerHtml} />;
+            } else {
+                pre = <pre style={preStyle}>{noteText}</pre>
+            }
+            contents = <div style={{width:"100%"}}>{pre}</div>
         } else {
+            let nameSpan;
+            if (filtered) {
+                const innerHtml = { __html: displayText };
+                nameSpan = <span className={domainClass} dangerouslySetInnerHTML={innerHtml} />;
+            } else {
+                nameSpan = <span><b className={domainClass}>{displayText}</b></span>;
+            }
             contents = <div className="row" style={{width:"100%"}}>
                 <div className="col-xs-2">{dataContent.sourceConceptValue}</div>
-                <div className="col-xs-8"><b className={domainClass}>{dataContent.displayName}</b></div>
+                <div className="col-xs-8">{nameSpan}</div>
                 <div className="col-xs-2">{dataContent.displayValue}</div>
             </div>
         }
@@ -143,6 +167,11 @@ class ChartData extends React.Component {
         if (indexRow < 0) {
             indexRow = 0;
         }
+        //
+        // if ($('.min-highlighting').length > 0) {
+        //     $('.fixedDataTableLayout_rowsContainer').scrollTop($('.min-highlighting:first').offset().top);
+        // }
+
         return {
             filteredIndexes : filteredIndexes,
             indexRow : indexRow,
@@ -251,7 +280,7 @@ class ChartData extends React.Component {
                     />
                     <Column
                         header={<Cell>Data</Cell>}
-                        cell={<TextCell data={filteredDataList} col="displayName" style={{fontWeight:"bold"}} />}
+                        cell={<TextCell data={filteredDataList} col="displayName" filter={this.state.filterBy} style={{fontWeight:"bold"}} />}
                         width={550}
                     />
                 </Table>

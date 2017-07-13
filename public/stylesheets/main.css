@@ -19,6 +19,11 @@ pre {
     border-radius: 8px;
     padding: 2px 4px;
 }
+.min-highlighting {
+    background-color: #FFFF99;
+    font-weight: bold;
+    border-radius: 8px;
+}
 
 .highlighting {
     font-weight:bold;
@@ -33,6 +38,10 @@ pre {
 
 table {
     margin-bottom:0px !important;
+}
+
+.text-display {
+    font-weight: bold;
 }
 
 .text-measurement {
