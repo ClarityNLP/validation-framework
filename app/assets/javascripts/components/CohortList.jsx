@@ -1,7 +1,6 @@
 import React from 'react';
 
 const AnnotationSetButton = (props) => {
-  console.log(props);
   let btn =
   <div className="btn-group">
     <button type="button" className="btn btn-success btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -18,7 +17,6 @@ const AnnotationSetButton = (props) => {
 };
 
 const AdminButton = (props) => {
-    console.log(props);
     let btn =
         <div className="btn-group">
             <button type="button" className="btn btn-info btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -45,8 +43,17 @@ class CohortList extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.cohorts && nextProps.cohorts.length !== this.state.cohorts.length) {
         const newCohorts = nextProps.cohorts.filter((c) => {
+            let isAdmin = false;
             const admin = nextProps.adminCohorts[c.id];
-            return c.annotationSets.length > 0 || (admin && admin.length > 0)
+            if (admin) {
+                admin.map((a) => {
+                    if (a.cohort_source === c.cohort_type) {
+                        isAdmin = true;
+                    }
+                    return null;
+                });
+            }
+            return c.annotationSets.length > 0 || isAdmin;
         });
         this.setState({
             cohorts : newCohorts

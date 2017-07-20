@@ -15,6 +15,10 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
   val baseUrl:String = ohdsiUrl + defaultOhdsiCore + "/"
   val solrSourceValueConfig:String = configuration.underlying.getString("solr.use.subject.source.value")
 
+  val connTimeoutMs = 1000
+
+  val readTimeoutMs = 120000
+
   def getPersonRecords(personId:String, useSourceValueParam:String):JsValue = {
 
     val useSourceValue = if (useSourceValueParam != null && ("true" == useSourceValueParam || "false" == useSourceValueParam)) {
@@ -28,7 +32,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
     if (option.isEmpty) {
       val response: HttpResponse[String]  = try {
-        Http(baseUrl + "person/" + personId + "/records?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
+        Http(baseUrl + "person/" + personId + "/records?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
       } catch {
         case e:Exception => e.printStackTrace()
           null
@@ -55,6 +59,41 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
   }
 
+  def getMultiplePersonDemographics(personIdString:String, useSourceValueParam:String) = {
+    val useSourceValue = if (useSourceValueParam != null && ("true" == useSourceValueParam || "false" == useSourceValueParam)) {
+      useSourceValueParam
+    } else {
+      solrSourceValueConfig
+    }
+
+    val key = "patient.demographics."+ useSourceValue + "." + personIdString
+    val option = cache.get[JsValue](key)
+
+    if (option.isEmpty) {
+      val response: HttpResponse[String]  = try {
+        val url = baseUrl + "person/" + personIdString + "/demographicsmap?usePersonSourceValue=" + useSourceValue
+        println(url)
+        Http(url)
+          .timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
+      } catch {
+        case e:Exception => e.printStackTrace()
+          null
+      }
+
+      if (response == null) {
+        JsObject(Seq(
+          "valid" -> JsString("false")
+        ))
+      } else {
+        val json = Json.parse(response.body)
+        cache.set(key, json, 7.day)
+        json
+      }
+    } else {
+      option.get
+    }
+  }
+
   def getPersonDemographics(personId:String, useSourceValueParam:String):JsValue = {
 
     val useSourceValue = if (useSourceValueParam != null && ("true" == useSourceValueParam || "false" == useSourceValueParam)) {
@@ -63,12 +102,12 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
       solrSourceValueConfig
     }
 
-    val key = "patient.demographics."+ useSourceValue + "." + personId;
+    val key = "patient.demographics."+ useSourceValue + "." + personId
     val option = cache.get[JsValue](key)
 
     if (option.isEmpty) {
       val response: HttpResponse[String]  = try {
-        Http(baseUrl + "person/" + personId + "/demographics?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
+        Http(baseUrl + "person/" + personId + "/demographics?usePersonSourceValue=" + useSourceValue).timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
       } catch {
         case e:Exception => e.printStackTrace()
           null
@@ -91,7 +130,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
   def getCohortDefinitions():JsValue = {
     val response: HttpResponse[String]  = try {
-      Http(ohdsiUrl + "cohortdefinition").timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
+      Http(ohdsiUrl + "cohortdefinition").timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
     } catch {
       case e:Exception => e.printStackTrace()
         null
@@ -109,7 +148,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
   def getCohortDefinition(cohortId:String):JsValue = {
     val response: HttpResponse[String]  = try {
-      Http(ohdsiUrl + "cohortdefinition/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
+      Http(ohdsiUrl + "cohortdefinition/" + cohortId).timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
     } catch {
       case e:Exception => e.printStackTrace()
         null
@@ -127,7 +166,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
   def getCohortEntities(cohortId:String) = {
     val response: HttpResponse[String]  = try {
-      Http(baseUrl + "cohort/" + cohortId).timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
+      Http(baseUrl + "cohort/" + cohortId).timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
     } catch {
       case e:Exception => e.printStackTrace()
         null
@@ -145,7 +184,7 @@ class WebAPIService @Inject() (configuration: play.api.Configuration, cache: Cac
 
   def getSources() = {
     val response: HttpResponse[String]  = try {
-      Http(ohdsiUrl + "source/sources").timeout(connTimeoutMs = 1000, readTimeoutMs = 120000).asString
+      Http(ohdsiUrl + "source/sources").timeout(connTimeoutMs = connTimeoutMs, readTimeoutMs = readTimeoutMs).asString
     } catch {
       case e:Exception => e.printStackTrace()
         null

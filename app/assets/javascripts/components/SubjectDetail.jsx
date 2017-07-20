@@ -546,15 +546,20 @@ class SubjectDetail extends React.Component {
                                         {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>
-                                <div style={{marginTop:"10px"}}>
+                                <div style={{marginTop:"10px",marginBotton:"10px"}}>
                                     <div>
-                                        <h6>Index: <b>{(this.prettyDate(this.props.subject.indexDate))}</b></h6>
+                                        <h6 onClick={() => this.setState({goToDay : 'index'})} style={{cursor:"pointer"}}><a>Index: <b>{this.prettyDate(this.props.subject.indexDate)}</b></a></h6>
+                                        {this.props.subject.comment ?
+                                            <h6><b>{this.props.subject.comment}</b></h6>
+                                            :
+                                            <span></span>
+                                        }
                                     </div>
                                 </div>
-                                <div style={{marginTop: "20px"}}>
-                                    <a onClick={() => this.setState({goToDay : 'top'})}>Top</a> | <a onClick={() => this.setState({goToDay : 'index'})}>Index</a> | <a onClick={() => this.setState({goToDay : 'bottom'})}>Bottom</a>
-                                </div>
-                                <div style={{marginTop: "20px"}}>
+                                <hr style={{marginTop:"18px", marginBottom:"15px"}} />
+                                <div style={{marginTop: "10px"}}>
+                                    <a onClick={() => this.setState({goToDay : 'top'})}>Top</a> | <a onClick={() => this.setState({goToDay : 'bottom'})}>Bottom</a>
+                                    <br/>
                                     <h6>Filters ({this.state.totalCount}): <small><a onClick={() => {this.selectFilters('all')}}>all</a> | <a onClick={() => {this.selectFilters('none')}}>none</a></small></h6>
                                     <FilterList filters={this.state.filters} handleFilterChange={this.handleFilterChange} counts={this.state.domainCounts} />
                                 </div>

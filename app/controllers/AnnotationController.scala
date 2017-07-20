@@ -1,17 +1,16 @@
 package controllers
 
+import java.io._
 import javax.inject.Inject
 
-import org.postgresql.util.PSQLException
-import play.api.db.Database
-import play.api.libs.json.{Format, JsError, Json}
-import play.api.mvc._
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import au.com.bytecode.opencsv.CSVWriter
+import play.api.db.Database
+import play.api.libs.functional.syntax._
+import play.api.libs.json.{Format, Json, _}
+import play.api.mvc._
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import java.io._
 
 
 /**
@@ -60,7 +59,8 @@ class AnnotationController @Inject() (db: Database) extends Controller {
 
   def getAnnotationQuestion(annotationId: Int) = Action {
     var annotationQuestions = List[AnnotationQuestion]()
-    var queryString = "SELECT * from validation.annotation_question WHERE annotation_question_id='" + annotationId + "'"
+    val queryString = s"""SELECT * from validation.annotation_question WHERE annotation_question_id='$annotationId'"""
+      .stripMargin
     val conn = db.getConnection()
     try {
       val stmt = conn.createStatement()
@@ -78,7 +78,7 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     } finally {
       conn.close()
     }
-    Ok(Json.toJson(annotationQuestions));
+    Ok(Json.toJson(annotationQuestions))
   }
 
   def putAnnotationQuestionAnswer(annotationId:Int) = Action { request =>
@@ -123,7 +123,8 @@ class AnnotationController @Inject() (db: Database) extends Controller {
 
   def getAnnotationQuestionAnswer(annotationQuestionId:Int) = Action {
     var annotationQuestionAnswers = List[AnnotationQuestionAnswer]()
-    val queryString = "select * from validation.annotation_question_answer where annotation_question_id='" + annotationQuestionId + "' order by annotation_question_answer_id asc"
+    val queryString = s"""select * from validation.annotation_question_answer where annotation_question_id='$annotationQuestionId'
+      order by annotation_question_answer_id asc"""
     val conn = db.getConnection()
     try {
       val stmt = conn.createStatement()
@@ -193,7 +194,8 @@ class AnnotationController @Inject() (db: Database) extends Controller {
 
   def getAnnotationSet(annotationSetId:Int) = Action {
     var annotationSet = List[AnnotationSet]()
-    var queryString = "select * from validation.annotation_set WHERE annotation_set_id='" + annotationSetId + "'"
+    var queryString = s"""select * from validation.annotation_set WHERE annotation_set_id='$annotationSetId'"""
+      .stripMargin
     val conn = db.getConnection()
     try {
       val stmt = conn.createStatement()

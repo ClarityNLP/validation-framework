@@ -43,10 +43,12 @@ GET     /validation/user/:user_id                   controllers.ValidationContro
 # GET     /validation/local/cohort/definition/
 
 GET     /cohortview                             controllers.CohortController.index
-GET     /cohorts                                controllers.CohortController.getCohorts()
-GET     /cohortentities/:cohortId               controllers.CohortController.getCohortEntities(cohortId)
-GET     /cohortdetails/                         controllers.CohortController.cohortdetails(cohortId:Option[Int], setId:Option[Int], viewOnly:Option[Boolean])
-GET     /cohort/:cohortId                       controllers.CohortController.getCohortDefinition(cohortId)
+GET     /cohorts_ohdsi                          controllers.CohortController.getOhdsiCohorts()
+GET     /cohorts_local                          controllers.CohortController.getLocalCohorts()
+GET     /cohortdemographics/:cohortId           controllers.CohortController.getLocalCohortDemographics(cohortId: String)
+GET     /cohortentities/:cohortId/:cohortType   controllers.CohortController.getCohortEntities(cohortId, cohortType)
+GET     /cohortdetails/                         controllers.CohortController.cohortdetails(cohortId:Option[Int], setId:Option[Int], viewOnly:Option[Boolean], cohortType:Option[String])
+GET     /cohort/:cohortId/:cohortType           controllers.CohortController.getCohortDefinition(cohortId, cohortType)
 
 # Routes necessary for play-pac4j
 GET         /forceLogin                       controllers.IndexController.forceLogin()

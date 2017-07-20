@@ -1,7 +1,7 @@
 package models
 
 import java.util.Date
-import scala.collection.mutable.ListBuffer
+
 
 case class Document(reportId:String, source:String, subject:String, reportDate:Date, snippet:String, reportText:String)
 
@@ -15,4 +15,6 @@ case class PatientCohort(personId:String, cohortDefinitionId:Int, startDate:Long
 
 case class PatientObservationPeriod(id:Long, startDate:Long, endDate:Long, `type`:String)
 
-case class PatientDemographics(gender:String, yearOfBirth:Int, recordCount:Int, records:ListBuffer[PatientRecord], cohorts:ListBuffer[PatientCohort], observationPeriods:ListBuffer[PatientObservationPeriod])
+case class PatientDemographics(personId: Int, personSourceValue: String, gender: String, yearOfBirth: Int, age: Int,
+                               race: String, ethnicity: String)
+

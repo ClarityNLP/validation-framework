@@ -14,8 +14,7 @@ const QueryString = function () {
         if (typeof query_string[pair[0]] === "undefined") {
             query_string[pair[0]] = decodeURIComponent(pair[1]);
         } else if (typeof query_string[pair[0]] === "string") {
-            const arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
-            query_string[pair[0]] = arr;
+            query_string[pair[0]] = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
         } else {
             query_string[pair[0]].push(decodeURIComponent(pair[1]));
         }
@@ -55,6 +54,7 @@ class CohortDetails extends React.Component {
         const cohortId = QueryString.cohortId;
         const setId = QueryString.setId || -1;
         const viewOnly = QueryString.viewOnly === 'true';
+        const cohortType = QueryString.cohortType;
         if (cohortId) {
             this.setState(prevState => (
                 {
@@ -62,13 +62,21 @@ class CohortDetails extends React.Component {
                     setId : setId,
                     viewOnly : viewOnly
                 }));
-            axios.get("/cohort/" + cohortId)
+            axios.get("/cohort/" + cohortId + "/" + cohortType)
                 .then((response) => {
-                    this.setState(prevState => ({cohort : response.data}));
+                    const cohortDef = response.data;
+                    if (cohortType === "LOCAL") {
+                        cohortDef.createdDate = cohortDef.date_created;
+                        cohortDef.modifiedDate = cohortDef.date_updated;
+                        cohortDef.name = cohortDef.validation_local_cohort_name;
+                        cohortDef.id = cohortDef.validation_local_cohort_def_id;
+                        cohortDef.createdBy = cohortDef.owner;
+                    }
+                    this.setState(prevState => ({cohort : cohortDef}));
                 }).catch(function (error) {
                 console.log(error);
             });
-            axios.get("/cohortentities/" + cohortId)
+            axios.get("/cohortentities/" + cohortId + "/" + cohortType)
                 .then((response) => {
 
                     const entities = response.data.map((d, index) => {
@@ -82,13 +90,17 @@ class CohortDetails extends React.Component {
                             d.age = "";
                             d.sourceValue = "";
                         }
-                        d.subject_id = d.subjectId;
+                        if (!d.subject_id && d.subjectId) {
+                            d.subject_id = d.subjectId;
+                        }
+                        if (!d.subjectId && d.subject_id) {
+                            d.subjectId = d.subject_id;
+                        }
                         d.completed = "False";
-                        d.comments = "";
-                        d.indexDate = d.cohortStartDate;
-                        d.url = "/chart";
+                        d.indexDate = d.start_date ? d.start_date : d.cohortStartDate;
                         return d;
                     });
+
                     const uname = document.getElementById("uname").value;
                     axios.get("/annotation_set/name/" + uname + "/id/" + setId)
                         .then((response) => {
@@ -110,7 +122,31 @@ class CohortDetails extends React.Component {
                         entities: entities,
                         length : entities.length,
                         ready : true
-                    }));
+                    }), () => {
+                        if (cohortType === "LOCAL") {
+                            axios.get("/cohortdemographics/" + cohortId)
+                                .then((response) => {
+                                    if (response.data) {
+                                        const demEntities = this.state.entities.map((d) => {
+                                            const k = d.subject_id + "";
+                                            const demographics = response.data[k];
+                                            if (demographics) {
+                                                d.gender = demographics.gender;
+                                                d.age = demographics.age;
+                                                d.sourceValue = demographics.personSourceValue;
+                                            }
+                                            return d;
+                                        });
+                                        this.setState(prevState => ({
+                                            entities: demEntities
+                                        }));
+                                    }
+                                })
+                                .catch(function (error) {
+                                    console.log(error);
+                                });
+                        }
+                    });
                 })
                 .catch(function (error) {
                     console.log(error);
@@ -159,6 +195,7 @@ class CohortDetails extends React.Component {
     }
 
     subjectSelected(index, subject) {
+        console.log(subject);
         this.setState(prevState => (
             {
                 currentIndex : index,
