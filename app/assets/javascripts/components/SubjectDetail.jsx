@@ -543,6 +543,7 @@ class SubjectDetail extends React.Component {
                                 <div style={{marginTop:"30px"}}>
                                     <div>
                                         <h5><small style={{color:"#555"}}>#{this.props.subject.sourceValue}</small> </h5>
+                                        <h5><small style={{color:"#555"}}>ID: {this.props.subject.subject_id}</small> </h5>
                                         {this.props.subject.age !== "" && this.props.subject.gender !== ""  ? <h6>{this.props.subject.age  + " yo " + this.props.subject.gender}</h6> : <div></div>}
                                     </div>
                                 </div>
