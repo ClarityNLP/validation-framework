@@ -44,7 +44,7 @@ class CohortList extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.cohorts && nextProps.cohorts.length !== this.state.cohorts.length) {
+       /*  if (nextProps.cohorts && nextProps.cohorts.length !== this.state.cohorts.length) {
             const newCohorts = nextProps.cohorts.filter((c) => {
                 let isAdmin = false;
                 const admin = nextProps.adminCohorts[c.id];
@@ -63,6 +63,10 @@ class CohortList extends React.Component {
             })
 
         }
+*/
+          this.setState({
+                cohorts : nextProps.cohorts
+            })
     }
 
     render() {
