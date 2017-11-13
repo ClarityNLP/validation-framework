@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 
 const AnnotationSetButton = (props) => {
     let btn =
@@ -65,7 +66,7 @@ class CohortList extends React.Component {
         // }
         // TODO more cleanup and testing - this filter was for UCB, but we want to see 'ALL'
         this.setState({
-            cohorts : nextProps.cohorts
+            cohorts : _.sortBy(nextProps.cohorts, ['name'])
         })
     }
 
