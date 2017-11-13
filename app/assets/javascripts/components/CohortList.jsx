@@ -66,7 +66,7 @@ class CohortList extends React.Component {
         // }
         // TODO more cleanup and testing - this filter was for UCB, but we want to see 'ALL'
         this.setState({
-            cohorts : _.sortBy(nextProps.cohorts, ['name'])
+            cohorts : _.sortBy(nextProps.cohorts, [(o) => { return _.lowerCase(o.name); }])
         })
     }
 
