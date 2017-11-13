@@ -7,16 +7,23 @@ import scala.collection.JavaConverters._
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.SolrQuery.SortClause
 import org.apache.solr.client.solrj.impl.HttpSolrClient
+import org.apache.solr.client.solrj.impl.CloudSolrClient
 
 import javax.inject.Inject
 
 class SolrDAO @Inject() (configuration: play.api.Configuration)  {
 
-  val url = configuration.underlying.getString("solr.url");
-  val solr = new HttpSolrClient.Builder(url).build();
+  val url: String = configuration.underlying.getString("solr.url")
+  val core: String = configuration.underlying.getString("ohdsi.default.core")
+  //val solr = new HttpSolrClient.Builder(url).build()
+
+  val solr: CloudSolrClient = new CloudSolrClient.Builder()
+      .withZkHost(url)
+      .build()
+  solr.setDefaultCollection(core)
   
-  val subjectField = configuration.underlying.getString("solr.subject_field");
-  val reportField = configuration.underlying.getString("solr.report_id_field");
+  val subjectField: String = configuration.underlying.getString("solr.subject_field")
+  val reportField: String = configuration.underlying.getString("solr.report_id_field")
   
   def querySubjectDocuments(subjectId:String, highlightQuery:String):models.SolrResults = {
     val sort = new SortClause("report_date", "asc")
