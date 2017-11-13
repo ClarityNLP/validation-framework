@@ -86,7 +86,12 @@ class ChartData extends React.Component {
                     <Column
                         header={<Cell>#</Cell>}
                         cell={<TextCell data={finalDataList} col="sourceValue" results={results}   />}
-                        width={100}
+                        width={70}
+                    />
+                    <Column
+                        header={<Cell>ID</Cell>}
+                        cell={<TextCell data={finalDataList} col="subject_id" results={results}   />}
+                        width={70}
                     />
                     <Column
                         header={<Cell>Age</Cell>}

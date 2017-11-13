@@ -44,29 +44,29 @@ class CohortList extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-       /*  if (nextProps.cohorts && nextProps.cohorts.length !== this.state.cohorts.length) {
-            const newCohorts = nextProps.cohorts.filter((c) => {
-                let isAdmin = false;
-                const admin = nextProps.adminCohorts[c.id];
-                if (admin) {
-                    admin.map((a) => {
-                        if (a.cohort_source === c.cohort_type) {
-                            isAdmin = true;
-                        }
-                        return null;
-                    });
-                }
-                return c.annotationSets.length > 0 || isAdmin;
-            });
-            this.setState({
-                cohorts : newCohorts
-            })
-
-        }
-*/
-          this.setState({
-                cohorts : nextProps.cohorts
-            })
+        // if (nextProps.cohorts && nextProps.cohorts.length !== this.state.cohorts.length) {
+        //     const newCohorts = nextProps.cohorts.filter((c) => {
+        //         let isAdmin = false;
+        //         const admin = nextProps.adminCohorts[c.id];
+        //         if (admin) {
+        //             admin.map((a) => {
+        //                 if (a.cohort_source === c.cohort_type) {
+        //                     isAdmin = true;
+        //                 }
+        //                 return null;
+        //             });
+        //         }
+        //         return c.annotationSets.length > 0 || isAdmin;
+        //     });
+        //     this.setState({
+        //         cohorts : newCohorts
+        //     })
+        //
+        // }
+        // TODO more cleanup and testing - this filter was for UCB, but we want to see 'ALL'
+        this.setState({
+            cohorts : nextProps.cohorts
+        })
     }
 
     render() {
