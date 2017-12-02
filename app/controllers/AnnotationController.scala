@@ -18,6 +18,8 @@ import scala.collection.mutable.ListBuffer
   */
 class AnnotationController @Inject() (db: Database) extends Controller {
 
+  val formatter = new java.text.SimpleDateFormat("yyyy-MM-dd")
+
   def putAnnotationQuestion(annotationId: Int) = Action { request =>
     val json = request.body.asJson.get
     val conn = db.getConnection()
@@ -438,13 +440,14 @@ class AnnotationController @Inject() (db: Database) extends Controller {
       )(AnnotationSetQuestion.apply, unlift(AnnotationSetQuestion.unapply))
   }
 
-  def getAnnotationSetQuestion(annotationSetDefinitionId:Long) = Action {
+  def getAnnotationSetQuestion(annotationSetId:Long) = Action {
     val conn = db.getConnection()
     var annotationSetQuestion = List[AnnotationSetQuestion]()
     val queryString = s"""select aq.* from validation.annotation_set_question asq
-                          inner join validation.annotation_question aq on aq.annotation_question_id = asq.annotation_question_id
-                          where asq.annotation_set_definition_id = $annotationSetDefinitionId
-                          order by aq.annotation_question_id asc"""
+                         inner join validation.annotation_question aq on aq.annotation_question_id = asq.annotation_question_id
+                         inner join validation.annotation_set as1 on as1.annotation_set_definition_id = asq.annotation_set_definition_id
+                         where as1.annotation_set_id = $annotationSetId
+                         order by aq.annotation_question_id asc"""
     try {
       val rs = conn.createStatement().executeQuery(queryString)
       var i = 1
@@ -540,4 +543,190 @@ class AnnotationController @Inject() (db: Database) extends Controller {
     }
     Created("{success:True}")
   }
+
+  def deleteAnnotationSet() = Action { request =>
+    val json = request.body.asJson.get
+    val conn = db.getConnection()
+    var success = false
+
+    try {
+      val annotationSetId: Long = (json \ "annotation_set_id").asOpt[Long].getOrElse(-1L)
+      if (annotationSetId > 0) {
+        conn.createStatement().execute(
+          s"""
+             DELETE FROM validation.annotation_set_allocation where annotation_set_id = $annotationSetId
+           """.stripMargin)
+        conn.createStatement().execute(
+          s"""
+             DELETE FROM validation.annotation_set where annotation_set_id = $annotationSetId
+           """.stripMargin)
+        success = true
+      }
+    } finally {
+      conn.close()
+    }
+
+
+    Created("{success: " + success + "}")
+  }
+
+  case class AnswersJson(
+                      text: String,
+                      value: String
+                    )
+  case class QuestionsJson(
+                        question_name: String,
+                        question_type: String,
+                        answers: List[AnswersJson]
+                      )
+  case class AnnotationConfigJson(
+                             name: String,
+                             cohort_name: String,
+                             cohort_source: String,
+                             cohort_id: Int,
+                             owner: String,
+                             allocated_users: List[String],
+                             questions: List[QuestionsJson]
+                           )
+
+  object AnswersJson {
+    implicit val format: Format[AnswersJson] = (
+      (__ \ "text").format[String] and
+      (__ \ "value").format[String]
+      )(AnswersJson.apply, unlift(AnswersJson.unapply))
+  }
+
+  object QuestionsJson {
+    implicit val format: Format[QuestionsJson] = (
+      (__ \ "question_name").format[String] and
+      (__ \ "question_type").format[String] and
+      (__ \ "answers").format[List[AnswersJson]]
+    )(QuestionsJson.apply, unlift(QuestionsJson.unapply))
+  }
+
+  def putAnnotationConfig() = Action { request =>
+    val json = request.body.asJson.get
+    val conn = db.getConnection()
+    var name: String = "Unable to match"
+    var success: Boolean = false
+    var asId: Long = -1L
+    var asdId: Long = -1L
+
+    try {
+
+
+      name = (json \ "name").asOpt[String].getOrElse("")
+      val cohortName: String = (json \ "cohort_name").asOpt[String].getOrElse("")
+      val cohortSource: String = (json \ "cohort_source").asOpt[String].getOrElse("")
+      val cohortId: Int = (json \ "cohort_id").asOpt[Int].getOrElse(-1)
+      val owner: String = (json \ "owner").asOpt[String].getOrElse("")
+      val allocatedUsers : List[String] = (json \ "allocated_users").asOpt[List[String]].getOrElse(List[String]())
+      val questions = (json \ "questions").asOpt[List[QuestionsJson]].getOrElse(List[QuestionsJson]())
+
+      if (name.nonEmpty && cohortName.nonEmpty && cohortSource.nonEmpty &&
+        owner.nonEmpty && allocatedUsers.nonEmpty && questions.nonEmpty && cohortId > 0) {
+
+        val dt = formatter.format(new java.util.Date())
+        val asdIdRs = conn.createStatement().executeQuery("select nextval('validation.annotation_set_definition_seq')")
+        asdId = if (asdIdRs.next()) asdIdRs.getLong(1) else -1L
+
+        val asIdRs = conn.createStatement().executeQuery("select nextval('validation.annotation_set_seq')")
+        asId = if (asIdRs.next()) asIdRs.getLong(1) else -1L
+
+        if (asdId > 0 && asId > 0) {
+          val asdInsertString =
+            s"""
+               INSERT INTO validation.annotation_set_definition
+               (annotation_set_definition_id, name, config, owner, date_created, date_updated)
+               VALUES
+               ('$asdId', '$name', '${request.body.asJson.toString.replace("'", "''")}', '$owner', '$dt', '$dt')
+             """.stripMargin
+          conn.createStatement().execute(asdInsertString)
+
+          val asInsertString =
+            s"""
+               INSERT INTO validation.annotation_set
+               (annotation_set_id, annotation_set_definition_id, cohort_name, cohort_source, cohort_id, owner, date_created, date_updated)
+               VALUES
+               ($asId, $asdId, '$cohortName', '$cohortSource', $cohortId, '$owner', '$dt', '$dt')
+             """.stripMargin
+          conn.createStatement().execute(asInsertString)
+
+          allocatedUsers.foreach(u => {
+            val asaIdRs = conn.createStatement().executeQuery("select nextval('validation.annotation_set_allocation_seq')")
+            val asaId: Long = if (asaIdRs.next()) asaIdRs.getLong(1) else -1L
+
+            val userIdRs = conn.createStatement().executeQuery(s"select user_id from validation.validation_user where username = '$u'")
+            val userId: Long = if (userIdRs.next()) userIdRs.getLong(1) else -1L
+
+            if (userId > 0 && asaId > 0) {
+              val asaInsertString =
+                s"""
+                 INSERT INTO validation.annotation_set_allocation
+                 (annotation_set_allocation_id, annotation_set_id, user_id, allocated_items, date_created, date_updated)
+                 VALUES
+                 ('$asaId', '$asId', '$userId', '', '$dt', '$dt')
+               """.stripMargin
+              conn.createStatement().execute(asaInsertString)
+            }
+          })
+
+          questions.foreach(q => {
+            val aqIdRs = conn.createStatement().executeQuery("select nextval('validation.annotation_question_seq')")
+            val aqId: Long = if (aqIdRs.next()) aqIdRs.getLong(1) else -1L
+
+            val asqIdRs = conn.createStatement().executeQuery("select nextval('validation.annotation_set_question_seq')")
+            val asqId: Long = if (asqIdRs.next()) asqIdRs.getLong(1) else -1L
+
+            if (aqId > 0 && asqId > 0) {
+              val aqInsertString =
+                s"""
+                 INSERT INTO validation.annotation_question
+                 (annotation_question_id, question_name, question_type, help_text, constraints, date_created, date_updated)
+                 VALUES
+                 ($aqId, '${q.question_name.replace("'", "''")}', '${q.question_type}', '', '', '$dt', '$dt')
+               """.stripMargin
+              conn.createStatement().execute(aqInsertString)
+
+              val asqInsertString =
+                s"""
+                   INSERT INTO validation.annotation_set_question
+                   (annotation_set_question_id, annotation_set_definition_id, annotation_question_id)
+                   VALUES
+                   ($asqId, $asdId, $aqId)
+                 """.stripMargin
+              conn.createStatement().execute(asqInsertString)
+
+              q.answers.foreach(a => {
+                val aqaIdRs = conn.createStatement().executeQuery("select nextval('validation.annotation_question_seq')")
+                val aqaId: Long = if (aqaIdRs.next()) aqaIdRs.getLong(1) else -1L
+
+                if (aqaId > 0) {
+                  val aqaInsertInsertString =
+                    s"""
+                       INSERT INTO validation.annotation_question_answer
+                       (annotation_question_answer_id, annotation_question_id, text, value, help_text, date_created, date_updated)
+                       VALUES
+                       ($aqaId, $aqId, '${a.text.replace("'", "''")}', '${a.value.replace("'", "''")}', '', '$dt', '$dt')
+                     """.stripMargin
+                  conn.createStatement().execute(aqaInsertInsertString)
+                }
+              })
+            }
+
+
+          })
+
+          success = true
+        }
+      }
+
+    } finally {
+      conn.close()
+    }
+    Created("{success:" + success + ", name: '" + name +
+        "', annotation_set_id: " + asId + ", annotation_set_definition_id: " + asdId + "}")
+  }
+
+
 }

@@ -29,12 +29,14 @@ PUT     /annotation_set/:annotationSetId                controllers.AnnotationCo
 GET     /annotation_set/name/:username                  controllers.AnnotationController.getAnnotationSetByUsername(username:String)
 GET     /annotation_set                                 controllers.AnnotationController.getAllAnnotationSets()
 GET     /annotation_set/owner/:owner                    controllers.AnnotationController.getAllAnnotationSetsByOwner(owner:String)
-GET     /annotation_set/question/:annotationSetDefinitionId controllers.AnnotationController.getAnnotationSetQuestion(annotationSetDefinitionId:Long)
+GET     /annotation_set/question/:annotationSetId       controllers.AnnotationController.getAnnotationSetQuestion(annotationSetId:Long)
 GET     /annotation_set/name/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
 GET     /annotation_set/result/:username/id/:validationSetId controllers.AnnotationController.getAnnotationSetByUsernameAndSetID(username:String,validationSetId:Int)
 GET     /annotation_set/result/:annotationSetId         controllers.AnnotationController.getAnnotationSetBySetID(annotationSetId:Long)
 GET     /download_result/:annotationSetId               controllers.AnnotationController.downloadAnnotationSetById(annotationSetId:Long)
 POST    /annotation_set/save                            controllers.AnnotationController.putAnnotationSetResult()
+POST    /annotation_config/save                         controllers.AnnotationController.putAnnotationConfig()
+POST    /annotation_set/delete                          controllers.AnnotationController.deleteAnnotationSet()
 
 # Validation Table Endpoints
 GET     /validation/users                           controllers.ValidationController.getUsers()

@@ -1,0 +1,37 @@
+{
+  "name": "PTSD Validation",
+  "cohort_name": "PTSD",
+  "cohort_source": "WebAPI",
+  "cohort_id": 6,
+  "owner": "jduke",
+  "allocated_users": ["jduke", "chilton9", "user"],
+  "questions": [{
+    "question_name": "What's your name?",
+    "question_type": "TEXT",
+    "answers" : []
+  }, {
+    "question_name": "What's age?",
+    "question_type": "MULTIPLE_CHOICE",
+    "answers": [{
+      "text": "0-18",
+      "value": "group1"
+    },
+      {
+        "text": "19-35",
+        "value": "group2"
+      },
+      {
+        "text": "36-50",
+        "value": "group3"
+      },
+      {
+        "text": "51-70",
+        "value": "group4"
+      },
+      {
+        "text": "71 and older",
+        "value": "group4"
+      }
+    ]
+  }]
+}

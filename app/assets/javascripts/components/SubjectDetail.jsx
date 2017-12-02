@@ -391,7 +391,7 @@ class SubjectDetail extends React.Component {
     };
 
     setDomainCounts(newCounts) {
-        if (newCounts != this.state.domainCounts) {
+        if (newCounts !== this.state.domainCounts) {
             //console.log(newCounts);
             this.setState(prevState => ({
                 domainCounts: newCounts
