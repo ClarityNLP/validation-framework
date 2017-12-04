@@ -5,7 +5,6 @@ import DataListWrapper from './DataListWrapper.jsx';
 
 const TextCell = ({rowIndex, data, col, results, props}) => {
     const dataContent = data.getObjectAt(rowIndex);
-    console.log(dataContent);
     const subjectId = dataContent.subject_id;
     let displayContent = dataContent[col];
     let completed = false;
@@ -89,7 +88,7 @@ class ChartData extends React.Component {
         let totalCount = 0;
         for (let index = 0; index < size; index++) {
             const obj = dataList.getObjectAt(index);
-    
+
             if (obj) {
                 const {sourceValue, subjectId, comment, gender} = obj;
 
