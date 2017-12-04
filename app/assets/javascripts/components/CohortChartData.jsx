@@ -93,9 +93,9 @@ class ChartData extends React.Component {
                 const {sourceValue, subjectId, comment, gender} = obj;
 
                 if ((subjectId + "").toLowerCase().indexOf(filterText) !== -1
-                    || sourceValue.toLowerCase().indexOf(filterText) !== -1
-                    || comment.toLowerCase().indexOf(filterText) !== -1
-                    || gender.toLowerCase().indexOf(filterText) !== -1) {
+                    || (sourceValue + "").toLowerCase().indexOf(filterText) !== -1
+                    || (comment || "").toLowerCase().indexOf(filterText) !== -1
+                    || (gender || "").toLowerCase().indexOf(filterText) !== -1) {
                     filteredIndexes.push(index);
                     filteredIndex++;
 
