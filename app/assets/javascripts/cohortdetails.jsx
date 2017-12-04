@@ -247,7 +247,7 @@ class CohortDetails extends React.Component {
                             <a className="btn btn-sm btn-default" href="/cohortview">&laquo; Back</a>
                         </div>
                         <div>
-                            <h2>{this.state.cohort.name} <small>({this.state.entities.length} Subjects)</small></h2>
+                            <h4>{this.state.cohort.name} <small>({this.state.entities.length} Subjects)</small></h4>
                         </div>
                         {this.state.ready ?
                             <CohortEntityList entities={this.state.entities} cohort={this.state.cohort}

@@ -1,6 +1,7 @@
 import React from 'react';
-import $ from 'jquery';
+
 import {Table, Column, Cell} from 'fixed-data-table-2';
+import DataListWrapper from './DataListWrapper.jsx';
 
 const TextCell = ({rowIndex, data, col, filter, props}) => {
     const dataContent = data.getObjectAt(rowIndex);
@@ -56,22 +57,7 @@ const TextCell = ({rowIndex, data, col, filter, props}) => {
 };
 
 
-class DataListWrapper {
-    constructor(indexMap, data) {
-        this._indexMap = indexMap;
-        this._data = data;
-    }
 
-    getSize() {
-        return this._indexMap ? this._indexMap.length : 0;
-    }
-
-    getObjectAt(index) {
-        return this._data.getObjectAt(
-            this._indexMap[index],
-        );
-    }
-}
 
 class ChartData extends React.Component {
 
