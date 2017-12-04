@@ -14,7 +14,7 @@ import javax.inject.Inject
 class SolrDAO @Inject() (configuration: play.api.Configuration)  {
 
   val url: String = configuration.underlying.getString("solr.url")
-  val core: String = configuration.underlying.getString("ohdsi.default.core")
+  val core: String = configuration.underlying.getString("solr.core")
   //val solr = new HttpSolrClient.Builder(url).build()
 
   val solr: CloudSolrClient = new CloudSolrClient.Builder()
