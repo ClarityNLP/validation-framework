@@ -15,6 +15,7 @@
 					</div>
 					<div style="padding-top:10px; float:right">
 						<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
+            <a id="btn-search" class="btn btn-success" ng-show="searched" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Processing">Create Cohort</a>
 					</div>
 
 					<div ng-show="!searched || currentDocuments.length === 0" style="margin-top:80px">
