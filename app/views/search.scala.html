@@ -1,6 +1,8 @@
 @(loggedIn:Boolean, profiles: List[org.pac4j.core.profile.CommonProfile], csrfToken: String, sessionId: String, webJarAssets: WebJarAssets, requireJS: org.webjars.play.RequireJS, title: String)
 
 @main(loggedIn, profiles, csrfToken, sessionId, webJarAssets, requireJS, title) {
+
+
   <div  ng-app="validationApp">
 	  <div ng-controller="searchController" class="ng-cloak" style="padding-left:20px; padding-right:20px">
 		  <div class="container-fluid" ng-show="activeView === 'list'">
@@ -15,7 +17,7 @@
 					</div>
 					<div style="padding-top:10px; float:right">
 						<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
-            <a id="btn-search" class="btn btn-success" ng-show="searched && currentDocuments.length > 0" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Processing">Create Cohort</a>
+            <a id="btn-cohort-creation" class="btn btn-success" ng-show="searched && currentDocuments.length > 0" data-toggle="modal" data-target="#myModal">Create Cohort</a>
 					</div>
 
 					<div ng-show="!searched || currentDocuments.length === 0" style="margin-top:80px">
@@ -135,5 +137,42 @@
 
 	  <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
 	  <script src="@routes.Assets.versioned("javascripts/search.js")" type="text/javascript"></script>
+
+<!--
+  <div id="myModal" class="modal">
+
+
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <input class="form-control" type="text" placeholder="Cohort Name" autofocus/>
+      <p> test test test test </p>
+    </div>
+
+  </div> -->
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create Cohort</h5>
+          <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button> -->
+        </div>
+        <div class="modal-body">
+              <label for="exampleInputEmail1">Cohort Name</label>
+              <input type="text" class="form-control" ng-model="newCohortName" id="cohort-name" aria-describedby="cohort-name" placeholder="Enter Cohort Name">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" ng-click="addCohort()">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
   </div>
 }

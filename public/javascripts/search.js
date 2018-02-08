@@ -6,10 +6,10 @@ angular.module('search', [])
 
 	$scope.mode = "search";
 	var validViewTypes = ["list", "document_detail", "subject_detail"];
-	$scope.activeView = "list"; 
+	$scope.activeView = "list";
 	$scope.validSubjectFilters = dataService.validSubjectFilters;
 	$scope.activeValidSubjectFilters = dataService.defaultSubjectFilters;
-	
+
 	$scope.activeCohort = {};
 	$scope.documentsSize = 0;
 	$scope.currentDocuments = [];
@@ -29,13 +29,15 @@ angular.module('search', [])
 
 	$scope.searchInput = "";
 	$scope.subjectCallsPending = 0;
-	
+
+	$scope.newCohortName = "";
+
 
 	var prev = Cookies.get('previousQueries');
 	if (prev) {
 		$scope.previousQueries = JSON.parse(prev);
 	}
-	
+
 	$scope.checkAllFilters = function(on) {
 		$scope.validSubjectFilters.
 			forEach(function(f) {
@@ -43,17 +45,17 @@ angular.module('search', [])
 
 			});
 	};
-	
+
 	$scope.savedQueries = {
 		// TODO
-		"Controlled Seizure" : '"controlled seizure"~4 OR "controlled seizures"~4'	
+		"Controlled Seizure" : '"controlled seizure"~4 OR "controlled seizures"~4'
 	};
-	
+
 	$scope.runQuery = function(q) {
 		$scope.searchInput = q;
 		$scope.doSearch(false);
 	};
-	
+
 
 	$scope.formatDate = function(d) {
 		return dataService.formatDate(d);
@@ -95,11 +97,11 @@ angular.module('search', [])
 		d.date = $scope.formatDate(d.rawDate);
 		d.displayName = d.sourceConceptName && d.sourceConceptName.length > 0 ?
 				d.sourceConceptName : d.conceptName;
-		
+
 		d.dateOffset = 0;
 		d.prettyDate = $scope.prettyDate(d.date);
 		d.prettyDomain = $scope.capitalize(d.domain);
-		
+
 		d.type = 'record';
 		if (d.domain == 'drug') {
 			d.sourceConceptValue = "";
@@ -164,7 +166,7 @@ angular.module('search', [])
 	$scope.showSubject = function(subjectId, paging) {
 		$('#slider').empty();
 		$scope.resetSubjectFilters(false);
-		
+
 		$scope.activeSubject = {
 				id : subjectId,
 				subjectCallsPending : 3,
@@ -201,8 +203,8 @@ angular.module('search', [])
 							$scope.activeSubject.recordCounts[elem.date] = 0;
 						}
 						$scope.activeSubject.recordCounts[elem.date] += 1;
-						
-						
+
+
 					});
 				}
 			}
@@ -263,7 +265,7 @@ angular.module('search', [])
 							d.reportText = d.snippet;
 						}
 						return d;
-					})	
+					})
 					.map($scope.docFunction)
 					.forEach(function(elem) {
 						if (!$scope.activeSubject.documents[elem.date]) {
@@ -271,7 +273,7 @@ angular.module('search', [])
 						}
 						$scope.activeSubject.documents[elem.date].push(elem);
 					});
-					
+
 					$(".documentInfo:first")[0].scrollIntoView();
 				}
 			}
@@ -301,9 +303,9 @@ angular.module('search', [])
 			$scope.currentPage = 1;
 			$scope.activeDocument = {};
 			$('#btn-search').button('loading');
-			
+
 		}
-		
+
 		if ($scope.searchInput !== '' && $scope.previousQueries.indexOf($scope.searchInput) < 0) {
 			$scope.previousQueries.unshift($scope.searchInput);
 //			cache.put("previousQueries", $scope.previousQueries);
@@ -351,23 +353,34 @@ angular.module('search', [])
 			console.log("error getting back documents")
 		});
 	};
-	
+
 	$scope.filterOnName = function(name) {
 		if (name === $scope.filterText) {
 			$scope.filterText = '';
 		} else {
 			$scope.filterText = name;
 		}
-		
+
 	};
 
 	$scope.resetSubjectFilters = function(resetSubjectDocs) {
 		$scope.searchDocumentsWithinSubject = "";
 		$scope.filterText = "";
-		
+
 		if (resetSubjectDocs) {
 			$scope.doSearchWithinSubject();
 		}
+
+	};
+
+ // Function to add cohort
+	$scope.addCohort = function() {
+		console.log("addCohort() is being called");
+		console.log($scope.newCohortName);
+
+		// Closing Modal
+		$scope.newCohortName = "";
+		$("#myModal").modal("hide");
 
 	};
 
