@@ -16,6 +16,7 @@ GET     /subjectinfo/:subjectId/:useSourceValue	      controllers.ChartDataContr
 GET     /report/:reportId/:origQuery		              controllers.ChartDataController.getReport(reportId:String, origQuery:String)
 GET     /source                                       controllers.IndexController.getSource
 GET     /source/sources                               controllers.IndexController.getSources
+POST    /addCohort/:newCohortName/:newCohortDescription controllers.AddCohortController.addCohort(newCohortName:String, newCohortDescription:String)
 
 # Annotation Table Endpoints
 GET     /annotation_question/:annotationId              controllers.AnnotationController.getAnnotationQuestion(annotationId:Int)

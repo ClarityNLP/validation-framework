@@ -15,6 +15,7 @@ angular.module('search', [])
 	$scope.currentDocuments = [];
 	$scope.subjectFacets = {};
 	$scope.subjects = [];
+	$scope.subjectsIDs = [];
 	$scope.currentPage = 1;
 	$scope.searched = false;
 	$scope.activeDocument = {};
@@ -31,6 +32,7 @@ angular.module('search', [])
 	$scope.subjectCallsPending = 0;
 
 	$scope.newCohortName = "";
+	$scope.newCohortDescription = "";
 
 
 	var prev = Cookies.get('previousQueries');
@@ -344,7 +346,7 @@ angular.module('search', [])
 									'count':+response.data.subjectFacets[key]
 								}
 						);
-
+						$scope.subjectsIDs.push(key);
 					}
 				}
 			}
@@ -377,9 +379,31 @@ angular.module('search', [])
 	$scope.addCohort = function() {
 		console.log("addCohort() is being called");
 		console.log($scope.newCohortName);
+		console.log($scope.newCohortDescription);
+		//console.log($scope.subjects);
+		//console.log($scope.subjectsIDs);
+		// data = angular.toJson($scope.subjectsIDs)
+		// console.log(data);
+		//var tempdata = {"PID": $scope.subjectsIDs};
+		//var tempdata = {"patientIDs": [1,2,3,4,5,6,7]};
+		//var tempdata = [1,2,3,4,5,6]
+		var tempdata = $scope.subjectsIDs
+		var data = JSON.stringify(tempdata);
+		console.log(data);
 
+
+		$http.post("/addCohort/" + $scope.newCohortName + "/" + $scope.newCohortDescription, data)
+           .then(
+						 function(response) {
+						 console.log("POST successful");
+					 },
+					 function(response) {
+						 console.log("POST failed");
+					 }
+				 );
 		// Closing Modal
 		$scope.newCohortName = "";
+		$scope.newCohortDescription = "";
 		$("#myModal").modal("hide");
 
 	};

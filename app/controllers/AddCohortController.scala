@@ -1,0 +1,68 @@
+package controllers
+
+import javax.inject.Inject
+import scala.util._
+import play.api._
+import play.api.db.Database
+import play.api.libs.functional.syntax.unlift
+import play.api.libs.json.{Format, Json, __}
+import play.api.mvc.{Action, Controller}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Json
+import play.mvc.Http
+
+import java.sql.DriverManager
+import java.sql.Connection
+
+class AddCohortController @Inject() (db: Database) extends Controller {
+
+  def addCohort(newCohortName:String, newCohortDescription:String) = Action(parse.tolerantText) { request =>
+    println(newCohortName)
+    println(newCohortDescription)
+    val body = request.body
+    val words = body.filter(!"\"".contains(_))
+
+    val temp1 = words.stripPrefix("[").stripSuffix("]").trim
+    val temp2 = temp1.split(",").map(_.trim)
+    val patientIDs = temp2.map(x => x.toInt)
+
+    // Connecting to database
+    val driver = "org.postgresql.Driver"
+    val url = "jdbc:postgresql://datadump.hdap.gatech.edu:5436/mimic_v5"
+    val username = "mimic_v5"
+    val password = "i3lworks"
+
+    var connection:Connection = null
+    var newCohortID = 0
+
+    try{
+
+      Class.forName(driver)
+      connection = DriverManager.getConnection(url, username, password)
+      val queryString = "select MAX(id) as result from ohdsi.cohort_definition"
+      val st = connection.createStatement()
+      val rs = st.executeQuery(queryString)
+
+      while(rs.next()){
+			     newCohortID = rs.getInt("result") + 1
+			  }
+
+      val queryString2 = "insert into ohdsi.cohort_definition (id, name, description) values(" + newCohortID + ",'" + newCohortName + "','" + newCohortDescription + "')"
+      st.executeUpdate(queryString2)
+
+      for(i <- 0 until patientIDs.length) {
+        st.addBatch("insert into ohdsi.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date) values(" + newCohortID + "," + patientIDs(i) + "," + "'2121-01-01'" + "," + "'2121-12-01'" + ")")
+      }
+      st.executeBatch()
+      st.close()
+    }
+    catch {
+      case e => e.printStackTrace
+    }
+    finally {
+      connection.close()
+    }
+
+    Ok("cohort created")
+  }
+}
