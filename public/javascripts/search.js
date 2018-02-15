@@ -33,6 +33,8 @@ angular.module('search', [])
 
 	$scope.newCohortName = "";
 	$scope.newCohortDescription = "";
+	$scope.cohortFlag = true;
+	$scope.successFlag = true;
 
 
 	var prev = Cookies.get('previousQueries');
@@ -375,36 +377,38 @@ angular.module('search', [])
 
 	};
 
+	$scope.openCohortModal = function() {
+		$scope.cohortFlag = true;
+		$scope.successFlag = true;
+		$("#myModal").modal("show");
+	}
+
  // Function to add cohort
 	$scope.addCohort = function() {
-		console.log("addCohort() is being called");
-		console.log($scope.newCohortName);
-		console.log($scope.newCohortDescription);
-		//console.log($scope.subjects);
-		//console.log($scope.subjectsIDs);
-		// data = angular.toJson($scope.subjectsIDs)
-		// console.log(data);
-		//var tempdata = {"PID": $scope.subjectsIDs};
-		//var tempdata = {"patientIDs": [1,2,3,4,5,6,7]};
-		//var tempdata = [1,2,3,4,5,6]
 		var tempdata = $scope.subjectsIDs
 		var data = JSON.stringify(tempdata);
 		console.log(data);
 
-
 		$http.post("/addCohort/" + $scope.newCohortName + "/" + $scope.newCohortDescription, data)
            .then(
 						 function(response) {
-						 console.log("POST successful");
+						 $scope.cohortFlag = false;
+						 if (response.data == "YES") {
+							$scope.successFlag = true;
+						 }
+						 else {
+						 	$scope.successFlag = false;
+						 }
 					 },
 					 function(response) {
-						 console.log("POST failed");
+						 $scope.cohortFlag = false;
+						 $scope.successFlag = false;
 					 }
 				 );
 		// Closing Modal
 		$scope.newCohortName = "";
 		$scope.newCohortDescription = "";
-		$("#myModal").modal("hide");
+		//$("#myModal").modal("hide");
 
 	};
 

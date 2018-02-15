@@ -17,29 +17,31 @@ import java.sql.Connection
 class AddCohortController @Inject() (db: Database) extends Controller {
 
   def addCohort(newCohortName:String, newCohortDescription:String) = Action(parse.tolerantText) { request =>
-    println(newCohortName)
-    println(newCohortDescription)
+    //println(newCohortName)
+    //println(newCohortDescription)
     val body = request.body
     val words = body.filter(!"\"".contains(_))
 
     val temp1 = words.stripPrefix("[").stripSuffix("]").trim
     val temp2 = temp1.split(",").map(_.trim)
     val patientIDs = temp2.map(x => x.toInt)
-
-    // Connecting to database
-    val driver = "org.postgresql.Driver"
-    val url = "jdbc:postgresql://datadump.hdap.gatech.edu:5436/mimic_v5"
-    val username = "mimic_v5"
-    val password = "i3lworks"
-
-    var connection:Connection = null
-    var newCohortID = 0
+    var flag = false
 
     try{
+
+      // Connecting to database
+      val driver = "org.postgresql.Driver"
+      val url = "jdbc:postgresql://datadump.hdap.gatech.edu:5436/mimic_v5"
+      val username = "mimic_v5"
+      val password = "i3lworks"
+
+      var connection:Connection = null
+      var newCohortID = 0
 
       Class.forName(driver)
       connection = DriverManager.getConnection(url, username, password)
       val queryString = "select MAX(id) as result from ohdsi.cohort_definition"
+      //val queryString = "delete from ohdsi.cohort where cohort_definition_id=38"
       val st = connection.createStatement()
       val rs = st.executeQuery(queryString)
 
@@ -47,22 +49,31 @@ class AddCohortController @Inject() (db: Database) extends Controller {
 			     newCohortID = rs.getInt("result") + 1
 			  }
 
-      val queryString2 = "insert into ohdsi.cohort_definition (id, name, description) values(" + newCohortID + ",'" + newCohortName + "','" + newCohortDescription + "')"
+      val queryString2 = "insert into ohdsi.cohort_definition (id, name, description, expression_type, created_date) values(" + newCohortID + ",'" + newCohortName + "','" + newCohortDescription + "','EXTERNAL_SOURCED',current_timestamp)"
       st.executeUpdate(queryString2)
+
+      val queryString3 = "insert into ohdsi.cohort_definition_details (id, expression) values(" + newCohortID + ", '{}' )"
+      st.executeUpdate(queryString3)
 
       for(i <- 0 until patientIDs.length) {
         st.addBatch("insert into ohdsi.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date) values(" + newCohortID + "," + patientIDs(i) + "," + "'2121-01-01'" + "," + "'2121-12-01'" + ")")
       }
       st.executeBatch()
       st.close()
-    }
-    catch {
-      case e => e.printStackTrace
-    }
-    finally {
+      flag = true
       connection.close()
     }
+    catch {
+      case e : Throwable => e.printStackTrace
+      flag = false
+    }
 
-    Ok("cohort created")
+    if (flag==true) {
+      Ok("YES")
+    }
+    else {
+      Ok("NO")
+    }
+
   }
 }

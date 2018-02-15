@@ -17,7 +17,9 @@
 					</div>
 					<div style="padding-top:10px; float:right">
 						<a id="btn-search" class="btn btn-success" ng-click="doSearch(false)" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Searching">Search Documents</a>
-            <a id="btn-cohort-creation" class="btn btn-success" ng-show="searched && currentDocuments.length > 0 && subjects.length < 10000" data-toggle="modal" data-target="#myModal">Create Cohort</a>
+            <!-- <a id="btn-cohort-creation" class="btn btn-primary" ng-show="searched && currentDocuments.length > 0 && subjects.length < 10000" data-toggle="modal" data-target="#myModal">Create Cohort</a> -->
+            <a id="btn-cohort-creation" class="btn btn-primary" ng-show="searched && currentDocuments.length > 0 && subjects.length < 10000" ng-click="openCohortModal()">Create Cohort</a>
+
 					</div>
 
 					<div ng-show="!searched || currentDocuments.length === 0" style="margin-top:80px">
@@ -161,15 +163,22 @@
           </button> -->
         </div>
         <div class="modal-body">
+          <div ng-show="cohortFlag">
               <label for="cohort-name">Cohort Name</label>
               <input type="text" class="form-control" ng-model="newCohortName" id="cohort-name" aria-describedby="cohort-name" placeholder="Enter Cohort Name">
               <br><br><br>
               <label for="cohort-description">Cohort Description</label>
               <input type="text" class="form-control" ng-model="newCohortDescription" id="cohort-description" aria-describedby="cohort-description" placeholder="Enter Cohort Description">
+          </div>
+          <div ng-show="!cohortFlag && successFlag">
+            <p> Cohort has been successfuly created. </p>
         </div>
+        <div ng-show="!cohortFlag && !successFlag">
+          <p> Cohort creation failed. </p>
+      </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" ng-click="addCohort()">Save changes</button>
+          <button type="button" class="btn btn-primary" ng-click="addCohort()" ng-show="cohortFlag">Save changes</button>
         </div>
       </div>
     </div>
