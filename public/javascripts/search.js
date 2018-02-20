@@ -35,6 +35,7 @@ angular.module('search', [])
 	$scope.newCohortDescription = "";
 	$scope.cohortFlag = true;
 	$scope.successFlag = true;
+	$scope.errorMsg = "";
 
 
 	var prev = Cookies.get('previousQueries');
@@ -387,29 +388,34 @@ angular.module('search', [])
 	$scope.addCohort = function() {
 		var tempdata = $scope.subjectsIDs
 		var data = JSON.stringify(tempdata);
-		console.log(data);
 
-		$http.post("/addCohort/" + $scope.newCohortName + "/" + $scope.newCohortDescription, data)
-           .then(
+		if (!$scope.newCohortName || !$scope.newCohortDescription) {
+			$scope.cohortFlag = false;
+			$scope.successFlag = false;
+			$scope.errorMsg = "Please enter a cohort name and cohort description.";
+		}
+		else {
+			$http.post("/addCohort/" + $scope.newCohortName + "/" + $scope.newCohortDescription, data)
+	           .then(
+							 function(response) {
+							 $scope.cohortFlag = false;
+							 if (response.data == "YES") {
+								$scope.successFlag = true;
+							 }
+							 else {
+							 	$scope.successFlag = false;
+							 }
+						 },
 						 function(response) {
-						 $scope.cohortFlag = false;
-						 if (response.data == "YES") {
-							$scope.successFlag = true;
+							 $scope.cohortFlag = false;
+							 $scope.successFlag = false;
+							 $scope.errorMsg = "Cohort creation functionality is down. Please report to admin.";
 						 }
-						 else {
-						 	$scope.successFlag = false;
-						 }
-					 },
-					 function(response) {
-						 $scope.cohortFlag = false;
-						 $scope.successFlag = false;
-					 }
-				 );
-		// Closing Modal
-		$scope.newCohortName = "";
-		$scope.newCohortDescription = "";
-		//$("#myModal").modal("hide");
-
+					 );
+			// Closing Modal
+			$scope.newCohortName = "";
+			$scope.newCohortDescription = "";
+		}
 	};
 
 	$scope.pageChanged = function() {

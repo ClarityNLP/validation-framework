@@ -163,23 +163,27 @@
           </button> -->
         </div>
         <div class="modal-body">
+          <form>
           <div ng-show="cohortFlag">
               <label for="cohort-name">Cohort Name</label>
-              <input type="text" class="form-control" ng-model="newCohortName" id="cohort-name" aria-describedby="cohort-name" placeholder="Enter Cohort Name">
+              <input type="text" class="form-control" ng-model="newCohortName" id="cohort-name" aria-describedby="cohort-name" placeholder="Enter Cohort Name"/>
               <br><br><br>
               <label for="cohort-description">Cohort Description</label>
-              <input type="text" class="form-control" ng-model="newCohortDescription" id="cohort-description" aria-describedby="cohort-description" placeholder="Enter Cohort Description">
+              <input type="text" class="form-control" ng-model="newCohortDescription" id="cohort-description" aria-describedby="cohort-description" placeholder="Enter Cohort Description"/>
+
           </div>
           <div ng-show="!cohortFlag && successFlag">
-            <p> Cohort has been successfuly created. </p>
+            <p> Cohort has been successfuly created.</p>
         </div>
         <div ng-show="!cohortFlag && !successFlag">
-          <p> Cohort creation failed. </p>
+          <p> Cohort creation failed.</p> <br>
+          <p> {{errorMsg}} </p>
       </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" ng-click="addCohort()" ng-show="cohortFlag">Save changes</button>
+          <button type="submit" class="btn btn-primary" ng-click="addCohort()" ng-show="cohortFlag">Save changes</button>
         </div>
+      </form>
       </div>
     </div>
   </div>
