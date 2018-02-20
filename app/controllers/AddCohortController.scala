@@ -27,13 +27,15 @@ class AddCohortController @Inject() (db: Database) extends Controller {
     val patientIDs = temp2.map(x => x.toInt)
     var flag = false
 
+    val username = play.Play.application.configuration.getString("dbuser")
+    val password = play.Play.application.configuration.getString("dbpass")
+
+
     try{
 
       // Connecting to database
       val driver = "org.postgresql.Driver"
       val url = "jdbc:postgresql://datadump.hdap.gatech.edu:5436/mimic_v5"
-      val username = "mimic_v5"
-      val password = "i3lworks"
 
       var connection:Connection = null
       var newCohortID = 0
@@ -74,6 +76,5 @@ class AddCohortController @Inject() (db: Database) extends Controller {
     else {
       Ok("NO")
     }
-
   }
 }
