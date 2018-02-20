@@ -14,3 +14,4 @@ nohup.out
 /bin/
 logs
 node_modules
+config.conf
