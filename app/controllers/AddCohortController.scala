@@ -29,14 +29,13 @@ class AddCohortController @Inject() (db: Database) extends Controller {
 
     val username = play.Play.application.configuration.getString("dbuser")
     val password = play.Play.application.configuration.getString("dbpass")
+    val driver = play.Play.application.configuration.getString("dbdriver")
+    val url = play.Play.application.configuration.getString("dburl")
 
 
     try{
 
       // Connecting to database
-      val driver = "org.postgresql.Driver"
-      val url = "jdbc:postgresql://datadump.hdap.gatech.edu:5436/mimic_v5"
-
       var connection:Connection = null
       var newCohortID = 0
 
