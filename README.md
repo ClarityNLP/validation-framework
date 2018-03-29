@@ -19,6 +19,7 @@ npm install --global webpack
 - Local OHDSI WebAPI pointing to this branch `patient-records-addon` [(Link)](https://github.com/OHDSI/WebAPI/tree/patient-records-addon)
   - Note: Standard OHDSI WebAPI doesn't pull out patient-level data
 - Patient note data stored in [Solr 6.x+](http://lucene.apache.org/solr/)
+  - Simple guide [here](simple-solr-setup.md)
 
 #### To compile
 
