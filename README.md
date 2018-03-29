@@ -30,14 +30,8 @@ npm install --global webpack
 sbt compile
 ```
 
-#### To run (default conf)
-
-```
-sbt run
-```
-
-#### To run (external conf) - Recommended
-Copy `conf/application.conf` to a another local directory and modify values.
+#### To run 
+Copy `conf/application.conf` to a another local directory and modify values to reference your local versions of OHDSI, Solr, Postgres.
 
 ```
 sbt "run -Dconfig.file=/opt/conf/prod.conf"
