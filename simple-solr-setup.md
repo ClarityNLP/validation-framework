@@ -46,7 +46,7 @@ curl -X POST -H 'Content-type:application/json' --data-binary '{
 }' http://localhost:8983/solr/report_core/schema
 ```
 * Load data into Solr
-    * See sample in `gtri.nlp.data.ingest.CSVLoader` for loading notes from the MIMIC data set
+    * See sample [here](https://github.com/ClarityNLP/nlp-data-loader/blob/master/src/main/scala/gtri/nlp/data/ingest/CSVLoader.scala) for loading notes from the MIMIC data set
 * To stop Solr
 `bin/solr stop -all`
 * To start Solr cloud non-interactively
