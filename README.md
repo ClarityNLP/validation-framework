@@ -7,7 +7,8 @@ TODO - this documentation needs to be expanded
 npm install
 ```
 Note: We are transitioning from Angular to React.
-You may need to instal webpack globally. 
+
+If you see errors with webpack, you may need to instal webpack globally. 
 ```
 npm install --global webpack
 ```
