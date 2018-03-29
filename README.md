@@ -1,15 +1,23 @@
 ## Validation Framework
 
+TODO - this documentation needs to be expanded
+
 #### To prepare javascript
 ```
 npm install
 ```
-Note: I'm transitioning from Angular to React, so it may be messy for a while, until everything is converted to React. 
+Note: We are transitioning from Angular to React.
 You may need to instal webpack globally. 
 ```
 npm install --global webpack
 ```
 
+#### Requirements
+- Relational patient database in [OMOP format](https://www.ohdsi.org/data-standardization/the-common-data-model/)
+- Local Postgres DB/schema, set up with `app/sql` scripts
+- Local OHDSI WebAPI pointing to this branch `patient-records-addon` [(Link)](https://github.com/OHDSI/WebAPI/tree/patient-records-addon)
+  - Note: Standard OHDSI WebAPI doesn't pull out patient-level data
+- Patient note data stored in [Solr 6.x+](http://lucene.apache.org/solr/)
 
 #### To compile
 
@@ -23,7 +31,8 @@ sbt compile
 sbt run
 ```
 
-#### To run (external conf)
+#### To run (external conf) - Recommended
+Copy `conf/application.conf` to a another local directory and modify values.
 
 ```
 sbt "run -Dconfig.file=/opt/conf/prod.conf"
